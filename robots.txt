@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://saleo-design.de/sitemap.xml

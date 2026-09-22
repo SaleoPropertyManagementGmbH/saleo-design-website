@@ -59,7 +59,10 @@ nav.haupt a.cta:hover{border-radius:14px;opacity:1}
 .slide-innen img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s ease}
 .slide-innen img.aktiv{opacity:1}
 .ueber .gross{margin:0;font-weight:600;font-size:clamp(19px,2.2vw,25px);line-height:1.45;letter-spacing:-.01em}
-.ueber .flies{margin:20px 0 0;font-size:14px;line-height:1.7;color:#5A6474;max-width:480px}
+.ueber .flies,.faq .flies{margin:20px 0 0;font-size:14px;line-height:1.7;color:#5A6474;max-width:480px}
+.faq-liste{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:clamp(28px,4vw,56px)}
+.faq-liste h3{margin:0;font-size:15px;font-weight:600;letter-spacing:-.01em}
+.faq .flies{margin-top:8px}
 .angebot{background:#28384D;color:#FBFAF6;border-radius:0 0 clamp(48px,8vw,110px) 0;padding:clamp(40px,6vw,72px) clamp(28px,5vw,64px);display:flex;flex-wrap:wrap;gap:28px;align-items:center;justify-content:space-between;margin-bottom:clamp(56px,8vw,100px)}
 .angebot .titel{margin:0;font-size:clamp(22px,2.8vw,32px);font-weight:700;letter-spacing:-.01em;line-height:1.25}
 .angebot .kontakt{margin:18px 0 0;font-size:13px;opacity:.85}
