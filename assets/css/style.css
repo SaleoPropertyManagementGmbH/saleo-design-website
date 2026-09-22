@@ -3,6 +3,7 @@
 @font-face{font-family:'Franie';src:url('../fonts/Franie-SemiBold.woff2') format('woff2');font-weight:600;font-display:swap}
 @font-face{font-family:'Franie';src:url('../fonts/Franie-Bold.woff2') format('woff2');font-weight:700;font-display:swap}
 *{box-sizing:border-box}
+img{max-width:100%;height:auto}
 body{margin:0;background:#FBFAF6;color:#28384D;font-family:'Franie','Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
 a{color:#28384D}
 a:hover{opacity:.65}
