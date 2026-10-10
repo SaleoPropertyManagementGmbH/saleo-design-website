@@ -75,7 +75,7 @@ const num = n => (Number(n) || 0).toLocaleString("de-DE");
 const kurz = t => String(t || "").replace(/^USM Haller\s+/i, "");
 const tageHer = t => { const d = Math.floor((Date.now() - new Date(t)) / 864e5); return d <= 0 ? "heute" : d === 1 ? "gestern" : `vor ${d} Tagen`; };
 const preisText = e => e.preis != null ? eur(e.preis).replace(",00", "") + (e.vb ? " VB" : "") : "Preis auf Anfrage";
-const bild = (e, i = 0) => (e.bilder || [])[i] || "";
+const bild = (e, i = 0, r = "$_35") => ((e.bilder || [])[i] || "").replace("$_57", r);
 const istNeu = e => e.aktiv && (Date.now() - new Date(e.erstellt)) < 3 * 864e5;
 
 /* ---------- Anmeldung ---------- */
@@ -127,7 +127,7 @@ function produktKarte(e) {
   const fronten = [e.klappen ? `${e.klappen} Klappe${e.klappen > 1 ? "n" : ""}` : "", e.auszuege ? `${e.auszuege} Auszug` : "", e.innenauszuege ? `${e.innenauszuege} Innenauszug` : ""].filter(Boolean).join(", ");
   return `<article class="product${e.aktiv ? "" : " gone"}">
     <a class="img" href="${e.planer ? `planer.html?inserat=${e.id}` : esc(e.url)}" ${e.planer ? "" : 'target="_blank" rel="noopener"'}>
-      ${bild(e) ? `<img src="${esc(bild(e))}" alt="${esc(kurz(e.titel))}" loading="lazy">` : ""}
+      ${bild(e) ? `<img src="${esc(bild(e, 0, "$_59"))}" alt="${esc(kurz(e.titel))}" loading="lazy">` : ""}
       <div class="badges">${istNeu(e) ? `<span class="badge new">Neu</span>` : ""}${!e.aktiv ? `<span class="badge bad">nicht mehr online</span>` : ""}${e.zustand === "N" ? `<span class="badge ok">neuwertig</span>` : ""}</div>
       <span class="price">${preisText(e)}</span></a>
     <div class="body">

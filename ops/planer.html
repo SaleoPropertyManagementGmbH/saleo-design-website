@@ -756,7 +756,7 @@ function fromInserat(id) {
 function renderSource() {
   const box = document.getElementById("source"), e = PLAN.inserat && LIVE.ins.find(x => x.id === PLAN.inserat);
   if (!e) { box.innerHTML = ""; return; }
-  box.innerHTML = `<div class="card source"><div class="thumbs">${(e.bilder || []).slice(0, 3).map(u => `<a href="${esc(e.url)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt=""></a>`).join("")}</div>
+  box.innerHTML = `<div class="card source"><div class="thumbs">${(e.bilder || []).slice(0, 3).map(u => `<a href="${esc(e.url)}" target="_blank" rel="noopener"><img src="${esc(u.replace("$_57", "$_35"))}" alt=""></a>`).join("")}</div>
     <div><b>${esc(kurzTitel(e.titel))}</b><div class="wo">Inserat ${e.preis ? eur(e.preis).replace(",00", "") : "Preis auf Anfrage"}${e.masse && e.masse.b ? ` · ${e.masse.b} × ${e.masse.h} × ${e.masse.t || "?"} cm` : ""}${e.neupreis ? ` · Neupreis ${eur(e.neupreis).replace(",00", "")}` : ""}${e.aktiv ? "" : " · nicht mehr online"}</div>${e.hinweis ? `<div class="note" style="margin-top:4px">${esc(e.hinweis)}</div>` : ""}</div>
     <a class="btn" href="${esc(e.url)}" target="_blank" rel="noopener">Anzeige öffnen</a></div>`;
 }
