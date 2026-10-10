@@ -17,63 +17,870 @@
 <script src="ops.js"></script>
 </head>
 <body>
+<header class="planer-head"><div class="in">
+  <a href="index.html" class="btn small" aria-label="Zur Übersicht">← Übersicht</a>
+  <div class="grow"><input class="name" id="p-name" value="Neue Planung" aria-label="Name der Planung"><span id="p-meta" class="meta"></span></div>
+  <div class="right-actions">
+    <span class="live" id="live">verbinde…</span>
+    <span id="whobox"></span>
+    <select id="p-status" aria-label="Status"><option value="entwurf">Entwurf</option><option value="angebot">Angebot</option><option value="reserviert">Reserviert</option><option value="verkauft">Verkauft</option><option value="archiv">Archiv</option></select>
+    <div class="seg" role="group" aria-label="Ansicht"><button id="v-intern" aria-pressed="true">Planer</button><button id="v-kunde" aria-pressed="false">Kundenansicht</button></div>
+    <button class="btn primary" id="save">Speichern</button>
+  </div>
+</div></header>
 <div class="wrap">
-<header class="top">
-<div class="brand">
-<a href="index.html" class="btn" aria-label="Zur Übersicht">← Übersicht</a>
-<input class="name" id="p-name" value="Neue Planung" aria-label="Name der Planung">
-<span id="p-meta" class="note"></span>
+  <div id="banner"></div>
+  <div id="source"></div>
+  <div class="card mobile-only"><div class="kpis" id="kpis-m"></div><p class="note" style="margin-top:8px">Details unten bei Kalkulation und Stückliste.</p></div>
+  <div class="layout" id="layout">
+    <section class="panel" aria-label="Möbel planen">
+      <div class="card">
+        <div class="toolbar" id="toolbar">
+          <div class="left">
+            <div class="step"><span class="eyebrow">Tiefe</span><div class="chips" id="depths"></div></div>
+            <div class="step"><span class="eyebrow">Start mit</span><select id="tplsel" aria-label="Vorlage"></select></div>
+          </div>
+          <div class="right">
+            <button class="chip" id="multimode" aria-pressed="false">Mehrfachauswahl</button>
+            <button class="btn small" id="selsame">Gleiche wählen</button>
+            <button class="btn small" id="undo" disabled>Rückgängig</button>
+          </div>
+        </div>
+        <div class="stage" id="stage"></div>
+        <div class="dims" id="dims"></div>
+        <div class="legend" id="legend"></div>
+      </div>
+      <div class="msgs" id="msgs"></div>
+      <div class="card editor" id="editor"></div>
+      <div class="card" id="paintcard"><div id="paintbox"></div></div>
+      <details class="card fold" id="globalscard" open><summary>Ganzes Möbel</summary>
+        <div class="globals" id="globals">
+          <label class="f" for="g-color">Grundfarbe<select id="g-color"></select></label>
+          <label class="f" for="g-zustand">Zustand<select id="g-zustand"><option value="G">Gebraucht</option><option value="N">Neu / neuwertig</option></select></label>
+          <label class="f" for="g-base">Unten<select id="g-base"><option value="FU">Nivellierfüße</option><option value="RN100">Lenkrollen Ø 100 (vorne mit Arretierung)</option><option value="RN50">Lenkrollen Ø 50</option></select></label>
+          <label class="f" for="g-sides">Außenseiten<select id="g-sides"><option value="BL">Metall</option><option value="GL">Glas</option><option value="">Offen</option></select></label>
+          <label class="f" for="g-top">Abdeckung oben<select id="g-top"><option value="BL">Metall</option><option value="GA">Glas</option></select></label>
+        </div>
+      </details>
+    </section>
+    <section class="panel sticky-col" aria-label="Auswertung" id="right">
+      <div class="card">
+        <div class="kpis" id="kpis"></div>
+        <div class="tabs" role="tablist" id="tabs">
+          <button role="tab" id="t-calc" aria-selected="false">Kalkulation</button>
+          <button role="tab" id="t-bom" aria-selected="true">Stückliste</button>
+          <button role="tab" id="t-ship" aria-selected="false">Versand</button>
+        </div>
+        <div id="tabbody"></div>
+      </div>
+    </section>
+  </div>
 </div>
-<div class="right-actions">
-<span class="live" id="live">verbinde…</span>
-<span id="whobox"></span>
-<select id="p-status" aria-label="Status"><option value="entwurf">Entwurf</option><option value="angebot">Angebot</option><option value="reserviert">Reserviert</option><option value="verkauft">Verkauft</option><option value="archiv">Archiv</option></select>
-<button class="btn primary" id="save" style="padding:6px 14px">Speichern</button>
-<div class="seg" role="group" aria-label="Ansicht">
-<button id="v-intern" aria-pressed="true">Planer</button>
-<button id="v-kunde" aria-pressed="false">Kundenansicht</button>
-</div>
-</div>
-</header>
-<div id="banner"></div>
-<div class="layout" id="layout">
-<section class="panel" aria-label="Möbel planen">
-<div class="toolbar" id="toolbar">
-<div class="left">
-<div class="step"><span class="no">01</span><span class="eyebrow">Grundtiefe</span><div class="chips" id="depths"></div></div>
-<div class="step"><span class="no">02</span><span class="eyebrow">Start</span><div class="chips" id="templates"></div>
-<select id="std" aria-label="USM-Standardmöbel"><option value="">USM-Standardmöbel…</option></select></div>
-</div>
-<div class="right">
-<button class="chip" id="multimode" aria-pressed="false">Mehrfachauswahl</button>
-<button class="btn" id="selsame">Alle gleichen auswählen</button>
-<button class="btn" id="undo" disabled>Rückgängig</button>
-</div>
-</div>
-<div class="stage" id="stage"></div>
-<div class="dims" id="dims"></div>
-<div class="legend" id="legend"></div>
-<div class="msgs" id="msgs"></div>
-<div class="editor" id="editor"></div>
-<div class="globals" id="globals">
-<label class="f" for="g-color">Grundfarbe ganzes Möbel<select id="g-color"></select></label>
-<label class="f" for="g-zustand">Zustand<select id="g-zustand"><option value="G">Gebraucht</option><option value="N">Neu / neuwertig</option></select></label>
-<label class="f" for="g-base">Unten<select id="g-base"><option value="FU">Nivellierfüße</option><option value="RN100">Lenkrollen Ø 100 (vorne mit Arretierung)</option><option value="RN50">Lenkrollen Ø 50</option></select></label>
-<label class="f" for="g-sides">Außenseiten<select id="g-sides"><option value="BL">Metall</option><option value="GL">Glas</option><option value="">Offen</option></select></label>
-<label class="f" for="g-top">Abdeckung oben<select id="g-top"><option value="BL">Metall</option><option value="GA">Glas</option></select></label>
-</div>
-</section>
-<section class="panel" aria-label="Auswertung" id="right">
-<div class="kpis" id="kpis"></div>
-<div class="tabs" role="tablist" id="tabs">
-<button role="tab" id="t-bom" aria-selected="true">Stückliste</button>
-<button role="tab" id="t-calc" aria-selected="false">Kalkulation</button>
-<button role="tab" id="t-ship" aria-selected="false">Versand</button>
-</div>
-<div id="tabbody"></div>
-</section>
-</div>
-</div>
-<script src="p1.js"></script><script src="p2.js"></script><script src="p4.js"></script><script src="p3.js"></script>
+
+<script>
+/* ---------- USM-Katalog (Recherche 10.10.2026, Quellen: usm-katalog-recherche.md, usm-baubarkeit-recherche.md) ---------- */
+const TUBES = [100, 150, 175, 250, 350, 395, 500, 750];
+const T = [250, 350, 500];
+const NORM = (a, b) => `${Math.max(a, b)}x${Math.min(a, b)}`;
+const L = str => str.split(" ");
+const CAT = {
+  BL: L("750x500 750x350 750x250 750x175 500x500 500x395 500x350 500x250 500x175 500x100 395x350 395x250 395x175 350x350 350x250 350x175 350x150 350x100 250x250 250x175"),
+  BP: L("750x350 500x500 500x350 500x250 500x175 500x100 395x350 350x350 350x250 350x175 350x150 350x100 250x250"),
+  BPF: L("750x500 750x350 750x250 500x500 500x350 500x250 395x350 350x350 350x250"),
+  BAK: L("750x500 750x350 750x250 500x500 500x350 500x250 395x350 350x350 350x250"),
+  GL: L("750x500 500x500 500x395 750x350 500x350 395x350 350x350 750x250 500x250 395x250 350x250 250x250"),
+  GA: L("750x500 750x350 750x250 500x500 500x395 500x350 500x250 395x350 395x250 350x350 350x250 250x250"),
+  BV: L("750x500 750x350 500x500 500x350"),
+  BSZ: L("750x350 500x350"),
+  KL: L("750x395 500x395 750x350 500x350 395x350 350x350 750x250 500x250 750x175 500x175"),
+  AZ: L("750x395 500x395 750x350 500x350 395x350 750x250 500x250 395x250 750x175 500x175 395x175"),
+  ER: L("750x500 750x350 500x500 500x350"),
+  EI: L("750x350 500x350"),
+  GT: L("750x500 500x500 395x500 750x350 500x350 395x350 350x350 750x250 500x250 395x250 350x250 250x250"),
+  ZT: L("750x500 750x350 750x250 500x500 500x350 350x350"),
+  ZG: L("750x500 750x350 750x250 500x500 500x350 500x250 395x500 395x350 350x350"),
+  AT: L("750x500 750x350 500x500 500x350 395x500 395x350"),
+  ST: L("750x350 500x350"),
+  RO: TUBES.map(String)
+};
+const SYMMETRIC = ["BL", "BP", "BPF", "BAK", "GL", "GA", "BV", "BSZ"];
+const NAMES = {
+  KU: "Kugel", CO: "Connector", RO: "Rohr", FU: "Nivellierfuß", RN: "Lenkrolle",
+  BL: "Metallelement", BP: "Metallelement gelocht", BPF: "Metallelement perforiert", BAK: "Akustikelement", GL: "Glaselement", GA: "Glastablar",
+  BV: "Metallelement verkürzt", BSZ: "Metallelement mit Schlitzen",
+  ZT: "Zwischentablar Metall", ZG: "Zwischentablar Glas", AT: "Ausziehtablar", ST: "Schrägtablar",
+  KL: "Klapptür", AZ: "Schublade", ER: "Einlegerahmen", EI: "Einschubtür", GT: "Glastür", KS: "Kupplungssteg"
+};
+const HW = {
+  SC69: ["Schere 69 N (18444)", 22, 0.3], SC40: ["Schere 40 N, für Klapptür 750 × 250", 22, 0.25],
+  DP: ["Dämpferpaket SilentClose (18450)", 9, 0.05], BAA: ["Befestigungsset Schere Typ A (18472)", 12, 0.2],
+  GRS: ["Universalverschluss, Griffset mit Schlitz (14131)", 12, 0.1], SL: ["Schloss mit 2 Schlüsseln (14262)", 18, 0.12],
+  TWA: ["Tablarwinkel Ausziehtablar links/rechts", 7, 0.15], TE350: ["Teleskopauszug T350 links/rechts", 18, 0.6], TE500: ["Teleskopauszug T500 links/rechts", 20, 0.8],
+  BAAT: ["Befestigungsset Ausziehtablar (18476)", 8, 0.1], BAAZ: ["Befestigungsset Ausziehtür (18475)", 10, 0.15],
+  EFP: ["Führungsprofil Einschubtür", 14, 0.4], EZS: ["Zubehörset Einschubtür", 10, 0.2], EH: ["Einschubtür-Heber (15019)", 6, 0.1],
+  GS: ["Glastür-Scharnier", 9, 0.1], GH: ["Glashalter 90°, Chromecke", 3, 0.02],
+  TTS: ["Zwischentablarträger-Set Metall (11140)", 9, 0.15], ZGT: ["Glas-Zwischentablarträger-Set (11888)", 11, 0.15],
+  BS: ["Blechschraube 4,8 × 9,5", 0.3, 0.005],
+  KH: ["Klemmhalter (Halbmond)", 2.5, 0.01], KM: ["Klemme", 1, 0.005], SM4: ["Schraube M4 für Klemmhalter", 0.3, 0.003],
+  SCALT: ["Schere alte Generation (Gasdruckfeder)", 20, 0.35], BSALT: ["Befestigungsschiene alte Generation", 4, 0.05],
+  DG: ["Drehgriff mit Kunststoffring (alte Generation)", 10, 0.1], SLALT: ["Schloss alte Generation", 15, 0.12],
+  BWALT: ["Befestigungswinkel Front an Ausziehtablar, alt (Paar L/R)", 18, 0.15], ASALT: ["Auszugschiene alte Generation mit Schraube und Mutter (L/R)", 15, 0.6]
+};
+const GROUPS = [["Gestell", ["KU", "CO", "RO", "FU", "RN"]], ["Metall- und Glaselemente", ["BL", "BP", "BPF", "BAK", "BV", "BSZ", "GL", "GA"]], ["Einbauten", ["ZT", "ZG", "AT", "ST", "ER"]], ["Fronten", ["KL", "AZ", "EI", "GT", "KS"]], ["Beschläge und Montageteile", ["HW"]]];
+const COLORS = [
+  ["24", "Reinweiß", "#efeee9"], ["29", "Lichtgrau", "#c6c8c5"], ["35", "USM Mattsilber", "#a9abae"],
+  ["32", "Mittelgrau", "#7f8386"], ["33", "Anthrazitgrau", "#3b4146"], ["30", "Graphitschwarz", "#232425"],
+  ["34", "Stahlblau", "#24344d"], ["27", "Enzianblau", "#1a4f8b"], ["28", "USM Grün", "#2f6a46"],
+  ["36", "Olivgrün", "#43472f"], ["25", "Goldgelb", "#d99c1c"], ["26", "Reinorange", "#e2561d"],
+  ["23", "USM Rubinrot", "#8b1f2a"], ["22", "USM Braun", "#5b3b2a"], ["31", "USM Beige", "#cdbb98"]
+];
+const FRONTS = [["", "Offen"], ["KL", "Klapptür"], ["AZ", "Schublade"], ["EI", "Einschubtür"], ["GT", "Glastür"]];
+const BACKS = [["BL", "Metall"], ["BP", "Gelocht"], ["BPF", "Perforiert"], ["BAK", "Akustik"], ["GL", "Glas"], ["", "Ohne"]];
+const INSIDES = [["", "Keiner"], ["ZT", "Zwischentablar"], ["ZG", "Zwischentablar Glas"], ["AT", "Ausziehtablar"], ["ST", "Schrägtablar"]];
+const LOCKS = { N: [["U", "Universalverschluss"], ["S", "Schloss"]], A: [["D", "Drehgriff"], ["SA", "Schloss alte Generation"]] };
+const GENS = [["N", "Neue Generation"], ["A", "Alte Generation"]];
+const PARTS = [["all", "Alles"], ["front", "Front"], ["einbau", "Wanne / Einbau"], ["kupplung", "Kupplungsstege"], ["back", "Rückwand"], ["boden", "Boden"], ["deckel", "Deckel"], ["seiten", "Seiten"]];
+const SCOPES = [["sel", "Auswahl"], ["row", "ganze Reihe"], ["col", "ganze Spalte"], ["check", "Schachbrett"], ["rows2", "jede 2. Reihe"], ["cols2", "jede 2. Spalte"], ["all", "ganzes Möbel"]];
+/* Regeln aus usm_regel (Stand 10.10.2026) */
+const ANKER_AB = { 250: 1417, 350: 1984, 500: 2835 };
+const VAT = 0.19, REGEL_AUFSCHLAG = 0.10;
+const KG_M2 = 9.17, KG_ROHR_M = 0.45, KG_GLAS_M2 = 15, DPD_MAX = 31.5, PALETTE_KG = 25;
+
+let uid = 1;
+const F = (x, y, w, h, front = "", back = "BL", inside = "") => ({ id: uid++, x, y, w, h, front, back, inside, lock: "U", gen: "N", rahmen: false, openL: false, openR: false, col: {} });
+const TEMPLATES = {
+  "Sideboard": () => [F(0, 0, 750, 350, "KL"), F(750, 0, 750, 350, "KL")],
+  "Highboard": () => [F(0, 0, 750, 350, "KL"), F(750, 0, 750, 350, "AZ"), F(0, 350, 750, 350), F(750, 350, 750, 350, "", "BL", "ZT")],
+  "Regal": () => [0, 1, 2, 3, 4].flatMap(r => [F(0, r * 350, 750, 350), F(750, r * 350, 750, 350)]),
+  "Stufenregal": () => [
+    F(0, 0, 750, 350, "KL"), F(0, 350, 750, 350), F(0, 700, 750, 350, "", "GL"),
+    F(750, 0, 500, 175, "AZ"), F(750, 175, 500, 175, "AZ"), F(750, 350, 500, 350, "GT"),
+    F(1250, 0, 395, 350, "KL"), F(1645, 0, 350, 350, "", "BL", "ZT")
+  ]
+};
+
+const state = { fields: TEMPLATES["Sideboard"](), depth: 350, color: "24", zustand: "G", base: "FU", sides: "BL", top: "BL",
+  buyNew: {}, sel: 1, multi: new Set([1]), multiMode: false, price: null, rabatt: 0, ertragsteuer: 30, neupreis: "", view: "intern", tab: "bom", ordered: false, flash: null,
+  paint: { part: "all", scope: "sel" } };
+const undoStack = [];
+const sels = () => state.fields.filter(f => state.multi.has(f.id));
+function selectOnly(id) { state.sel = id; state.multi = new Set([id]); }
+
+/* ---------- Live-Daten ---------- */
+const LIVE = { teil: [], tt: {}, std: [], ins: [], ok: false };
+const PLAN = { id: null, name: "Neue Planung", status: "entwurf", dirty: false, stamp: null, by: "", inserat: null };
+const kurzTitel = t => String(t || "").replace(/^USM Haller\s+/i, "");
+async function loadLive() {
+  const [teil, tt, std] = await Promise.all([
+    fetchAll("teil", "code,typ,mass,farbe,zustand,generation,bestand,reserviert,durchschnittspreis,lagerort,nur_neu,neupreis"),
+    fetchAll("teiltyp", "code,richtwert,standardfarbe"),
+    fetchAll("usm_standard", "*")
+  ]);
+  LIVE.teil = teil; LIVE.tt = Object.fromEntries(tt.map(t => [t.code, t])); LIVE.std = std; LIVE.ok = true;
+  if (!LIVE.ins.length) LIVE.ins = await fetch("data/inserate.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : { inserate: [] }).then(d => d.inserate || []).catch(() => []);
+}
+const dbTyp = e => e.typ === "HW" ? "HW-" + e.mass : e.typ === "KS" ? "HW-KS" : e.typ;
+function estPrice(typ, mass) {
+  const a = area(mass);
+  if (typ === "HW") return HW[mass][1];
+  return ({ KU: 4, CO: 1.2, RO: 3 + Number(mass) / 125, FU: 1.5, RN: 9, KS: 5,
+    BL: 6 + 75 * a, BP: 8 + 85 * a, BPF: 10 + 90 * a, BAK: 20 + 120 * a, BV: 6 + 75 * a, BSZ: 10 + 80 * a, GL: 20 + 90 * a, GA: 20 + 90 * a,
+    ZT: 10 + 80 * a, ZG: 15 + 90 * a, AT: 40 + 100 * a, ST: 20 + 90 * a, ER: 25 + 60 * a, KL: 50 + 130 * a, AZ: 50 + 130 * a, EI: 70 + 140 * a, GT: 60 + 140 * a })[typ] ?? 10;
+}
+function stockOf(e) {
+  const t = dbTyp(e), anyMass = ["HW", "KS", "KU", "CO", "FU"].includes(e.typ);
+  const rows = LIVE.teil.filter(r => r.typ === t && (anyMass || (r.mass || "") === e.mass) && r.farbe === e.farbe && r.zustand === state.zustand && (r.generation || "N") === (e.gen || "N"));
+  const qty = rows.reduce((a, r) => a + Math.max(0, r.bestand - r.reserviert), 0);
+  const stueck = rows.reduce((a, r) => a + r.bestand, 0);
+  let price, src;
+  if (stueck > 0) { price = rows.reduce((a, r) => a + r.bestand * Number(r.durchschnittspreis), 0) / stueck; src = "Ø"; }
+  else if (LIVE.tt[t] && LIVE.tt[t].richtwert != null) { price = Number(LIVE.tt[t].richtwert); src = "Richtwert"; }
+  else { price = estPrice(e.typ, e.mass) * (state.zustand === "N" ? 1.6 : 1); src = "Schätzung"; }
+  const nurNeu = rows.find(r => r.nur_neu);
+  return { qty, price: Math.round(price * 100) / 100, src, lager: [...new Set(rows.map(r => r.lagerort).filter(Boolean))].join(", "), nurNeu: nurNeu ? Number(nurNeu.neupreis) || null : null };
+}
+
+/* ---------- Geometrie ---------- */
+const overlaps = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+function normalize() {
+  const minX = Math.min(...state.fields.map(f => f.x)), minY = Math.min(...state.fields.map(f => f.y));
+  state.fields.forEach(f => { f.x -= minX; f.y -= minY; if (!f.col) f.col = {}; });
+}
+function staggered() {
+  const fs = state.fields;
+  return fs.some(f => fs.some(g => g !== f && (g.y === f.y + f.h || g.y + g.h === f.y) && g.x < f.x + f.w && f.x < g.x + g.w && (g.x !== f.x || g.w !== f.w)));
+}
+function mergeIntervals(list) {
+  const s = list.slice().sort((a, b) => a[0] - b[0]), out = [];
+  for (const iv of s) { const last = out[out.length - 1]; if (last && iv[0] <= last[1]) last[1] = Math.max(last[1], iv[1]); else out.push(iv.slice()); }
+  return out;
+}
+function geometry() {
+  const fs = state.fields, nodes = new Map(), hE = new Map(), vE = new Map();
+  const addN = (x, y) => nodes.set(`${x},${y}`, [x, y]);
+  const push = (m, k, iv) => { if (!m.has(k)) m.set(k, []); m.get(k).push(iv); };
+  fs.forEach(f => {
+    addN(f.x, f.y); addN(f.x + f.w, f.y); addN(f.x, f.y + f.h); addN(f.x + f.w, f.y + f.h);
+    push(hE, f.y, [f.x, f.x + f.w]); push(hE, f.y + f.h, [f.x, f.x + f.w]);
+    push(vE, f.x, [f.y, f.y + f.h]); push(vE, f.x + f.w, [f.y, f.y + f.h]);
+  });
+  const nl = [...nodes.values()], hP = [], vP = [];
+  hE.forEach((ivs, y) => mergeIntervals(ivs).forEach(([a, b]) => {
+    const cuts = nl.filter(n => n[1] === y && n[0] >= a && n[0] <= b).map(n => n[0]).sort((p, q) => p - q);
+    for (let i = 0; i < cuts.length - 1; i++) {
+      const x1 = cuts[i], x2 = cuts[i + 1];
+      const above = fs.find(f => f.y === y && f.x <= x1 && f.x + f.w >= x2);
+      const below = fs.find(f => f.y + f.h === y && f.x <= x1 && f.x + f.w >= x2);
+      hP.push({ y, x1, x2, len: x2 - x1, top: !above, owner: above || below, ownerKey: above ? "boden" : "deckel" });
+    }
+  }));
+  vE.forEach((ivs, x) => mergeIntervals(ivs).forEach(([a, b]) => {
+    const cuts = nl.filter(n => n[0] === x && n[1] >= a && n[1] <= b).map(n => n[1]).sort((p, q) => p - q);
+    for (let i = 0; i < cuts.length - 1; i++) {
+      const y1 = cuts[i], y2 = cuts[i + 1];
+      const left = fs.some(f => f.x + f.w === x && f.y <= y1 && f.y + f.h >= y2);
+      const right = fs.some(f => f.x === x && f.y <= y1 && f.y + f.h >= y2);
+      const owner = left !== right ? fs.find(f => (f.x + f.w === x || f.x === x) && f.y <= y1 && f.y + f.h >= y2) : null;
+      const open = owner ? (owner.x === x ? owner.openL : owner.openR) : false;
+      vP.push({ x, y1, y2, len: y2 - y1, outer: left !== right, open, owner, leftSide: owner ? owner.x === x : false });
+    }
+  }));
+  fs.forEach(f => {
+    f._float = f.y > 0 && !fs.some(g => g.y + g.h === f.y && g.x === f.x && g.w === f.w);
+    f._top = !fs.some(g => g.y === f.y + f.h && g.x < f.x + f.w && f.x < g.x + g.w);
+    f._outer = !fs.some(g => g.x + g.w === f.x && g.y < f.y + f.h && f.y < g.y + g.h) || !fs.some(g => g.x === f.x + f.w && g.y < f.y + f.h && f.y < g.y + g.h);
+    f._bad = [];
+    if (f.front && !CAT[f.front].includes(`${f.w}x${f.h}`)) f._bad.push(`${NAMES[f.front]} ${f.w} × ${f.h}`);
+    if (f.back && !CAT[f.back].includes(NORM(f.w, f.h))) f._bad.push(`${NAMES[f.back]} ${f.w} × ${f.h}`);
+    if (f.inside && !CAT[f.inside].includes(`${f.w}x${state.depth}`)) f._bad.push(`${NAMES[f.inside]} ${f.w} × ${state.depth}`);
+    if (f.rahmen && (f.front === "AZ" || f.inside === "AT") && !CAT.ER.includes(`${f.w}x${state.depth}`)) f._bad.push(`Einlegerahmen ${f.w} × ${state.depth}`);
+  });
+  const deg = new Map(nl.map(([x, y]) => [`${x},${y}`, 1]));
+  const inc = k => deg.set(k, deg.get(k) + 1);
+  hP.forEach(p => { inc(`${p.x1},${p.y}`); inc(`${p.x2},${p.y}`); });
+  vP.forEach(p => { inc(`${p.x},${p.y1}`); inc(`${p.x},${p.y2}`); });
+  const tubes = (hP.length + vP.length) * 2 + nl.length;
+  return { nodes: nl, hP, vP, deg, tubes, badTubes: [...hP, ...vP].filter(p => !TUBES.includes(p.len)) };
+}
+
+/* ---------- Farben je Element ---------- */
+function colOf(f, k) {
+  if (!f) return state.color;
+  const c = f.col || {};
+  if (c[k]) return c[k];
+  return k === "kupplung" ? colOf(f, "front") : state.color;
+}
+const tablarColor = p => colOf(p.owner, p.ownerKey);
+function rank(vals) { const s = [...new Set(vals)].sort((a, b) => a - b); return v => s.indexOf(v); }
+function paintTargets() {
+  const fs = state.fields, sel = sels(), sc = state.paint.scope;
+  if (sc === "all") return fs;
+  if (sc === "sel") return sel;
+  const ys = new Set(sel.map(f => f.y)), xs = new Set(sel.map(f => f.x));
+  if (sc === "row") return fs.filter(f => ys.has(f.y));
+  if (sc === "col") return fs.filter(f => xs.has(f.x));
+  const ry = rank(fs.map(f => f.y)), rx = rank(fs.map(f => f.x)), ref = sel[0] || fs[0];
+  if (sc === "check") { const p = (ry(ref.y) + rx(ref.x)) % 2; return fs.filter(f => (ry(f.y) + rx(f.x)) % 2 === p); }
+  if (sc === "rows2") { const p = ry(ref.y) % 2; return fs.filter(f => ry(f.y) % 2 === p); }
+  if (sc === "cols2") { const p = rx(ref.x) % 2; return fs.filter(f => rx(f.x) % 2 === p); }
+  return sel;
+}
+function applyColor(code) {
+  const keys = state.paint.part === "all" ? PARTS.slice(1).map(p => p[0]) : [state.paint.part];
+  tryChange(() => paintTargets().forEach(f => {
+    f.col = f.col || {};
+    keys.forEach(k => { if (code == null || (code === state.color && k !== "kupplung")) delete f.col[k]; else f.col[k] = code; });
+  }));
+}
+const hasOverrides = () => state.fields.some(f => f.col && Object.keys(f.col).length);
+
+/* ---------- Stückliste ---------- */
+function area(mass) { const m = String(mass).split("x").map(Number); return m.length === 2 ? m[0] * m[1] / 1e6 : 0; }
+function weight(typ, mass) {
+  if (typ === "HW") return HW[mass][2];
+  const a = area(mass);
+  return ({ KU: 0.07, CO: 0.01, RO: KG_ROHR_M * Number(mass) / 1000, FU: 0.03, RN: String(mass) === "100" ? 0.45 : 0.15, KS: 0.1,
+    BL: KG_M2 * a, BP: KG_M2 * a * 0.8, BPF: KG_M2 * a * 0.85, BAK: KG_M2 * a * 1.1, BV: KG_M2 * a * 0.93, BSZ: KG_M2 * a, GL: KG_GLAS_M2 * a, GA: KG_GLAS_M2 * a,
+    ZT: KG_M2 * a, ZG: KG_GLAS_M2 * a * 0.85, AT: KG_M2 * a + 0.5, ST: KG_M2 * a + 0.3, ER: 1.2 + 3 * a, KL: KG_M2 * a * 1.2, AZ: KG_M2 * a * 1.2, EI: KG_M2 * a * 1.2, GT: KG_GLAS_M2 * a })[typ] ?? 0;
+}
+const GLASS = ["GL", "GA", "GT", "ZG"];
+function bom(geo) {
+  const map = new Map(), d = state.depth;
+  function add(typ, mass, farbe, qty, wo, gen = "N") {
+    if (SYMMETRIC.includes(typ)) { const [a, b] = String(mass).split("x").map(Number); mass = NORM(a, b); }
+    if (typ === "HW") farbe = "SW";
+    else if (GLASS.includes(typ)) farbe = "GL";
+    else if (["FU", "RN"].includes(typ)) farbe = "SW";
+    else if (["KU", "CO", "RO", "ER"].includes(typ)) farbe = "CR";
+    const z = state.zustand;
+    const code = typ === "HW" ? `HW-${mass}-SW-${z}` : typ === "KS" ? `HW-KS-${farbe}-${z}` : [typ, mass, farbe, z, gen === "A" ? "A" : ""].filter(Boolean).join("-");
+    const valid = CAT[typ] ? CAT[typ].includes(String(mass)) : true;
+    const e = map.get(code) || { code, typ, mass: String(mass || ""), farbe, gen, qty: 0, valid, wo: new Set() };
+    e.qty += qty; if (wo) e.wo.add(wo); map.set(code, e);
+  }
+  const hw = (k, n, wo) => add("HW", k, null, n, wo);
+  add("KU", "", null, geo.nodes.length * 2);
+  add("CO", "", null, geo.tubes * 2);
+  geo.hP.forEach(p => add("RO", p.len, null, 2));
+  geo.vP.forEach(p => add("RO", p.len, null, 2));
+  add("RO", d, null, geo.nodes.length);
+  const special = new Map();
+  state.fields.forEach(f => { if (f.front === "AZ" || f.inside === "AT") special.set(`${f.x},${f.y}`, "BV"); if (f.front === "EI") special.set(`${f.x},${f.y}`, "BSZ"); });
+  geo.hP.forEach(p => {
+    const sp = special.get(`${p.x1},${p.y}`);
+    const typ = sp || (p.top && state.top === "GA" ? "GA" : "BL");
+    add(typ, `${p.len}x${d}`, tablarColor(p), 1, typ === "BV" ? "Boden unter Auszug" : typ === "BSZ" ? "Boden Einschubtür" : p.top ? "Deckel" : "Boden");
+    if (typ === "GA") hw("GH", 4, "Glastablar");
+    if (p.len === 750 && typ !== "GA") hw("BS", 2, "750er Boden");
+  });
+  if (state.sides) geo.vP.filter(p => p.outer && !p.open).forEach(p => {
+    add(state.sides, `${d}x${p.len}`, colOf(p.owner, "seiten"), 1, "Seite");
+    if (state.sides === "GL") hw("GH", 4, "Glasseite");
+  });
+  state.fields.forEach(f => {
+    const old = f.gen === "A";
+    const lockHw = { U: "GRS", S: "SL", D: "DG", SA: "SLALT" }[f.lock] || (old ? "DG" : "GRS");
+    const erH = [350, 250, 175].find(x => x <= f.h);
+    if (f.back) { add(f.back, `${f.w}x${f.h}`, colOf(f, "back"), 1, "Rückwand"); if (f.back === "GL") hw("GH", 4, "Glasrückwand"); }
+    if (f.inside) {
+      add(f.inside, `${f.w}x${d}`, colOf(f, "einbau"), 1, "Einbau");
+      if (f.inside === "ZT") hw("TTS", 1, NAMES.ZT);
+      if (f.inside === "ZG") hw("ZGT", 1, NAMES.ZG);
+      if (f.inside === "ST") { hw("KH", 2, NAMES.ST); hw("KM", 2, NAMES.ST); hw("SM4", 2, NAMES.ST); }
+      if (f.inside === "AT") { hw("TWA", 2, "Ausziehtablar"); hw("TE" + (d >= 500 ? 500 : 350), 2, "Ausziehtablar"); hw("BAAT", 1, "Ausziehtablar"); }
+      if (f.inside === "AT" && f.rahmen && erH) add("ER", `${f.w}x${d}`, null, 1, `H ${erH}, Ausziehtablar`);
+    }
+    if (!f.front) return;
+    const oldFront = old && (f.front === "KL" || f.front === "AZ");
+    add(f.front, `${f.w}x${f.h}`, colOf(f, "front"), 1, oldFront ? "Front alte Generation" : "Front", oldFront ? "A" : "N");
+    const n = NAMES[f.front];
+    if (f.front === "KL") {
+      if (old) { hw("SCALT", 2, n); hw("BSALT", 4, n); }
+      else { hw(f.w === 750 && f.h === 250 ? "SC40" : "SC69", 2, n); hw("DP", 2, n); hw("BAA", 1, n); }
+    }
+    if (f.front === "AZ") {
+      add("AT", `${f.w}x${d}`, colOf(f, "einbau"), 1, "Wanne der Schublade");
+      if (old) { hw("BWALT", 1, n); hw("ASALT", 1, n); }
+      else { add("KS", "", colOf(f, "kupplung"), 2, n); hw("TWA", 2, n); hw("TE" + (d >= 500 ? 500 : 350), 2, n); hw("BAAT", 1, n); hw("BAAZ", 1, n); }
+      if (f.rahmen && erH) add("ER", `${f.w}x${d}`, null, 1, `H ${erH}, Schublade`);
+    }
+    if (f.front === "EI") { hw("EFP", 2, n); hw("EZS", 1, n); hw("EH", 2, n); add("KS", "", colOf(f, "kupplung"), 2, n); }
+    if (f.front === "GT") hw("GS", 2, n);
+    hw(lockHw, 1, n);
+  });
+  const feet = geo.nodes.filter(n => n[1] === 0).length * 2;
+  if (state.base === "FU") add("FU", "", null, feet); else add("RN", state.base === "RN100" ? "100" : "50", null, feet);
+  const order = ["KU", "CO", "RO", "FU", "RN", "BL", "BV", "BSZ", "BP", "BPF", "BAK", "GL", "GA", "ZT", "ZG", "AT", "ST", "ER", "KL", "AZ", "EI", "GT", "KS", "HW"];
+  return [...map.values()].map(e => {
+    const s = stockOf(e), kg = weight(e.typ, e.mass);
+    if (state.buyNew[e.code] == null && s.nurNeu != null && s.qty < e.qty) state.buyNew[e.code] = s.nurNeu;
+    const missing = Math.max(0, e.qty - s.qty), nk = state.buyNew[e.code];
+    const cost = nk != null ? (e.qty - missing) * s.price + missing * nk : e.qty * s.price;
+    return { ...e, stock: s.qty, price: s.price, src: s.src, lager: s.lager, cost, missing, neu: nk != null, nk, kg, kgSum: kg * e.qty };
+  }).sort((a, b) => order.indexOf(a.typ) - order.indexOf(b.typ) || a.mass.localeCompare(b.mass, "de", { numeric: true }) || a.farbe.localeCompare(b.farbe));
+}
+const partName = r => r.typ === "HW" ? HW[r.mass][0] : r.typ === "RN" ? `Lenkrolle Ø ${r.mass}` : `${NAMES[r.typ]}${r.mass ? " " + r.mass.replace("x", " × ") : ""}`;
+const FARBIG = ["BL", "BP", "BPF", "BAK", "BV", "BSZ", "ZT", "AT", "ST", "KL", "AZ", "EI", "KS"];
+
+/* ---------- Format ---------- */
+const pct = n => (n * 100).toLocaleString("de-DE", { maximumFractionDigits: 1 }) + " %";
+const kgf = n => n.toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: n < 1 ? 3 : 1 }) + " kg";
+const colorHex = c => (COLORS.find(x => x[0] === c) || COLORS[0])[2];
+const colorName = c => (COLORS.find(x => x[0] === c) || [c, c])[1];
+const isDark = hex => { const n = parseInt(hex.slice(1), 16); return ((n >> 16) * 299 + ((n >> 8) & 255) * 587 + (n & 255) * 114) / 1000 < 128; };
+function outer() {
+  const maxX = Math.max(...state.fields.map(f => f.x + f.w)), maxY = Math.max(...state.fields.map(f => f.y + f.h));
+  return { w: maxX + 23, d: state.depth + 23, h: maxY + (state.base === "FU" ? 40 : 80), rollen: state.base !== "FU" };
+}
+const paid = () => Math.round((Number(state.price) || 0) * (1 - state.rabatt / 100) * 100) / 100;
+function calcNumbers(ek, p) {
+  const ustD = Math.max(0, p - ek) * VAT / (1 + VAT), gewD = p - ek - ustD;
+  const netR = p * (1 + REGEL_AUFSCHLAG), ustR = netR * VAT, bruttoR = netR + ustR, gewR = netR - ek;
+  return { ustD, gewD, netR, ustR, bruttoR, gewR };
+}
+function shipping(rows) {
+  const net = rows.reduce((a, r) => a + r.kgSum, 0), o = outer();
+  const longest = Math.max(o.w, o.d, o.h);
+  return { net, parcels: Math.max(1, Math.ceil(net * 1.12 / 28)), dpdZerlegt: rows.every(r => r.kg <= 25), dpdMontiert: net * 1.12 <= DPD_MAX && longest <= 1750, palette: net + PALETTE_KG + 3 };
+}
+function colorsUsed(rows) {
+  const m = {}; rows.filter(r => FARBIG.includes(r.typ)).forEach(r => m[r.farbe] = (m[r.farbe] || 0) + r.qty);
+  return Object.entries(m).sort((a, b) => b[1] - a[1]);
+}
+
+/* ---------- Zeichnung ---------- */
+function drawing(geo) {
+  const S = 0.34, pad = 40;
+  const maxX = Math.max(...state.fields.map(f => f.x + f.w)), maxY = Math.max(...state.fields.map(f => f.y + f.h));
+  const footH = state.base === "FU" ? 17 * S + 6 : 26;
+  const vw = maxX * S + pad * 2, vh = maxY * S + pad * 2 + footH;
+  const X = x => pad + x * S, Y = y => pad + (maxY - y) * S;
+  const intern = state.view === "intern";
+  let g = `<defs>
+    <linearGradient id="tubeV" x1="0" x2="1"><stop offset="0" stop-color="var(--chrome-lo)"/><stop offset=".45" stop-color="var(--chrome-hi)"/><stop offset="1" stop-color="var(--chrome-mid)"/></linearGradient>
+    <linearGradient id="tubeH" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--chrome-hi)"/><stop offset=".55" stop-color="var(--chrome-mid)"/><stop offset="1" stop-color="var(--chrome-lo)"/></linearGradient>
+    <radialGradient id="ball" cx=".35" cy=".35" r=".7"><stop offset="0" stop-color="var(--chrome-hi)"/><stop offset=".55" stop-color="var(--chrome-mid)"/><stop offset="1" stop-color="var(--chrome-lo)"/></radialGradient>
+    <pattern id="perf" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r=".7" fill="#00000050"/></pattern>
+    <pattern id="holes" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="4.5" cy="4.5" r="1.4" fill="#00000050"/></pattern>
+  </defs>`;
+  g += `<line x1="0" x2="${vw}" y1="${Y(0) + footH}" y2="${Y(0) + footH}" stroke="var(--line)" stroke-width="1"/>`;
+  state.fields.forEach(f => {
+    const x0 = X(f.x), x1 = X(f.x + f.w), yt = Y(f.y + f.h), yb = Y(f.y), w = x1 - x0, h = yb - yt, cxm = (x0 + x1) / 2, cym = (yt + yb) / 2;
+    const cBack = colorHex(colOf(f, "back")), cFront = colorHex(colOf(f, "front")), cIn = colorHex(colOf(f, "einbau")), cK = colorHex(colOf(f, "kupplung"));
+    const darkF = isDark(cFront), darkB = isDark(cBack), inkB = darkB ? "#ffffff80" : "#00000050";
+    let inner = "";
+    if (["BL", "BP", "BPF", "BAK"].includes(f.back)) inner += `<rect x="${x0}" y="${yt}" width="${w}" height="${h}" fill="${cBack}" opacity="${darkB ? .8 : .6}"/>`;
+    if (f.back === "BPF" || f.back === "BAK") inner += `<rect x="${x0}" y="${yt}" width="${w}" height="${h}" fill="url(#perf)"/>`;
+    if (f.back === "BP") inner += `<rect x="${x0}" y="${yt}" width="${w}" height="${h}" fill="url(#holes)"/>`;
+    if (f.back === "GL") inner += `<rect x="${x0}" y="${yt}" width="${w}" height="${h}" fill="#bfe0ea" opacity=".35"/>`;
+    if (!f.back) inner += `<rect x="${x0}" y="${yt}" width="${w}" height="${h}" fill="var(--wall)"/>`;
+    if (!f.front) {
+      if (f.inside === "ZT") inner += `<rect x="${x0 + 3}" y="${cym + 6}" width="${w - 6}" height="4" fill="${cIn}" stroke="#00000033" stroke-width=".6"/>`;
+      if (f.inside === "ZG") inner += `<line x1="${x0 + 3}" x2="${x1 - 3}" y1="${cym + 8}" y2="${cym + 8}" stroke="#7fb3c4" stroke-width="2.5"/>`;
+      if (f.inside === "AT") inner += `<rect x="${x0 + 6}" y="${yb - 12}" width="${w - 12}" height="7" fill="${cIn}" stroke="#00000040" stroke-width=".6"/>`;
+      if (f.inside === "ST") inner += `<line x1="${x0 + 3}" x2="${x1 - 3}" y1="${cym + 14}" y2="${cym + 2}" stroke="${cIn}" stroke-width="4"/><line x1="${x0 + 3}" x2="${x1 - 3}" y1="${cym + 14}" y2="${cym + 2}" stroke="#00000033" stroke-width=".6"/>`;
+    }
+    const lockSym = (lx, ly) => {
+      const slot = darkF ? "#2a2f36" : "#3a3f46";
+      let o = `<circle cx="${lx}" cy="${ly}" r="5" fill="url(#ball)" stroke="${darkF ? "#d5dae1" : "#8f969f"}" stroke-width=".6"/>`;
+      if (f.lock === "D") return o + `<rect x="${lx - .8}" y="${ly - 3.6}" width="1.6" height="7.2" rx=".6" fill="${slot}"/>`;
+      o += (f.lock === "S" || f.lock === "SA")
+        ? `<circle cx="${lx}" cy="${ly - 1.1}" r="1.15" fill="${slot}"/><path d="M ${lx - .6} ${ly - .6} L ${lx + .6} ${ly - .6} L ${lx + 1} ${ly + 2.6} L ${lx - 1} ${ly + 2.6} Z" fill="${slot}"/>`
+        : `<rect x="${lx - 3.2}" y="${ly - .9}" width="6.4" height="1.8" rx=".4" fill="${slot}"/>`;
+      return o;
+    };
+    if (["KL", "AZ", "EI"].includes(f.front)) {
+      inner += `<rect x="${x0 + 2}" y="${yt + 2}" width="${w - 4}" height="${h - 4}" fill="${cFront}" stroke="#00000026" stroke-width="1"/>`;
+      if (f.front === "AZ") inner += `<rect x="${x0 + 10}" y="${yb - 7}" width="${w - 20}" height="3.5" fill="${cIn}" stroke="#00000040" stroke-width=".5"><title>Wanne: ${colorName(colOf(f, "einbau"))}</title></rect>`;
+      if (f.front === "AZ" && f.gen !== "A" || f.front === "EI") [x0 + 5, x1 - 8].forEach(kx => inner += `<rect x="${kx}" y="${yt + 7}" width="3" height="${Math.max(8, h - 18)}" fill="${cK}" stroke="#00000040" stroke-width=".5"><title>Kupplungssteg: ${colorName(colOf(f, "kupplung"))}</title></rect>`);
+      inner += lockSym(cxm, yt + 11);
+    }
+    if (f.front === "GT") inner += `<rect x="${x0 + 2}" y="${yt + 2}" width="${w - 4}" height="${h - 4}" fill="#a9d4e2" opacity=".5" stroke="#7fb3c4"/>` + lockSym(x1 - 12, cym);
+    const label = f.front ? NAMES[f.front] : ({ "": "offen", ZT: "Zwischentablar", ZG: "Glas-Zwischentablar", AT: "Ausziehtablar", ST: "Schrägtablar" }[f.inside || ""]);
+    const sub = f.front ? ({ U: "Universalverschluss", S: "Schloss", D: "Drehgriff", SA: "Schloss" }[f.lock] + (f.gen === "A" ? " · alt" : "") + (f.rahmen && (f.front === "AZ") ? " · Rahmen" : "")) : "";
+    const lc = f.front && f.front !== "GT" ? (darkF ? "#e9ecf1" : "#3f464f") : (darkB && f.back && f.back !== "GL" ? "#e9ecf1" : "var(--muted)");
+    const fsz = Math.max(6.5, Math.min(12, (w - 10) * 1.75 / label.length, h / 3.6));
+    if (h > 18) inner += `<text x="${cxm}" y="${cym + (sub && h > 40 ? 1 : 4)}" text-anchor="middle" font-family="Archivo, Helvetica Neue, Arial, sans-serif" font-size="${fsz}" letter-spacing=".03em" fill="${lc}" pointer-events="none">${label}</text>`;
+    if (sub && h > 40) inner += `<text x="${cxm}" y="${cym + fsz + 3}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="${Math.max(6.5, fsz - 3.5)}" fill="${lc}" opacity=".7" pointer-events="none">${sub}</text>`;
+    if (f._bad.length) inner += `<rect x="${x0 + 4}" y="${yt + 4}" width="${w - 8}" height="${h - 8}" fill="none" stroke="var(--bad)" stroke-width="2" stroke-dasharray="6 4"/>`;
+    const sel = intern && state.multi.has(f.id);
+    g += `<g class="fbox" data-id="${f.id}" tabindex="${intern ? 0 : -1}" role="button" aria-label="Fach ${f.w} mal ${f.h}, ${label}">${inner}<rect class="hit" x="${x0 + 1}" y="${yt + 1}" width="${w - 2}" height="${h - 2}" fill="transparent" stroke="${sel ? "var(--accent)" : "none"}" stroke-width="${sel ? 3 : 0}"/></g>`;
+  });
+  // Seitenwände außen, in ihrer Farbe
+  if (state.sides) geo.vP.filter(p => p.outer && !p.open).forEach(p => {
+    const sx = p.leftSide ? X(p.x) - 7.5 : X(p.x) + 2.5, fill = state.sides === "GL" ? "#a9d4e2" : colorHex(colOf(p.owner, "seiten"));
+    g += `<rect x="${sx}" y="${Y(p.y2)}" width="5" height="${(p.y2 - p.y1) * S}" fill="${fill}" stroke="#00000033" stroke-width=".6"><title>Seite: ${state.sides === "GL" ? "Glas" : colorName(colOf(p.owner, "seiten"))}</title></rect>`;
+  });
+  // Tablare (Boden, Deckel) als Kante in ihrer Farbe, Rohr davor
+  geo.hP.forEach(p => {
+    const glas = p.top && state.top === "GA", tc = tablarColor(p);
+    g += `<rect x="${X(p.x1) + 4}" y="${Y(p.y) - 4.5}" width="${(p.x2 - p.x1) * S - 8}" height="9" fill="${glas ? "#a9d4e2" : colorHex(tc)}" stroke="#00000033" stroke-width=".6"><title>${p.top ? "Deckel" : "Boden"}: ${glas ? "Glas" : colorName(tc)}</title></rect>`;
+    g += `<rect x="${X(p.x1)}" y="${Y(p.y) - 1.6}" width="${(p.x2 - p.x1) * S}" height="3.2" fill="url(#tubeH)" ${TUBES.includes(p.len) ? "" : 'stroke="var(--bad)" stroke-width="1.5"'}/>`;
+  });
+  geo.vP.filter(p => p.outer && (p.open || !state.sides)).forEach(p => g += `<line x1="${X(p.x) + (p.leftSide ? 6 : -6)}" x2="${X(p.x) + (p.leftSide ? 6 : -6)}" y1="${Y(p.y2) + 6}" y2="${Y(p.y1) - 6}" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 3"><title>Seite offen</title></line>`);
+  geo.vP.forEach(p => g += `<rect x="${X(p.x) - 2.2}" y="${Y(p.y2)}" width="4.4" height="${(p.y2 - p.y1) * S}" fill="url(#tubeV)" ${TUBES.includes(p.len) ? "" : 'stroke="var(--bad)" stroke-width="1.5"'}/>`);
+  geo.nodes.forEach(([x, y]) => g += `<circle cx="${X(x)}" cy="${Y(y)}" r="5.2" fill="url(#ball)"><title>${geo.deg.get(`${x},${y}`)} Connectoren an dieser Kugel</title></circle>`);
+  geo.nodes.filter(n => n[1] === 0).forEach(([x]) => {
+    if (state.base === "FU") g += `<rect x="${X(x) - 4}" y="${Y(0) + 5}" width="8" height="${17 * S}" rx="1" fill="var(--fg)" opacity=".8"/>`;
+    else { const r = state.base === "RN100" ? 9 : 6; g += `<circle cx="${X(x)}" cy="${Y(0) + 6 + r}" r="${r}" fill="var(--fg)" opacity=".8"/><circle cx="${X(x)}" cy="${Y(0) + 6 + r}" r="${r / 3}" fill="var(--chrome-mid)"/>`; }
+  });
+  g += `<text x="${X(0)}" y="${Y(0) + footH + 18}" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)">${state.base === "FU" ? "Nivellierfüße" : state.base === "RN100" ? "Lenkrollen Ø 100" : "Lenkrollen Ø 50"} · Tiefe ${state.depth} · ${colorName(state.color)}${hasOverrides() ? " mit Einzelfarben" : ""}</text>`;
+  const f = intern && state.multi.size === 1 && state.fields.find(q => q.id === state.sel);
+  if (f) {
+    const cy = (Y(f.y) + Y(f.y + f.h)) / 2, cx = (X(f.x) + X(f.x + f.w)) / 2;
+    const hs = [["left", X(f.x) - 20, cy, "links"], ["right", X(f.x + f.w) + 20, cy, "rechts"], ["top", cx, Y(f.y + f.h) - 20, "oben"]];
+    if (f.y > 0 && !state.fields.some(q => q.y + q.h === f.y && q.x === f.x)) hs.push(["bottom", cx, Y(f.y) + 20, "unten"]);
+    hs.forEach(([dir, hx, hy, word]) => g += `<g class="handle" data-add="${dir}" role="button" tabindex="0" aria-label="Fach ${word} anbauen"><rect x="${hx - 10}" y="${hy - 10}" width="20" height="20"/><text x="${hx}" y="${hy + 5}" text-anchor="middle">+</text></g>`);
+  }
+  return `<svg viewBox="-14 -14 ${vw + 28} ${vh + 44}" width="${vw + 28}" height="${vh + 44}" role="img" aria-label="Frontansicht">${g}</svg>`;
+}
+
+/* ---------- Hinweise und USM-Regeln ---------- */
+function messages(geo) {
+  const out = [], o = outer(), fs = state.fields, rollen = state.base !== "FU";
+  const m = (cls, t) => out.push(`<div class="msg ${cls}">${t}</div>`);
+  if (state.flash) m("bad", state.flash);
+  if (geo.badTubes.length) m("bad", `Rohr ${[...new Set(geo.badTubes.map(p => p.len))].join(", ")} mm gibt es nicht.`);
+  const bad = fs.flatMap(f => f._bad);
+  if (bad.length) m("bad", `Nicht im USM-Programm: ${[...new Set(bad)].join(", ")}.`);
+  if (o.h >= ANKER_AB[state.depth]) m("bad", `Wandverankerung zwingend: Außenhöhe ${o.h} mm, bei Tiefe ${state.depth} schreibt USM sie ab ${ANKER_AB[state.depth]} mm vor. Mindestens 2 Sets an den oberen äußeren Ecken, je Set 20 kg Haltekraft.`);
+  else if (o.h >= ANKER_AB[state.depth] * 0.75) m("warn", `Hoch und schmal: ab ${ANKER_AB[state.depth]} mm Außenhöhe ist bei Tiefe ${state.depth} eine Wandverankerung Pflicht. USM empfiehlt sie immer.`);
+  if (state.depth === 250 && fs.some(f => ["AZ", "EI"].includes(f.front) || f.inside === "AT" || f.rahmen)) m("bad", "Tiefe 250: keine Schublade, Einschubtür, Ausziehtablar oder Einlegerahmen. Klapptür geht.");
+  const glas = fs.some(f => f.back === "GL" || f.front === "GT" || f.inside === "ZG") || state.sides === "GL" || state.top === "GA";
+  if (rollen && glas) m("bad", "USM: Möbel mit Glaselementen oder Glastüren nie auf Rollen.");
+  if (rollen && fs.some(f => f.front === "AZ" || f.front === "EI" || f.inside === "AT")) m("warn", "Rollen mit Auszügen: Gegengewicht nötig, sonst kippt das Möbel beim Ausziehen.");
+  else if (rollen && fs.some(f => f.front === "KL")) m("info", "Rollen mit Klappen: Gegengewicht für die Kippsicherheit einplanen.");
+  if (state.sides === "GL" && fs.some(f => f.inside === "ZG")) m("bad", "Glas-Zwischentablar nur mit Metall-Seiten.");
+  const fl = fs.filter(f => f._float).length;
+  if (fl) m("info", `${fl === 1 ? "Ein Fach steht" : fl + " Fächer stehen"} ohne Fach darunter. Statik bitte selbst einschätzen.`);
+  if (fs.some(f => f.front === "AZ") && fs.some(f => f.front === "AZ" && f.y > 0)) m("info", "Auszüge möglichst unten. Oben mit Wandbefestigung oder Gegengewicht.");
+  if (fs.some(f => f.front === "AZ" && !f.rahmen)) m("info", "Schublade ohne Einlegerahmen ist an drei Seiten offen.");
+  if (fs.some(f => f.inside === "AT" || f.front === "AZ")) m("info", `Ausziehtablar trägt ${state.depth >= 500 ? 50 : 35} kg bei Tiefe ${state.depth}.`);
+  return out.join("");
+}
+
+/* ---------- Render ---------- */
+function renderEditor() {
+  const box = document.getElementById("editor"), list = sels(), f = list[0];
+  const pbox = document.getElementById("paintbox");
+  if (!f) { box.innerHTML = `<p class="note">Fach in der Zeichnung antippen. Mit Strg oder Shift oder über „Mehrfachauswahl“ mehrere markieren. Mit den blauen Plus-Feldern baust du an.</p>`; pbox.innerHTML = `<h3 style="font-size:1.02rem;margin-bottom:6px">Farben</h3><p class="note">Erst ein Fach antippen, dann hier Front, Wanne, Tablare oder Seiten einfärben.</p>`; return; }
+  const multi = list.length > 1, same = k => list.every(q => q[k] === f[k]);
+  const opt = (arr, v) => (v == null ? `<option value="" selected>gemischt</option>` : "") + arr.map(x => `<option value="${x}"${x === v ? " selected" : ""}>${x}</option>`).join("");
+  const chips = (items, key, cur) => items.map(([v, n]) => `<button class="chip" data-${key}="${v}" aria-pressed="${list.every(q => (q[cur] || "") === v)}">${n}</button>`).join("");
+  const showPart = k => ({ all: true, front: list.some(q => q.front && q.front !== "GT"), einbau: list.some(q => q.front === "AZ" || (q.inside && q.inside !== "ZG")), kupplung: list.some(q => (q.front === "AZ" && q.gen !== "A") || q.front === "EI"), back: list.some(q => q.back && q.back !== "GL"), boden: true, deckel: list.some(q => q._top) && state.top !== "GA", seiten: list.some(q => q._outer) && state.sides === "BL" }[k]);
+  if (!showPart(state.paint.part)) state.paint.part = "all";
+  const p = state.paint.part, cur = p === "all" ? null : (() => { const v = new Set(list.map(q => colOf(q, p))); return v.size === 1 ? [...v][0] : null; })();
+  box.innerHTML = `<div class="editor-head"><h3>${multi ? `${list.length} Fächer ausgewählt` : `Fach ${f.w} × ${f.h}`}</h3>
+      <button class="btn danger" id="del" ${state.fields.length - list.length < 1 ? "disabled" : ""}>${multi ? "Auswahl entfernen" : "Fach entfernen"}</button></div>
+    <div class="editor-grid">
+      <label class="f" for="e-w">Breite<select id="e-w">${opt(TUBES, same("w") ? f.w : null)}</select></label>
+      <label class="f" for="e-h">Höhe<select id="e-h">${opt(TUBES, same("h") ? f.h : null)}</select></label>
+    </div>
+    <div class="group"><span>Front</span><div class="chips">${chips(FRONTS, "front", "front")}</div></div>
+    ${list.every(q => q.front === "KL" || q.front === "AZ") ? `<div class="group"><span>Generation</span><div class="chips">${chips(GENS, "gen", "gen")}</div></div>` : ""}
+    ${list.every(q => q.front) ? `<div class="group"><span>Verschluss</span><div class="chips">${chips(LOCKS[list.every(q => q.gen === "A" && (q.front === "KL" || q.front === "AZ")) ? "A" : "N"], "lock", "lock")}</div></div>` : ""}
+    ${list.every(q => q.front === "AZ" || q.inside === "AT") ? `<div class="group"><span>Einlegerahmen</span><div class="chips"><button class="chip" data-rahmen="0" aria-pressed="${list.every(q => !q.rahmen)}">Ohne</button><button class="chip" data-rahmen="1" aria-pressed="${list.every(q => q.rahmen)}">Mit Einlegerahmen</button></div></div>` : ""}
+    <div class="group"><span>Seiten</span><div class="chips"><button class="chip" data-open="L" aria-pressed="${list.every(q => q.openL)}">Links offen</button><button class="chip" data-open="R" aria-pressed="${list.every(q => q.openR)}">Rechts offen</button></div></div>
+    <div class="group"><span>Rückwand</span><div class="chips">${chips(BACKS, "back", "back")}</div></div>
+    <div class="group"><span>Einbau</span><div class="chips">${chips(INSIDES, "inside", "inside")}</div></div>`;
+  pbox.innerHTML = `<div class="editor"><div class="editor-head"><h3>Farben</h3><span class="note">Standard: ganzes Möbel in der Grundfarbe</span></div>
+    <div class="group"><span>Farbe für</span><div class="chips">${PARTS.filter(([k]) => showPart(k)).map(([k, n]) => `<button class="chip" data-part="${k}" aria-pressed="${p === k}">${n}</button>`).join("")}</div></div>
+    <div class="group"><span>Anwenden auf</span><div class="chips">${SCOPES.map(([k, n]) => `<button class="chip" data-scope="${k}" aria-pressed="${state.paint.scope === k}">${n}</button>`).join("")}</div></div>
+    <div class="group"><span>Farbe</span><div><div class="swatches">${COLORS.map(([c, n, hex]) => `<button class="sw" data-paint="${c}" style="background:${hex}" title="${n} (${c})" aria-label="${n}" aria-pressed="${cur === c}"></button>`).join("")}<button class="sw reset" data-paint="" title="Zurück auf Grundfarbe" aria-label="Zurück auf Grundfarbe"></button></div>
+      <p class="note" style="margin-top:6px">Farbe antippen färbt „${PARTS.find(x => x[0] === p)[1]}" in: ${SCOPES.find(x => x[0] === state.paint.scope)[1]}${state.paint.scope === "sel" ? ` (${list.length} ${list.length === 1 ? "Fach" : "Fächer"})` : ` (${paintTargets().length} Fächer)`}. Boden heißt das Tablar unter dem Fach, Deckel das oberste Tablar.</p></div></div></div>`;
+}
+function renderGlobals() {
+  document.getElementById("depths").innerHTML = T.map(t => `<button class="chip" data-depth="${t}" aria-pressed="${state.depth === t}">${t}</button>`).join("");
+  document.getElementById("g-color").innerHTML = COLORS.map(c => `<option value="${c[0]}"${c[0] === state.color ? " selected" : ""}>${c[1]} (${c[0]})</option>`).join("");
+  document.getElementById("g-zustand").value = state.zustand;
+  document.getElementById("g-base").value = state.base;
+  document.getElementById("g-sides").value = state.sides;
+  document.getElementById("g-top").value = state.top;
+  const sel = document.getElementById("tplsel");
+  if (!sel.dataset.ok && (LIVE.std.length || LIVE.ins.length)) {
+    sel.dataset.ok = 1;
+    sel.innerHTML = `<option value="">Vorlage wählen…</option>` +
+      (LIVE.ins.length ? `<optgroup label="Unsere Inserate">${LIVE.ins.filter(e => e.aktiv && e.planer).map(e => `<option value="i:${e.id}">${esc(kurzTitel(e.titel))} · ${e.preis ? eur(e.preis).replace(",00", "") : "VB"}</option>`).join("")}</optgroup>` : "") +
+      `<optgroup label="Schnellstart">${Object.keys(TEMPLATES).map(k => `<option value="t:${k}">${k}</option>`).join("")}</optgroup>` +
+      (LIVE.std.length ? `<optgroup label="USM-Standardmöbel">${LIVE.std.map(s => `<option value="s:${esc(s.name)}">${esc(s.name)}</option>`).join("")}</optgroup>` : "");
+  }
+  document.getElementById("undo").disabled = !undoStack.length;
+  document.getElementById("multimode").setAttribute("aria-pressed", state.multiMode);
+}
+function renderKpis(rows) {
+  const ek = rows.reduce((a, r) => a + r.cost, 0);
+  if (state.price == null) state.price = Math.ceil(ek * 2.2 / 10) * 10;
+  const n = calcNumbers(ek, paid()), o = outer(), s = shipping(rows), cu = colorsUsed(rows);
+  const miss = rows.filter(r => !r.neu).reduce((a, r) => a + r.missing, 0), order = rows.filter(r => r.neu && r.missing).reduce((a, r) => a + r.missing, 0), inval = rows.filter(r => !r.valid).length;
+  const status = inval ? `<b class="neg">${inval} Maß ungültig</b>` : miss ? `<b class="neg">${miss === 1 ? "1 Teil fehlt" : miss + " Teile fehlen"}</b>` : order ? `<b>${order} neu bestellen</b>` : `<b class="good">Alles auf Lager</b>`;
+  const kpiHtml = state.view === "intern" ?
+    `<div class="kpi"><span>Kunde zahlt${state.rabatt ? ` (−${state.rabatt} %)` : ""}</span><b>${eur(paid())}</b></div>
+     <div class="kpi"><span>Wareneinsatz</span><b>${eur(ek)}</b></div>
+     <div class="kpi"><span>Gewinn vor Steuern</span><b class="${n.gewD >= 0 ? "good" : "neg"}">${eur(n.gewD)}</b></div>
+     <div class="kpi"><span>Marge vor Steuern</span><b class="${n.gewD >= 0 ? "good" : "neg"}">${paid() ? pct(n.gewD / paid()) : "–"}</b></div>
+     <div class="kpi"><span>Bestand</span>${status}</div>
+     <div class="kpi"><span>Gewicht</span><b>${kgf(s.net)}</b></div>` :
+    `<div class="kpi"><span>Außenmaße mm</span><b>${o.w} × ${o.d} × ${o.h}</b></div><div class="kpi"><span>Gewicht</span><b>${kgf(s.net)}</b></div><div class="kpi"><span>Farbe</span><b>${cu.length > 1 ? "Mehrfarbig" : colorName(state.color)}</b></div><div class="kpi"><span>Zustand</span><b>${state.zustand === "G" ? "Gebraucht" : "Neuwertig"}</b></div>`;;
+  document.getElementById("kpis").innerHTML = kpiHtml;
+  document.getElementById("kpis-m").innerHTML = kpiHtml
+}
+function tabBom(rows) {
+  let body = "";
+  GROUPS.forEach(([name, typs]) => {
+    const rs = rows.filter(r => typs.includes(r.typ)); if (!rs.length) return;
+    body += `<tr class="grp"><td colspan="7">${name}</td></tr>` + rs.map(r => {
+      const pill = !r.valid ? `<span class="pill bad">Maß ungültig</span>` : r.missing ? (r.neu ? `<span class="pill">${r.missing} neu</span>` : `<span class="pill warn">fehlt ${r.missing}</span>`) : `<span class="pill ok">${r.stock}</span>`;
+      const nk = `<label class="nk"><input type="checkbox" data-buynew="${r.code}" ${r.neu ? "checked" : ""}> neu kaufen</label>${r.neu ? `<input class="nkp" type="number" min="0" step="0.5" data-nkprice="${r.code}" value="${r.nk}" aria-label="Neupreis je Stück"> €/Stk` : ""}`;
+      const sw = FARBIG.includes(r.typ) ? `<i style="display:inline-block;width:9px;height:9px;background:${colorHex(r.farbe)};border:1px solid var(--line);margin-right:5px"></i>` : "";
+      return `<tr><td>${sw}${partName(r)}${FARBIG.includes(r.typ) ? ` <span class="wo">${colorName(r.farbe)}</span>` : ""}${r.wo.size ? ` <span class="wo">· ${[...r.wo].join(", ")}</span>` : ""}<div class="code">${r.code}</div>${r.missing || r.neu ? `<div class="nkrow">${nk}</div>` : ""}</td><td class="num">${r.qty}</td><td class="num">${pill}</td><td class="code">${esc(r.lager)}</td><td class="num">${kgf(r.kg)}</td><td class="num">${eur(r.price)}<div class="src">${r.src}</div></td><td class="num">${eur(r.cost)}</td></tr>`;
+    }).join("");
+  });
+  return `<div class="tablewrap"><table><thead><tr><th>Teil</th><th class="num">Menge</th><th class="num">Lager</th><th>Fach</th><th class="num">kg/Stk</th><th class="num">Preis</th><th class="num">Summe</th></tr></thead><tbody>${body}
+    <tr class="grp"><td>Gesamt</td><td class="num">${rows.reduce((a, r) => a + r.qty, 0)}</td><td></td><td></td><td class="num">${kgf(rows.reduce((a, r) => a + r.kgSum, 0))}</td><td></td><td class="num">${eur(rows.reduce((a, r) => a + r.cost, 0))}</td></tr></tbody></table></div>
+    <p class="note">Bestand und Durchschnittspreis kommen live aus dem Lager. Preisquelle unter dem Preis: Ø = gleitender Durchschnitt aus dem Lager, Richtwert = am Teiltyp hinterlegt, Schätzung = Näherung, solange das Teil noch nicht erfasst ist. Jede Farbe ist eine eigene Zeile, so stimmt die Entnahme. Tablar, Seiten- und Rückwand sind dasselbe Metallelement und teilen sich den Bestand. Unter Schubladen und Ausziehtablaren liegt ein verkürztes Element, unter Einschubtüren eines mit Schlitzen. „Neu kaufen" gilt für die fehlende Menge und wird mit der Planung gespeichert.</p>`;
+}
+function tabCalc(rows) {
+  const ek = rows.reduce((a, r) => a + r.cost, 0), list = Number(state.price) || 0, p = paid(), n = calcNumbers(ek, p), st = state.ertragsteuer / 100;
+  const roh = p - ek, nachD = n.gewD, steuerD = Math.max(0, nachD) * st;
+  const rohR = n.netR - ek, steuerR = Math.max(0, rohR) * st;
+  return `<div class="pricein">
+      <label class="f" for="in-price">Inseratspreis VB (€)<input id="in-price" type="number" min="0" step="10" value="${list}"></label>
+      <label class="f" for="in-rabatt">Rabatt (%)<input id="in-rabatt" type="number" min="0" max="50" step="1" value="${state.rabatt}"></label>
+      <label class="f" for="in-paid">Kunde zahlt (€)<input id="in-paid" type="number" min="0" step="5" value="${p}"></label>
+    </div>
+    <div class="chips" role="group" aria-label="Rabatt">${[0, 3, 5, 7, 10].map(r => `<button class="chip" data-rabatt="${r}" aria-pressed="${state.rabatt === r}">${r ? "−" + r + " %" : "kein Rabatt"}</button>`).join("")}</div>
+    <div class="pricein">
+      <label class="f" for="in-target">Inseratspreis aus Zielmarge<select id="in-target"><option value="">Wählen…</option><option>30</option><option>40</option><option>50</option><option>60</option></select></label>
+      <label class="f" for="in-st">Ertragsteuer UG (%)<input id="in-st" type="number" min="0" max="50" step="0.5" value="${state.ertragsteuer}"></label>
+      <label class="f" for="in-neu">USM-Neupreis (€)<input id="in-neu" type="number" min="0" step="10" value="${state.neupreis}"></label>
+    </div>
+    <div class="cards">
+      <div class="card"><h3>Differenzbesteuert</h3><div class="sub">Standard, keine USt auf der Rechnung</div>
+        <div class="row"><span>Inseratspreis</span><span>${eur(list)}</span></div>
+        <div class="row"><span>Rabatt ${state.rabatt} %</span><span>− ${eur(list - p)}</span></div>
+        <div class="row total"><span>Kunde zahlt</span><span>${eur(p)}</span></div>
+        <div class="row"><span>Wareneinsatz</span><span>− ${eur(ek)}</span></div>
+        <div class="row total"><span>Rohertrag</span><span>${eur(roh)}</span></div>
+        <div class="row"><span>USt auf Differenz</span><span>− ${eur(n.ustD)}</span></div>
+        <div class="row total ${nachD >= 0 ? "profit" : "loss"}"><span>Gewinn vor Steuern</span><span>${eur(nachD)}</span></div>
+        <div class="row"><span>Ertragsteuer ca. ${state.ertragsteuer} %</span><span>− ${eur(steuerD)}</span></div>
+        <div class="row total ${nachD - steuerD >= 0 ? "profit" : "loss"}"><span>Gewinn nach Steuern</span><span>${eur(nachD - steuerD)}</span></div>
+        <div class="row"><span>Marge vor Steuern</span><span>${p ? pct(nachD / p) : "–"}</span></div></div>
+      <div class="card"><h3>Mit ausgewiesener USt</h3><div class="sub">Auf Kundenwunsch: Kundenpreis + 10 %, dann 19 % USt</div>
+        <div class="row"><span>Netto (${eur(p)} + 10 %)</span><span>${eur(n.netR)}</span></div>
+        <div class="row"><span>+ 19 % USt</span><span>${eur(n.ustR)}</span></div>
+        <div class="row total"><span>Kunde zahlt</span><span>${eur(n.bruttoR)}</span></div>
+        <div class="row"><span>Wareneinsatz</span><span>− ${eur(ek)}</span></div>
+        <div class="row total ${rohR >= 0 ? "profit" : "loss"}"><span>Gewinn vor Steuern</span><span>${eur(rohR)}</span></div>
+        <div class="row"><span>Ertragsteuer ca. ${state.ertragsteuer} %</span><span>− ${eur(steuerR)}</span></div>
+        <div class="row total ${rohR - steuerR >= 0 ? "profit" : "loss"}"><span>Gewinn nach Steuern</span><span>${eur(rohR - steuerR)}</span></div>
+        <div class="row"><span>Marge auf Netto</span><span>${p ? pct(rohR / n.netR) : "–"}</span></div></div>
+    </div>
+    <p class="note">Wareneinsatz zu Durchschnittspreisen inklusive umgelegter Abholkosten. Ertragsteuer als Näherung für Körperschaft- und Gewerbesteuer, mit dem Steuerberater abstimmen.</p>`;
+}
+function tabShip(rows) {
+  const s = shipping(rows), o = outer();
+  return `<div class="cards"><div class="card"><h3>Versand</h3><div class="sub">Gewichte geschätzt, an einer USM-Angabe geeicht</div>
+    <div class="row"><span>Außenmaße (B × T × H)</span><span>${o.w} × ${o.d} × ${o.h} mm</span></div>
+    <div class="row"><span>Möbel</span><span>${kgf(s.net)}</span></div>
+    <div class="row"><span>DPD zerlegt</span><span>${s.dpdZerlegt ? "ca. " + s.parcels + " Paket" + (s.parcels > 1 ? "e" : "") : "nicht möglich"}</span></div>
+    <div class="row"><span>DPD montiert</span><span>${s.dpdMontiert ? "möglich" : "nein, zu schwer oder zu lang"}</span></div>
+    <div class="row total"><span>Spedition auf Palette</span><span>ca. ${kgf(s.palette)}</span></div>
+    <p class="note">Montiert und zerlegt wiegt das Möbel gleich viel. Dazu kommen Verpackung (Pakete pauschal 12 %, max. 31,5 kg je Paket) oder Palette (25 kg Europalette plus 3 kg Folie und Kantenschutz).</p></div></div>`;
+}
+function renderRight(rows) {
+  const body = document.getElementById("tabbody"), intern = state.view === "intern";
+  document.getElementById("tabs").hidden = !intern;
+  if (!intern) {
+    const ek = rows.reduce((a, r) => a + r.cost, 0), list = Number(state.price) || 0, n = calcNumbers(ek, list), neu = Number(state.neupreis) || 0, o = outer();
+    const count = t => state.fields.filter(f => f.front === t).length;
+    const eq = FRONTS.filter(([t]) => t && count(t)).map(([t, name]) => `${count(t)} × ${name}`).join(", ") || "offene Fächer";
+    const cu = colorsUsed(rows);
+    body.innerHTML = `<div class="offer"><h2>USM Haller, ${cu.length > 1 ? cu.slice(0, 3).map(([c]) => colorName(c)).join(" / ") : colorName(state.color)}</h2>
+      <ul><li>Außenmaße ${o.w} × ${o.d} × ${o.h} mm (B × T × H)${o.rollen ? ", inklusive Rollen" : ", inklusive Nivellierfüße"}</li>
+        <li>${state.fields.length} Fächer: ${eq}</li>
+        ${cu.length > 1 ? `<li>Farben: ${cu.map(([c, q]) => `${colorName(c)} (${q} Teile)`).join(", ")}</li>` : ""}
+        <li>${state.zustand === "G" ? "Gebraucht, geprüft und gereinigt" : "Neu bzw. neuwertig"}</li>
+        <li>Original USM Haller Teile. Aufbau und Versand auf Anfrage.</li></ul>
+      <div><div class="pricebig">${eur(list)} <span class="note">VB</span></div><p class="note">Differenzbesteuert nach § 25a UStG, keine ausgewiesene Umsatzsteuer</p>
+        ${neu > list ? `<div class="save">Neupreis bei USM ${eur(neu)}, Sie sparen ${pct(1 - list / neu)}</div>` : ""}
+        <p class="note" style="margin-top:6px">Mit ausgewiesener Umsatzsteuer: ${eur(n.netR)} netto + ${eur(n.ustR)} USt = ${eur(n.bruttoR)}</p></div>
+      ${state.ordered ? `<div class="ordered">Bestellung notiert, die Planung steht jetzt auf „Angebot". Teile reservieren, Rechnung schreiben und die Kopie an DATEV Unternehmen online schicken kommen in der nächsten Ausbaustufe.</div>` : `<div><button class="btn primary" id="order">Bestellen</button></div>`}</div>`;
+    return;
+  }
+  ["bom", "calc", "ship"].forEach(t => document.getElementById("t-" + t).setAttribute("aria-selected", state.tab === t));
+  body.innerHTML = state.tab === "bom" ? tabBom(rows) : state.tab === "calc" ? tabCalc(rows) : tabShip(rows);
+}
+function renderHead() {
+  document.getElementById("whobox").innerHTML = whoPicker();
+  document.getElementById("p-status").value = PLAN.status;
+  document.getElementById("p-meta").textContent = PLAN.id ? (PLAN.dirty ? "nicht gespeichert" : `gespeichert ${when(PLAN.stamp)}${PLAN.by ? " von " + PLAN.by : ""}`) : (PLAN.dirty ? "noch nicht gespeichert" : "");
+  const n = document.getElementById("p-name"); if (document.activeElement !== n) n.value = PLAN.name;
+}
+function render() {
+  ["v-intern", "v-kunde"].forEach(id => document.getElementById(id).setAttribute("aria-pressed", id === "v-" + state.view));
+  normalize();
+  const geo = geometry(), rows = bom(geo), intern = state.view === "intern", o = outer();
+  document.getElementById("stage").innerHTML = drawing(geo);
+  document.getElementById("dims").innerHTML = `<span>Außen <b>${o.w} × ${o.d} × ${o.h}</b> mm</span><span>${state.fields.length} Fächer · ${geo.nodes.length * 2} Kugeln · ${geo.tubes} Rohre · ${geo.tubes * 2} Connectoren</span>`;
+  const cu = colorsUsed(rows);
+  document.getElementById("legend").innerHTML = cu.length > 1 ? cu.map(([c, q]) => `<span><i style="background:${colorHex(c)}"></i>${colorName(c)} ${q}</span>`).join("") + (intern ? ` <button class="btn" id="resetcol">Einzelfarben zurücksetzen</button>` : "") : "";
+  ["toolbar", "editor", "paintcard", "globalscard", "msgs"].forEach(id => document.getElementById(id).hidden = !intern);
+  renderSource();
+  document.getElementById("msgs").innerHTML = messages(geo);
+  if (intern) { renderEditor(); renderGlobals(); }
+  renderKpis(rows);
+  renderRight(rows);
+  renderHead();
+  state.flash = null;
+}
+
+/* ---------- Speichern, Laden, Live ---------- */
+const SAVE_KEYS = ["fields", "depth", "color", "zustand", "base", "sides", "top", "buyNew", "price", "rabatt", "ertragsteuer", "neupreis"];
+function snapshot() { const d = {}; SAVE_KEYS.forEach(k => d[k] = state[k]); d._geraet = DEVICE; d._version = 6; d._inserat = PLAN.inserat || null; return JSON.parse(JSON.stringify(d)); }
+function applyData(d) {
+  SAVE_KEYS.forEach(k => { if (d[k] !== undefined) state[k] = JSON.parse(JSON.stringify(d[k])); });
+  PLAN.inserat = d._inserat || PLAN.inserat || null;
+  state.fields.forEach(f => { if (!f.col) f.col = {}; });
+  uid = Math.max(0, ...state.fields.map(f => f.id)) + 1;
+  selectOnly(state.fields[0].id); undoStack.length = 0;
+}
+function markDirty() { PLAN.dirty = true; }
+async function save() {
+  if (!me()) { state.flash = "Bitte oben auswählen, wer du bist. Dann weiß der andere, wer zuletzt geändert hat."; render(); return; }
+  const row = { name: PLAN.name || "Ohne Namen", daten: snapshot(), status: PLAN.status, geaendert_am: new Date().toISOString(), geaendert_von: me() };
+  const q = PLAN.id ? sb.from("planung").update(row).eq("id", PLAN.id).select().single() : sb.from("planung").insert(row).select().single();
+  const { data, error } = await q;
+  if (error) { state.flash = "Speichern ging nicht: " + error.message; render(); return; }
+  PLAN.id = data.id; PLAN.stamp = data.geaendert_am; PLAN.by = data.geaendert_von; PLAN.dirty = false;
+  history.replaceState(null, "", "planer.html?id=" + data.id);
+  document.getElementById("banner").innerHTML = "";
+  render();
+}
+async function loadPlan(id) {
+  const { data, error } = await sb.from("planung").select("*").eq("id", id).single();
+  if (error || !data) { state.flash = "Planung nicht gefunden."; return; }
+  PLAN.id = data.id; PLAN.name = data.name; PLAN.status = data.status; PLAN.stamp = data.geaendert_am; PLAN.by = data.geaendert_von; PLAN.dirty = false;
+  applyData(data.daten);
+}
+function fromStandard(name) {
+  const s = LIVE.std.find(x => x.name === name); if (!s) return;
+  const first = String(s.fronten || "").split("/")[0], txt = String(s.fronten || "");
+  const heights = s.felder_hoehe.flatMap(h => h > 750 ? Array(Math.round(h / 350)).fill(350) : [h]);
+  const fields = [];
+  heights.reduce((y, h) => { s.felder_breite.reduce((x, w) => { fields.push(F(x, y, w, h)); return x + w; }, 0); return y + h; }, 0);
+  const n = k => { const m = first.match(new RegExp("(\\d+)\\s*" + k)); return m ? +m[1] : (new RegExp(k).test(first) ? 1 : 0); };
+  let kl = n("Klapp"), az = Math.max(n("Ausz"), n("Schublade"));
+  if (/Glast/.test(txt)) fields.forEach(f => f.front = "GT");
+  fields.forEach(f => { if (az > 0 && !f.front && CAT.AZ.includes(`${f.w}x${f.h}`)) { f.front = "AZ"; az--; } else if (kl > 0 && !f.front && CAT.KL.includes(`${f.w}x${f.h}`)) { f.front = "KL"; kl--; } });
+  if (/Zwischentablar/.test(txt)) { const t = fields.find(f => !f.front && CAT.ZT.includes(`${f.w}x350`)); if (t) t.inside = "ZT"; }
+  tryChange(() => { state.fields = fields; });
+  const d = parseInt(s.tiefe, 10); if (T.includes(d)) state.depth = d;
+  state.base = /Rollen/.test(txt) ? "RN50" : "FU";
+  const pr = String(s.neupreis || "").match(/(\d{1,2}\.\d{3}|\d{3,4})\s*€/);
+  state.neupreis = pr ? String(+pr[1].replace(".", "")) : "";
+  if (!PLAN.id) PLAN.name = s.name + " (Saleo)";
+  PLAN.inserat = null;
+  selectOnly(state.fields[0].id); state.price = null;
+}
+function fromInserat(id) {
+  const e = LIVE.ins.find(x => x.id === String(id));
+  if (!e || !e.planer) { state.flash = "Zu diesem Inserat gibt es keine Planer-Vorlage."; return; }
+  const keep = PLAN.id;
+  applyData(e.planer);
+  PLAN.inserat = e.id;
+  if (!keep) PLAN.name = kurzTitel(e.titel);
+  state.tab = "calc"; state.view = "intern";
+  markDirty();
+}
+function renderSource() {
+  const box = document.getElementById("source"), e = PLAN.inserat && LIVE.ins.find(x => x.id === PLAN.inserat);
+  if (!e) { box.innerHTML = ""; return; }
+  box.innerHTML = `<div class="card source"><div class="thumbs">${(e.bilder || []).slice(0, 3).map(u => `<a href="${esc(e.url)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt=""></a>`).join("")}</div>
+    <div><b>${esc(kurzTitel(e.titel))}</b><div class="wo">Inserat ${e.preis ? eur(e.preis).replace(",00", "") : "Preis auf Anfrage"}${e.masse && e.masse.b ? ` · ${e.masse.b} × ${e.masse.h} × ${e.masse.t || "?"} cm` : ""}${e.neupreis ? ` · Neupreis ${eur(e.neupreis).replace(",00", "")}` : ""}${e.aktiv ? "" : " · nicht mehr online"}</div>${e.hinweis ? `<div class="note" style="margin-top:4px">${esc(e.hinweis)}</div>` : ""}</div>
+    <a class="btn" href="${esc(e.url)}" target="_blank" rel="noopener">Anzeige öffnen</a></div>`;
+}
+function showBanner(html) { document.getElementById("banner").innerHTML = html ? `<div class="banner">${html}</div>` : ""; }
+function subscribe() {
+  sb.channel("planer")
+    .on("postgres_changes", { event: "*", schema: "public", table: "teil" }, async () => { await loadLive(); render(); })
+    .on("postgres_changes", { event: "UPDATE", schema: "public", table: "planung" }, p => {
+      const n = p.new; if (!PLAN.id || n.id !== PLAN.id || (n.daten && n.daten._geraet === DEVICE)) return;
+      showBanner(`<span><b>${esc(n.geaendert_von || "Jemand")}</b> hat diese Planung um ${when(n.geaendert_am)} auf einem anderen Gerät gespeichert.</span><span><button class="btn" id="reload">Diese Version laden</button> <button class="btn" id="keep">Meine behalten</button></span>`);
+    })
+    .subscribe(s => { const el = document.getElementById("live"); el.textContent = s === "SUBSCRIBED" ? "live" : "offline"; el.classList.toggle("on", s === "SUBSCRIBED"); });
+}
+
+/* ---------- Aktionen ---------- */
+function tryChange(mutate) {
+  const before = JSON.stringify(state.fields);
+  mutate();
+  const fs = state.fields;
+  if (fs.some((a, i) => fs.some((b, j) => i < j && overlaps(a, b)))) { state.fields = JSON.parse(before); state.flash = "Da ist schon ein Fach. Andere Stelle oder anderes Maß wählen."; return false; }
+  if (staggered()) { state.fields = JSON.parse(before); state.flash = "Kugel auf Kugel: Oben und unten nur bündig und in gleicher Breite anbauen. Seitlich ist alles frei."; return false; }
+  undoStack.push(JSON.stringify({ fields: JSON.parse(before), sel: state.sel })); if (undoStack.length > 60) undoStack.shift();
+  state.ordered = false; markDirty();
+  return true;
+}
+function addField(dir) {
+  const f = state.fields.find(q => q.id === state.sel); if (!f) return;
+  const n = dir === "right" ? F(f.x + f.w, f.y, f.w, f.h) : dir === "left" ? F(f.x - f.w, f.y, f.w, f.h) : dir === "bottom" ? F(f.x, f.y - f.h, f.w, f.h) : F(f.x, f.y + f.h, f.w, f.h);
+  n.col = JSON.parse(JSON.stringify(f.col || {}));
+  if (n.y < 0) { state.flash = "Unter dem Boden geht nichts."; return; }
+  if (tryChange(() => state.fields.push(n))) selectOnly(n.id);
+}
+document.addEventListener("click", async e => {
+  const h = e.target.closest(".handle"); if (h) { addField(h.dataset.add); render(); return; }
+  const fb = e.target.closest(".fbox"); if (fb) {
+    if (state.view !== "intern") return;
+    const id = +fb.dataset.id;
+    if (e.shiftKey || e.metaKey || e.ctrlKey || state.multiMode) {
+      if (state.multi.has(id) && state.multi.size > 1) { state.multi.delete(id); if (state.sel === id) state.sel = [...state.multi][0]; }
+      else { state.multi.add(id); state.sel = id; }
+    } else selectOnly(id);
+    render(); return;
+  }
+  const t = e.target.closest("button"); if (!t) return;
+  const f = state.fields.find(q => q.id === state.sel);
+  if (t.id === "v-intern" || t.id === "v-kunde") { state.view = t.id.slice(2); state.ordered = false; }
+  else if (t.id === "save") { await save(); return; }
+  else if (t.id === "reload") { await loadPlan(PLAN.id); showBanner(""); }
+  else if (t.id === "keep") { showBanner(""); markDirty(); }
+  else if (t.id && t.id.startsWith("t-")) state.tab = t.id.slice(2);
+  else if (t.dataset.tpl) { tryChange(() => { state.fields = TEMPLATES[t.dataset.tpl](); }); selectOnly(state.fields[0].id); state.price = null; }
+  else if (t.dataset.depth) { state.depth = +t.dataset.depth; markDirty(); }
+  else if (t.id === "undo" && undoStack.length) { const s = JSON.parse(undoStack.pop()); state.fields = s.fields; selectOnly(state.fields.some(q => q.id === s.sel) ? s.sel : state.fields[0].id); markDirty(); }
+  else if (t.dataset.front != null && f) tryChange(() => { sels().forEach(q => { q.front = t.dataset.front; }); });
+  else if (t.dataset.back != null && f) tryChange(() => { sels().forEach(q => q.back = t.dataset.back); });
+  else if (t.dataset.lock != null && f) tryChange(() => { sels().forEach(q => q.lock = t.dataset.lock); });
+  else if (t.dataset.inside != null && f) tryChange(() => { sels().forEach(q => q.inside = t.dataset.inside); });
+  else if (t.dataset.gen != null && f) tryChange(() => { sels().forEach(q => { q.gen = t.dataset.gen; q.lock = q.gen === "A" ? "D" : "U"; }); });
+  else if (t.dataset.open && f) { const k = "open" + t.dataset.open, v = !sels().every(q => q[k]); tryChange(() => { sels().forEach(q => q[k] = v); }); }
+  else if (t.dataset.rahmen != null && f) tryChange(() => { sels().forEach(q => q.rahmen = t.dataset.rahmen === "1"); });
+  else if (t.dataset.part) state.paint.part = t.dataset.part;
+  else if (t.dataset.scope) state.paint.scope = t.dataset.scope;
+  else if (t.dataset.paint != null && f) applyColor(t.dataset.paint || null);
+  else if (t.id === "resetcol") tryChange(() => state.fields.forEach(q => q.col = {}));
+  else if (t.id === "multimode") state.multiMode = !state.multiMode;
+  else if (t.id === "selsame" && f) state.multi = new Set(state.fields.filter(q => q.front === f.front && q.w === f.w && q.h === f.h).map(q => q.id));
+  else if (t.id === "del" && f && state.fields.length > state.multi.size) { tryChange(() => { state.fields = state.fields.filter(q => !state.multi.has(q.id)); }); selectOnly(state.fields[0].id); }
+  else if (t.dataset.rabatt != null) { state.rabatt = +t.dataset.rabatt; markDirty(); }
+  else if (t.id === "order") { state.ordered = true; PLAN.status = "angebot"; await save(); return; }
+  else return;
+  render();
+});
+document.addEventListener("change", e => {
+  const t = e.target, f = state.fields.find(q => q.id === state.sel);
+  if (t.id === "who") { render(); return; }
+  if (t.id === "p-status") { PLAN.status = t.value; markDirty(); }
+  else if (t.id === "tplsel" && t.value) {
+    const [k, v] = [t.value.slice(0, 1), t.value.slice(2)];
+    if (k === "i") fromInserat(v); else if (k === "s") fromStandard(v); else { tryChange(() => { state.fields = TEMPLATES[v](); }); selectOnly(state.fields[0].id); state.price = null; PLAN.inserat = null; }
+    t.value = "";
+  }
+  else if (t.id === "e-w" && f && t.value) tryChange(() => { sels().forEach(q => q.w = +t.value); });
+  else if (t.id === "e-h" && f && t.value) tryChange(() => { sels().forEach(q => q.h = +t.value); });
+  else if (t.id === "g-color") { state.color = t.value; markDirty(); }
+  else if (t.id === "g-zustand") { state.zustand = t.value; state.buyNew = {}; markDirty(); }
+  else if (t.id === "g-base") { state.base = t.value; markDirty(); }
+  else if (t.id === "g-sides") { state.sides = t.value; markDirty(); }
+  else if (t.id === "g-top") { state.top = t.value; markDirty(); }
+  else if (t.dataset.buynew) { if (t.checked) { const r = bom(geometry()).find(x => x.code === t.dataset.buynew); state.buyNew[t.dataset.buynew] = Math.round((r ? r.price * 2.2 : 0) * 100) / 100; } else delete state.buyNew[t.dataset.buynew]; markDirty(); }
+  else if (t.dataset.nkprice) { state.buyNew[t.dataset.nkprice] = Math.max(0, +t.value || 0); markDirty(); }
+  else if (t.id === "in-price") { state.price = Math.max(0, +t.value || 0); markDirty(); }
+  else if (t.id === "in-neu") { state.neupreis = t.value; markDirty(); }
+  else if (t.id === "in-rabatt") { state.rabatt = Math.max(0, Math.min(50, +t.value || 0)); markDirty(); }
+  else if (t.id === "in-paid") { const list = Number(state.price) || 0; state.rabatt = list ? Math.round((1 - (+t.value || 0) / list) * 1000) / 10 : 0; markDirty(); }
+  else if (t.id === "in-st") state.ertragsteuer = Math.max(0, +t.value || 0);
+  else if (t.id === "in-target" && t.value) {
+    const ek = bom(geometry()).reduce((a, r) => a + r.cost, 0), m = +t.value / 100, k = 1 - state.rabatt / 100;
+    let p = Math.ceil(ek / (1 - m) / 10) * 10;
+    for (let i = 0; i < 400 && calcNumbers(ek, p * k).gewD / (p * k) < m; i++) p += 10;
+    state.price = p; markDirty();
+  } else return;
+  render();
+});
+document.addEventListener("input", e => { if (e.target.id === "p-name") { PLAN.name = e.target.value; markDirty(); renderHead(); } });
+document.addEventListener("keydown", e => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") { e.preventDefault(); save(); return; }
+  const el = e.target.closest && e.target.closest(".fbox, .handle");
+  if (!el || (e.key !== "Enter" && e.key !== " ")) return;
+  e.preventDefault();
+  if (el.classList.contains("handle")) addField(el.dataset.add); else selectOnly(+el.dataset.id);
+  render();
+});
+window.addEventListener("beforeunload", e => { if (PLAN.dirty) { e.preventDefault(); e.returnValue = ""; } });
+
+(async () => {
+  if (!(await requireSession())) return;
+  try { await loadLive(); } catch (err) { state.flash = "Lagerdaten nicht geladen: " + err.message; }
+  const qs = new URLSearchParams(location.search);
+  if (qs.get("id")) await loadPlan(qs.get("id"));
+  else if (qs.get("std")) { fromStandard(qs.get("std")); PLAN.dirty = false; }
+  else if (qs.get("inserat")) { fromInserat(qs.get("inserat")); PLAN.dirty = false; }
+  render();
+  subscribe();
+})();
+</script>
 </body>
 </html>

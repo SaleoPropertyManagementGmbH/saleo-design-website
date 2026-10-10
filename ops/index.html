@@ -21,30 +21,322 @@
 </head>
 <body>
 <div id="login" class="login" hidden>
-<h1>Saleo Design Ops</h1>
-<form id="lf" style="display:grid;gap:12px">
-<label>E-Mail<input type="email" id="l-mail" value="info@saleo-group.de" autocomplete="username" required></label>
-<label>Passwort<input type="password" id="l-pw" autocomplete="current-password" required minlength="8"></label>
-<label id="l-pw2-box" hidden>Passwort wiederholen<input type="password" id="l-pw2" autocomplete="new-password" minlength="8"></label>
-<button class="btn primary" id="l-go" type="submit">Anmelden</button>
-<div id="l-msg"></div>
-</form>
-<p class="note"><button class="btn" id="l-mode" type="button">Erstes Mal hier? Zugang einrichten</button></p>
-<p class="note">Ein gemeinsamer Zugang für Samuel und Leon. Auf jedem Gerät einmal anmelden, danach bleibt die App angemeldet.</p>
+  <div class="login-card">
+    <div class="logo" style="padding:0"><img src="icon-192.png" alt=""><b>Saleo Design Ops<span>Lager, Produkte, Kalkulation</span></b></div>
+    <form id="lf" style="display:grid;gap:12px">
+      <label>E-Mail<input type="email" id="l-mail" value="info@saleo-group.de" autocomplete="username" required></label>
+      <label>Passwort<input type="password" id="l-pw" autocomplete="current-password" required minlength="8"></label>
+      <label id="l-pw2-box" hidden>Passwort wiederholen<input type="password" id="l-pw2" autocomplete="new-password" minlength="8"></label>
+      <button class="btn primary" id="l-go" type="submit">Anmelden</button>
+      <div id="l-msg"></div>
+    </form>
+    <button class="btn ghost" id="l-mode" type="button">Erstes Mal hier? Zugang einrichten</button>
+    <p class="note">Ein gemeinsamer Zugang für Samuel und Leon. Auf jedem Gerät einmal anmelden, danach bleibt die App angemeldet.</p>
+  </div>
 </div>
-<div id="app" class="wrap" hidden>
-<header class="top">
-<div class="brand"><h1>Saleo Design Ops</h1><span>Lager, Planer, Kalkulation für USM Haller</span></div>
-<div class="right-actions">
-<span class="live" id="live">verbinde…</span>
-<span id="whobox"></span>
-<a class="btn primary" href="planer.html" style="padding:6px 14px;text-decoration:none">Neue Planung</a>
-<button class="btn" id="logout">Abmelden</button>
+
+<div id="app" class="shell" hidden>
+  <aside class="side">
+    <div class="logo"><img src="icon-192.png" alt=""><b>Saleo Design Ops<span>USM Haller</span></b></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot">
+      <span id="whobox"></span>
+      <span class="live" id="live">verbinde…</span>
+      <button class="btn small" id="logout" style="justify-self:start">Abmelden</button>
+    </div>
+  </aside>
+  <div class="mobile-top"><b id="mtitle">Saleo Design Ops</b><span id="whobox-m"></span></div>
+  <main class="main"><div class="page" id="view"></div></main>
+  <nav class="tabbar" id="tabbar"></nav>
+  <div id="sheet" hidden></div>
 </div>
-</header>
-<nav class="appnav" id="nav"></nav>
-<main id="view"></main>
-</div>
-<script src="index.js"></script>
+
+<script>
+const ICON = {
+  start: '<path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/>',
+  produkte: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 12h18M12 4v16"/>',
+  planungen: '<path d="M4 20h16"/><path d="M6 16V8l6-4 6 4v8"/><path d="M10 16v-4h4v4"/>',
+  lager: '<path d="M3 7l9-4 9 4v10l-9 4-9-4z"/><path d="M3 7l9 4 9-4M12 11v10"/>',
+  vorlagen: '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+  katalog: '<circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/>',
+  regeln: '<path d="M12 3 4 6v6c0 4.5 3.4 8 8 9 4.6-1 8-4.5 8-9V6z"/><path d="m9 12 2 2 4-4"/>',
+  protokoll: '<path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="9"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  mehr: '<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>'
+};
+const svg = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICON[k]}</svg>`;
+const VIEWS = [["start", "Übersicht"], ["produkte", "Produkte"], ["planungen", "Planungen"], ["lager", "Lager"], ["vorlagen", "Vorlagen"], ["katalog", "Teilekatalog"], ["regeln", "USM-Regeln"], ["protokoll", "Protokoll"]];
+const D = { lager: [], typen: [], farben: [], plan: [], vorlagen: [], vpos: [], std: [], regeln: [], bew: [], build: null, ins: [], insStand: null };
+const UI = { view: "start", f: { q: "", gruppe: "", farbe: "", zustand: "", nur: "voll" }, p: { art: "moebel", farbe: "", q: "", sort: "neu" }, kq: "", fv: null, fvFarbe: "24", fvZustand: "G", fvRows: null, del: null, pf: "", sheet: false };
+const STATUS = { entwurf: "Entwurf", angebot: "Angebot", reserviert: "Reserviert", verkauft: "Verkauft", archiv: "Archiv" };
+const FARBHEX = { "24": "#efeee9", "29": "#c6c8c5", "35": "#a9abae", "32": "#7f8386", "33": "#3b4146", "30": "#232425", "34": "#24344d", "27": "#1a4f8b", "28": "#2f6a46", "36": "#43472f", "25": "#d99c1c", "26": "#e2561d", "23": "#8b1f2a", "22": "#5b3b2a", "31": "#cdbb98", "CR": "#c9ced4", "SW": "#222", "GL": "#cfe6ee" };
+const farbName = c => (D.farben.find(f => f.code === c) || { name: c || "" }).name;
+const num = n => (Number(n) || 0).toLocaleString("de-DE");
+const kurz = t => String(t || "").replace(/^USM Haller\s+/i, "");
+const tageHer = t => { const d = Math.floor((Date.now() - new Date(t)) / 864e5); return d <= 0 ? "heute" : d === 1 ? "gestern" : `vor ${d} Tagen`; };
+const preisText = e => e.preis != null ? eur(e.preis).replace(",00", "") + (e.vb ? " VB" : "") : "Preis auf Anfrage";
+const bild = (e, i = 0) => (e.bilder || [])[i] || "";
+const istNeu = e => e.aktiv && (Date.now() - new Date(e.erstellt)) < 3 * 864e5;
+
+/* ---------- Anmeldung ---------- */
+let signup = false;
+document.getElementById("l-mode").onclick = () => {
+  signup = !signup;
+  document.getElementById("l-pw2-box").hidden = !signup;
+  document.getElementById("l-go").textContent = signup ? "Zugang einrichten" : "Anmelden";
+  document.getElementById("l-mode").textContent = signup ? "Zugang schon eingerichtet? Anmelden" : "Erstes Mal hier? Zugang einrichten";
+};
+document.getElementById("lf").onsubmit = async e => {
+  e.preventDefault();
+  const email = document.getElementById("l-mail").value.trim(), password = document.getElementById("l-pw").value, msg = document.getElementById("l-msg");
+  msg.innerHTML = "";
+  if (signup && password !== document.getElementById("l-pw2").value) { msg.innerHTML = `<p class="err">Die Passwörter sind nicht gleich.</p>`; return; }
+  const { data, error } = signup ? await sb.auth.signUp({ email, password }) : await sb.auth.signInWithPassword({ email, password });
+  if (error) { msg.innerHTML = `<p class="err">${esc(error.message === "Invalid login credentials" ? "E-Mail oder Passwort falsch." : error.message === "Email not confirmed" ? "Zugang ist noch nicht freigeschaltet. Kurz Bescheid geben, dann schalte ich ihn frei." : error.message)}</p>`; return; }
+  if (!data.session) { msg.innerHTML = `<p class="okmsg">Zugang angelegt. Sobald er freigeschaltet ist, hier anmelden.</p>`; return; }
+  start();
+};
+document.getElementById("logout").onclick = async () => { await sb.auth.signOut(); location.reload(); };
+
+/* ---------- Daten ---------- */
+async function loadAll() {
+  const [lager, typen, farben, plan, vorlagen, vpos, std, regeln, bew, ins] = await Promise.all([
+    fetchAll("lager_health"), fetchAll("teiltyp"), fetchAll("farbe"),
+    fetchAll("planung", "id,name,status,geaendert_am,geaendert_von,erstellt_am,daten->>inserat", q => q.order("geaendert_am", { ascending: false })),
+    fetchAll("vorlage"), fetchAll("vorlage_position"), fetchAll("usm_standard"), fetchAll("usm_regel"),
+    sb.from("lagerbewegung").select("*").order("zeitpunkt", { ascending: false }).limit(300).then(r => { if (r.error) throw r.error; return r.data; }),
+    fetch("data/inserate.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : { inserate: [] }).catch(() => ({ inserate: [] }))
+  ]);
+  Object.assign(D, { lager, typen, farben, plan, vorlagen, vpos, std, regeln, bew, ins: ins.inserate || [], insStand: ins.stand });
+}
+async function loadBuildable() {
+  const jobs = [];
+  D.vorlagen.forEach(v => ["24", "30"].forEach(c => jobs.push(sb.rpc("fehlteile", { p_vorlage: v.code, p_farbe: c, p_zustand: "G" }).then(({ data }) => {
+    const rows = data || [], n = rows.length ? Math.min(...rows.map(r => Math.floor(r.vorhanden / r.noetig))) : 0;
+    const eng = rows.slice().sort((a, b) => a.vorhanden / a.noetig - b.vorhanden / b.noetig)[0];
+    return { v, c, n, eng };
+  }))));
+  D.build = await Promise.all(jobs);
+}
+
+/* ---------- Bausteine ---------- */
+const head = (t, p, actions = "") => `<div class="page-head"><div><h1>${t}</h1>${p ? `<p>${p}</p>` : ""}</div>${actions ? `<div class="right-actions">${actions}</div>` : ""}</div>`;
+const stat = (label, value, small = "", cls = "") => `<div class="stat"><span>${label}</span><b class="${cls}">${value}</b>${small ? `<small>${small}</small>` : ""}</div>`;
+function produktKarte(e) {
+  const m = e.masse && e.masse.b ? `${e.masse.b} × ${e.masse.h} × ${e.masse.t || "?"} cm` : "";
+  const fronten = [e.klappen ? `${e.klappen} Klappe${e.klappen > 1 ? "n" : ""}` : "", e.auszuege ? `${e.auszuege} Auszug` : "", e.innenauszuege ? `${e.innenauszuege} Innenauszug` : ""].filter(Boolean).join(", ");
+  return `<article class="product${e.aktiv ? "" : " gone"}">
+    <a class="img" href="${e.planer ? `planer.html?inserat=${e.id}` : esc(e.url)}" ${e.planer ? "" : 'target="_blank" rel="noopener"'}>
+      ${bild(e) ? `<img src="${esc(bild(e))}" alt="${esc(kurz(e.titel))}" loading="lazy">` : ""}
+      <div class="badges">${istNeu(e) ? `<span class="badge new">Neu</span>` : ""}${!e.aktiv ? `<span class="badge bad">nicht mehr online</span>` : ""}${e.zustand === "N" ? `<span class="badge ok">neuwertig</span>` : ""}</div>
+      <span class="price">${preisText(e)}</span></a>
+    <div class="body">
+      <h3>${esc(kurz(e.titel))}</h3>
+      <div class="meta">${e.farbe ? `<span><i class="dot" style="background:${FARBHEX[e.farbe] || "#ccc"}"></i> ${esc(farbName(e.farbe))}</span>` : ""}${m ? `<span>${m}</span>` : ""}${fronten ? `<span>${fronten}</span>` : ""}</div>
+      <div class="meta"><span>online ${tageHer(e.erstellt)}</span>${e.neupreis ? `<span>Neupreis ${eur(e.neupreis).replace(",00", "")}</span>` : ""}</div>
+      <div class="actions">${e.planer ? `<a class="btn primary" href="planer.html?inserat=${e.id}">Kalkulieren</a>` : ""}<a class="btn" href="${esc(e.url)}" target="_blank" rel="noopener">Anzeige</a></div>
+    </div></article>`;
+}
+
+/* ---------- Ansichten ---------- */
+function vStart() {
+  const wert = D.lager.reduce((a, r) => a + Number(r.wert || 0), 0), teile = D.lager.reduce((a, r) => a + r.bestand, 0);
+  const low = D.lager.filter(r => r.unter_minimum && r.mindestbestand);
+  const aktiv = D.ins.filter(e => e.aktiv), insWert = aktiv.reduce((a, e) => a + (Number(e.preis) || 0), 0);
+  const offen = D.plan.filter(p => ["entwurf", "angebot", "reserviert"].includes(p.status));
+  const h = new Date().getHours(), gruss = h < 11 ? "Guten Morgen" : h < 18 ? "Hallo" : "Guten Abend";
+  const empty = !D.lager.some(r => r.bestand > 0);
+  return head(`${gruss}${me() ? ", " + esc(me()) : ""}`, `Stand ${new Date().toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" })}`, `<a class="btn primary" href="planer.html">${svg("plus")} Neue Planung</a>`) +
+    `<div class="stats">${stat("Inserate online", aktiv.length, `zusammen ${eur(insWert).replace(",00", "")}`)}${stat("Offene Planungen", offen.length, `${D.plan.filter(p => p.status === "angebot").length} im Angebot`)}${stat("Lagerwert", eur(wert).replace(",00", ""), `${num(teile)} Teile`)}${stat("Unter Mindestbestand", low.length, low.length ? "nachkaufen prüfen" : "alles im grünen Bereich", low.length ? "neg" : "good")}</div>
+    ${empty ? `<div class="banner info"><span>Das Lager ist noch leer. Inventur einfach per Plaud an Klaus diktieren, pro Regalfach: Anzahl, Teil, Maß, Farbe, Zustand, Preis. Ich buche ein, danach rechnen Planer und Übersicht mit echten Zahlen.</span></div>` : ""}
+    <div class="grid-2">
+      <section class="card"><div class="card-head"><h2>Neu auf Kleinanzeigen</h2><a href="#produkte">Alle ${aktiv.length} Produkte</a></div>
+        ${aktiv.slice(0, 6).map(e => `<div class="list-row">${bild(e) ? `<img src="${esc(bild(e))}" alt="" loading="lazy">` : ""}<div class="grow"><div class="t">${esc(kurz(e.titel))}</div><div class="wo">${preisText(e)} · online ${tageHer(e.erstellt)}</div></div>${e.planer ? `<a class="btn small" href="planer.html?inserat=${e.id}">Kalkulieren</a>` : `<a class="btn small" href="${esc(e.url)}" target="_blank" rel="noopener">Anzeige</a>`}</div>`).join("") || `<p class="empty">Noch keine Inserate geladen.</p>`}
+        <p class="note" style="margin-top:8px">Stand Kleinanzeigen: ${D.insStand ? new Date(D.insStand).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "unbekannt"}</p></section>
+      <section class="card"><div class="card-head"><h2>Zuletzt bearbeitet</h2><a href="#planungen">Alle Planungen</a></div>
+        ${D.plan.slice(0, 6).map(p => `<div class="list-row"><div class="grow"><div class="t"><a href="planer.html?id=${p.id}">${esc(p.name)}</a></div><div class="wo">${when(p.geaendert_am)}${p.geaendert_von ? " · " + esc(p.geaendert_von) : ""}</div></div><span class="badge ${p.status === "verkauft" ? "ok" : p.status === "angebot" ? "warn" : ""}">${STATUS[p.status]}</span></div>`).join("") || `<p class="empty">Noch keine Planung. Bei einem Produkt auf „Kalkulieren“ tippen oder oben „Neue Planung“.</p>`}</section>
+      <section class="card"><div class="card-head"><h2>Sofort baubar aus dem Lager</h2><span class="note">gebrauchte Teile</span></div>
+        ${D.build ? `<div class="tablewrap"><table><thead><tr><th>Vorlage</th><th>Farbe</th><th class="num">Stück</th><th>Engpass</th></tr></thead><tbody>${D.build.map(x => `<tr><td>${esc(x.v.name)}</td><td><i class="dot" style="background:${FARBHEX[x.c]}"></i> ${esc(farbName(x.c))}</td><td class="num"><b class="${x.n ? "good" : "neg"}">${x.n}</b></td><td class="wo">${x.eng ? esc(x.eng.teil) + ` (${x.eng.vorhanden}/${x.eng.noetig})` : ""}</td></tr>`).join("")}</tbody></table></div>` : `<p class="empty">rechne…</p>`}</section>
+      <section class="card"><div class="card-head"><h2>Letzte Lagerbewegungen</h2><a href="#protokoll">Protokoll</a></div>
+        ${D.bew.slice(0, 6).map(r => `<div class="list-row"><div class="grow"><div class="t code" style="font-size:.8rem">${esc(r.teil)}</div><div class="wo">${when(r.zeitpunkt)} · ${esc(r.art)}</div></div><b>${r.menge > 0 ? "+" : ""}${r.menge}</b></div>`).join("") || `<p class="empty">Noch keine Buchungen.</p>`}</section>
+    </div>`;
+}
+function vProdukte() {
+  const p = UI.p, q = p.q.toLowerCase();
+  let list = D.ins.filter(e => (p.art === "alle" || e.art === p.art || (p.art === "weg" && !e.aktiv)) && (p.art === "weg" || e.aktiv) && (!p.farbe || e.farbe === p.farbe) && (!q || (e.titel + " " + e.beschreibung).toLowerCase().includes(q)));
+  list = list.sort((a, b) => p.sort === "preis" ? (b.preis || 0) - (a.preis || 0) : p.sort === "preis-auf" ? (a.preis || 0) - (b.preis || 0) : new Date(b.erstellt) - new Date(a.erstellt));
+  const count = a => D.ins.filter(e => e.aktiv && (a === "alle" || e.art === a)).length;
+  const farben = [...new Set(D.ins.filter(e => e.farbe).map(e => e.farbe))];
+  return head("Produkte", `Alles, was auf Kleinanzeigen online ist. Bei Möbeln öffnet „Kalkulieren“ den Planer mit Aufbau, Preis und allen Kennzahlen.`, `<a class="btn" href="https://www.kleinanzeigen.de/pro/saleo-group" target="_blank" rel="noopener">Kleinanzeigen-Profil</a>`) +
+    `<div class="filters">
+      <div class="chips">${[["moebel", "Möbel"], ["teil", "Einzelteile"], ["tisch", "Tische"], ["alle", "Alle"], ["weg", "Nicht mehr online"]].map(([k, n]) => `<button class="chip" data-part="${k}" aria-pressed="${p.art === k}">${n}${k !== "weg" ? ` <span class="wo">${count(k)}</span>` : ""}</button>`).join("")}</div>
+      <input type="search" id="pq" value="${esc(p.q)}" placeholder="Suchen, z. B. Sideboard, 150, grün">
+      <select id="pfarbe" aria-label="Farbe"><option value="">Alle Farben</option>${farben.map(c => `<option value="${c}"${p.farbe === c ? " selected" : ""}>${esc(farbName(c))}</option>`).join("")}</select>
+      <select id="psort" aria-label="Sortierung"><option value="neu"${p.sort === "neu" ? " selected" : ""}>Neueste zuerst</option><option value="preis"${p.sort === "preis" ? " selected" : ""}>Preis absteigend</option><option value="preis-auf"${p.sort === "preis-auf" ? " selected" : ""}>Preis aufsteigend</option></select>
+    </div>
+    ${list.length ? `<div class="products">${list.map(produktKarte).join("")}</div>` : `<p class="empty">Nichts gefunden.</p>`}
+    <p class="note">Stand: ${D.insStand ? new Date(D.insStand).toLocaleString("de-DE") : "unbekannt"}. Ich gleiche Kleinanzeigen regelmäßig ab: Neue Anzeigen kommen dazu, verkaufte oder gelöschte wandern zu „Nicht mehr online“. Den Aufbau im Planer leite ich aus den Maßen im Inserat ab, bitte einmal prüfen.</p>`;
+}
+function vLager() {
+  const f = UI.f, q = f.q.toLowerCase();
+  const rows = D.lager.filter(r => (!f.gruppe || r.gruppe === f.gruppe) && (!f.farbe || r.farbe === f.farbe) && (!f.zustand || r.zustand === f.zustand)
+    && (f.nur !== "voll" || r.bestand > 0) && (f.nur !== "low" || (r.unter_minimum && r.mindestbestand)) && (f.nur !== "neu" || r.nur_neu)
+    && (!q || (r.code + " " + r.bezeichnung + " " + (r.mass || "") + " " + farbName(r.farbe) + " " + (r.lagerort || "")).toLowerCase().includes(q)))
+    .sort((a, b) => Number(b.wert) - Number(a.wert) || a.code.localeCompare(b.code));
+  const groups = [...new Set(D.typen.map(t => t.gruppe))].sort();
+  const byG = {}; D.lager.forEach(r => byG[r.gruppe] = (byG[r.gruppe] || 0) + Number(r.wert || 0)); const maxG = Math.max(1, ...Object.values(byG));
+  const opt = (arr, v) => arr.map(([k, n]) => `<option value="${esc(k)}"${k === v ? " selected" : ""}>${esc(n)}</option>`).join("");
+  const wert = D.lager.reduce((a, r) => a + Number(r.wert || 0), 0), teile = D.lager.reduce((a, r) => a + r.bestand, 0), low = D.lager.filter(r => r.unter_minimum && r.mindestbestand).length;
+  return head("Lager", "Bestand, Durchschnittspreise und Mindestbestände, live aus der Datenbank.") +
+    `<div class="stats">${stat("Lagerwert", eur(wert).replace(",00", ""))}${stat("Teile auf Lager", num(teile))}${stat("Positionen mit Bestand", D.lager.filter(r => r.bestand > 0).length)}${stat("Unter Mindestbestand", low, "", low ? "neg" : "good")}</div>
+    <section class="card"><div class="card-head"><h2>Lagerwert nach Gruppe</h2></div>${Object.entries(byG).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<div class="bar"><span>${esc(k.replace(/^[A-Z] /, ""))}</span><div class="track"><div class="fill" style="width:${(v / maxG * 100).toFixed(1)}%"></div></div><span>${eur(v)}</span></div>`).join("") || `<p class="empty">Noch kein Bestand. Sobald die Inventur gebucht ist, steht hier die Verteilung.</p>`}</section>
+    <section class="card"><div class="card-head"><h2>Bestand</h2><span class="note">${rows.length} Positionen</span></div>
+      <div class="filters" style="margin-bottom:12px">
+        <input type="search" id="lf-q" value="${esc(f.q)}" placeholder="Teil, Maß, Fach…">
+        <select id="lf-gruppe" aria-label="Gruppe"><option value="">Alle Gruppen</option>${opt(groups.map(g => [g, g.replace(/^[A-Z] /, "")]), f.gruppe)}</select>
+        <select id="lf-farbe" aria-label="Farbe"><option value="">Alle Farben</option>${opt(D.farben.map(c => [c.code, c.name]), f.farbe)}</select>
+        <select id="lf-zustand" aria-label="Zustand">${opt([["", "Neu und gebraucht"], ["G", "Gebraucht"], ["N", "Neu"]], f.zustand)}</select>
+        <select id="lf-nur" aria-label="Anzeige">${opt([["voll", "Nur vorhandene"], ["", "Alle erfassten"], ["low", "Unter Minimum"], ["neu", "Nur-neu-Teile"]], f.nur)}</select>
+      </div>
+      ${rows.length ? `<div class="tablewrap"><table><thead><tr><th>Teil</th><th>Farbe</th><th>Zustand</th><th class="num">Bestand</th><th class="num">reserviert</th><th class="num">Min.</th><th>Fach</th><th class="num">Ø Preis</th><th class="num">Wert</th></tr></thead><tbody>
+      ${rows.slice(0, 400).map(r => `<tr><td>${esc(r.bezeichnung)} ${esc(r.mass ? r.mass.replace("x", " × ") : "")}${r.generation === "A" ? ` <span class="badge">alte Gen.</span>` : ""}${r.nur_neu ? ` <span class="badge warn">nur neu</span>` : ""}<div class="code">${esc(r.code)}</div></td><td><i class="dot" style="background:${FARBHEX[r.farbe] || "#ccc"}"></i> ${esc(farbName(r.farbe))}</td><td>${r.zustand === "G" ? "gebraucht" : "neu"}</td>
+        <td class="num">${r.unter_minimum && r.mindestbestand ? `<span class="pill warn">${r.bestand}</span>` : r.bestand}</td><td class="num">${r.reserviert || ""}</td><td class="num">${r.mindestbestand ?? ""}</td><td class="code">${esc(r.lagerort || "")}</td><td class="num">${eur(r.durchschnittspreis)}</td><td class="num">${eur(r.wert)}</td></tr>`).join("")}
+      </tbody></table></div>` : `<p class="empty">Keine Teile für diesen Filter.</p>`}</section>`;
+}
+function vPlanungen() {
+  const list = D.plan.filter(p => !UI.pf || p.status === UI.pf);
+  return head("Planungen", "Alle gespeicherten Möbel. Auf jedem Gerät gleich, Änderungen erscheinen sofort.", `<a class="btn primary" href="planer.html">${svg("plus")} Neue Planung</a>`) +
+    `<div class="chips"><button class="chip" data-pf="" aria-pressed="${!UI.pf}">Alle <span class="wo">${D.plan.length}</span></button>${Object.entries(STATUS).map(([k, n]) => `<button class="chip" data-pf="${k}" aria-pressed="${UI.pf === k}">${n} <span class="wo">${D.plan.filter(p => p.status === k).length}</span></button>`).join("")}</div>
+    <section class="card">${list.length ? `<div class="tablewrap"><table><thead><tr><th>Name</th><th>Status</th><th>Geändert</th><th></th></tr></thead><tbody>
+    ${list.map(p => `<tr><td><a href="planer.html?id=${p.id}"><b>${esc(p.name)}</b></a></td><td><select data-pstatus="${p.id}" aria-label="Status">${Object.entries(STATUS).map(([k, n]) => `<option value="${k}"${p.status === k ? " selected" : ""}>${n}</option>`).join("")}</select></td>
+      <td class="wo">${when(p.geaendert_am)}${p.geaendert_von ? "<br>" + esc(p.geaendert_von) : ""}</td><td class="num"><button class="btn small danger" data-pdel="${p.id}">${UI.del === p.id ? "Wirklich löschen?" : "Löschen"}</button></td></tr>`).join("")}
+    </tbody></table></div>` : `<p class="empty">Noch keine Planung in dieser Auswahl.</p>`}</section>`;
+}
+function vVorlagen() {
+  const pos = c => D.vpos.filter(p => p.vorlage === c);
+  const fv = UI.fv && D.vorlagen.find(v => v.code === UI.fv);
+  const moebel = D.ins.filter(e => e.aktiv && e.planer);
+  return head("Vorlagen", "Unsere Inserate, eigene Standardmöbel und die USM-Standardmöbel mit Neupreis, jeweils mit einem Klick im Planer.") +
+    `<section class="card"><div class="card-head"><h2>Aus unseren Inseraten</h2><a href="#produkte">als Karten ansehen</a></div>
+      <div class="tablewrap"><table><thead><tr><th>Möbel</th><th>Maße (B × H × T)</th><th>Fronten</th><th class="num">Inseratspreis</th><th></th></tr></thead><tbody>
+      ${moebel.map(e => `<tr><td><b>${esc(kurz(e.titel))}</b><div class="wo"><i class="dot" style="background:${FARBHEX[e.farbe] || "#ccc"}"></i> ${esc(farbName(e.farbe))}</div></td><td>${e.masse.b} × ${e.masse.h} × ${e.masse.t || "?"} cm</td><td class="wo">${e.klappen ? e.klappen + " Klappen" : "offen"}${e.auszuege ? ", " + e.auszuege + " Auszüge" : ""}</td><td class="num">${preisText(e)}</td><td class="num"><a class="btn small primary" href="planer.html?inserat=${e.id}">Kalkulieren</a></td></tr>`).join("")}
+      </tbody></table></div></section>
+    <section class="card"><div class="card-head"><h2>Saleo-Standardmöbel: was fehlt?</h2>
+      <div class="filters"><select id="fv-farbe" aria-label="Farbe">${D.farben.filter(f => /^\d+$/.test(f.code)).map(f => `<option value="${f.code}"${UI.fvFarbe === f.code ? " selected" : ""}>${esc(f.name)}</option>`).join("")}</select>
+      <select id="fv-zustand" aria-label="Zustand"><option value="G"${UI.fvZustand === "G" ? " selected" : ""}>Gebraucht</option><option value="N"${UI.fvZustand === "N" ? " selected" : ""}>Neu</option></select></div></div>
+      <div class="tablewrap"><table><tbody>
+      ${D.vorlagen.map(v => `<tr><td><b>${esc(v.name)}</b><div class="code">${esc(v.code)}</div></td><td class="num wo">${pos(v.code).reduce((a, p) => a + p.menge, 0)} Teile</td><td class="num"><button class="btn small" data-fv="${esc(v.code)}">Fehlteile prüfen</button></td></tr>`).join("")}</tbody></table></div>
+      ${fv && UI.fvRows ? `<h3 style="margin:16px 0 6px;font-size:.95rem">${esc(fv.name)}, ${esc(farbName(UI.fvFarbe))}, ${UI.fvZustand === "G" ? "gebraucht" : "neu"}</h3><div class="tablewrap"><table><thead><tr><th>Teil</th><th class="num">nötig</th><th class="num">vorhanden</th><th class="num">fehlt</th></tr></thead><tbody>
+        ${UI.fvRows.map(r => `<tr><td class="code">${esc(r.teil)}</td><td class="num">${r.noetig}</td><td class="num">${r.vorhanden}</td><td class="num">${r.fehlt ? `<span class="pill warn">${r.fehlt}</span>` : `<span class="pill ok">0</span>`}</td></tr>`).join("")}</tbody></table></div>` : ""}</section>
+    <section class="card"><div class="card-head"><h2>USM-Standardmöbel mit Neupreis</h2><span class="note">smow, Stand 10.10.2026</span></div>
+      <div class="tablewrap"><table><thead><tr><th>Möbel</th><th>Felder</th><th>Fronten</th><th>Neupreis</th><th></th></tr></thead><tbody>
+      ${D.std.map(s => `<tr><td><b>${esc(s.name)}</b><div class="wo">${esc(s.aussenmass)} · Tiefe ${esc(s.tiefe)} · <a href="${esc(s.quelle)}" target="_blank" rel="noopener">Quelle</a></div></td><td class="code">${s.felder_breite.join("+")} × ${s.felder_hoehe.join("+")}</td><td class="wo">${esc(s.fronten)}</td><td class="wo">${esc(s.neupreis)}</td><td class="num"><a class="btn small" href="planer.html?std=${encodeURIComponent(s.name)}">Im Planer</a></td></tr>`).join("")}</tbody></table></div></section>`;
+}
+function vKatalog() {
+  const q = UI.kq.toLowerCase();
+  const rows = D.typen.filter(t => !q || [t.code, t.bezeichnung, t.hinweis, t.usm_nr, (t.masse || []).join(" ")].join(" ").toLowerCase().includes(q)).sort((a, b) => a.gruppe.localeCompare(b.gruppe) || a.code.localeCompare(b.code));
+  const teile = D.ins.filter(e => e.aktiv && e.art === "teil");
+  let g = "";
+  return head("Teilekatalog", "Alle USM-Teile mit belegten Maßen, Artikelnummern und Quellen.") +
+    (teile.length ? `<section class="card"><div class="card-head"><h2>Einzelteile, die wir gerade anbieten</h2><a href="#produkte">alle Produkte</a></div>${teile.map(e => `<div class="list-row">${bild(e) ? `<img src="${esc(bild(e))}" alt="" loading="lazy">` : ""}<div class="grow"><div class="t">${esc(kurz(e.titel))}</div><div class="wo">${preisText(e)}</div></div><a class="btn small" href="${esc(e.url)}" target="_blank" rel="noopener">Anzeige</a></div>`).join("")}</section>` : "") +
+    `<section class="card"><div class="filters" style="margin-bottom:12px"><input type="search" id="kq" value="${esc(UI.kq)}" placeholder="z. B. Klappe, 18444, 750x350"><span class="note">${rows.length} Teiltypen</span></div>
+    <div class="tablewrap"><table><thead><tr><th>Teil</th><th>Maße</th><th>USM-Nr.</th><th>Hinweis</th><th>Quelle</th></tr></thead><tbody>
+    ${rows.map(t => { const h = t.gruppe !== g ? `<tr class="grp"><td colspan="5">${esc(t.gruppe.replace(/^[A-Z] /, ""))}</td></tr>` : ""; g = t.gruppe;
+      const links = String(t.quellen || "").split(/[\s,;]+/).filter(u => /^https?:/.test(u));
+      return h + `<tr><td><b>${esc(t.bezeichnung)}</b><div class="code">${esc(t.code)}</div></td><td class="code" style="white-space:normal;max-width:240px">${esc((t.masse || []).join(", "))}</td><td class="code">${esc(t.usm_nr || "")}</td><td class="wo" style="max-width:320px">${esc(t.hinweis || "")}</td><td class="src">${esc(t.quelle_status || "")}${links.map((u, i) => ` <a href="${esc(u)}" target="_blank" rel="noopener">${links.length > 1 ? i + 1 : "Link"}</a>`).join("")}</td></tr>`; }).join("")}
+    </tbody></table></div></section>`;
+}
+function vRegeln() {
+  const B = { sicherheit: "Kippsicherheit und Verankerung", statik: "Tragkraft", rollen: "Rollen", konstruktion: "Konstruktion und Größen", masse: "Maße und Gewichte", generation: "Generationen", tisch: "Tische", pflege: "Pflege" };
+  const fmt = w => w == null ? "" : Array.isArray(w) ? w.join(", ") : typeof w === "object" ? JSON.stringify(w) : String(w);
+  return head("USM-Regeln", "Aus USM-Unterlagen und von smow, Stand 10.10.2026. Der Planer prüft die wichtigsten davon automatisch.") +
+    Object.entries(B).map(([k, n]) => { const rs = D.regeln.filter(r => r.bereich === k); if (!rs.length) return "";
+      return `<section class="card"><div class="card-head"><h2>${n}</h2></div><div class="tablewrap"><table><tbody>${rs.map(r => `<tr><td style="width:50%"><b style="font-weight:550">${esc(r.regel)}</b>${r.bedingung ? `<div class="wo">${esc(r.bedingung)}</div>` : ""}</td><td style="white-space:normal">${esc(fmt(r.wert))} ${esc(r.einheit || "")}</td><td class="src">${r.status && r.status.startsWith("unbest") ? `<span class="badge warn">unbestätigt</span>` : `<span class="badge ok">belegt</span>`}${r.quelle ? ` <a href="${esc(r.quelle)}" target="_blank" rel="noopener">Quelle</a>` : ""}</td></tr>`).join("")}</tbody></table></div></section>`; }).join("");
+}
+function vProtokoll() {
+  return head("Protokoll", "Jede Inventur, jeder Einkauf und Verkauf mit Bestand und Durchschnittspreis danach.") +
+    `<section class="card">${D.bew.length ? `<div class="tablewrap"><table><thead><tr><th>Zeit</th><th>Art</th><th>Teil</th><th class="num">Menge</th><th class="num">Preis/Stk</th><th class="num">Bestand</th><th class="num">Ø danach</th><th>Notiz</th></tr></thead><tbody>
+    ${D.bew.map(r => `<tr><td class="wo">${when(r.zeitpunkt)}</td><td>${esc(r.art)}</td><td class="code">${esc(r.teil)}</td><td class="num">${r.menge > 0 ? "+" : ""}${r.menge}</td><td class="num">${r.preis_stueck != null ? eur(r.preis_stueck) : ""}</td><td class="num">${r.bestand_danach}</td><td class="num">${eur(r.durchschnitt_danach)}</td><td class="wo">${esc(r.notiz || "")}</td></tr>`).join("")}
+    </tbody></table></div>` : `<p class="empty">Noch keine Buchungen.</p>`}</section>`;
+}
+function navHtml() {
+  const neu = D.ins.filter(istNeu).length;
+  return VIEWS.map(([k, n]) => `<a href="#${k}"${UI.view === k ? ' aria-current="page"' : ""}>${svg(k)}${n}${k === "produkte" && neu ? `<span class="count">${neu} neu</span>` : k === "planungen" && D.plan.length ? `<span class="count">${D.plan.length}</span>` : ""}</a>`).join("");
+}
+function render() {
+  document.getElementById("nav").innerHTML = navHtml();
+  const tab = [["start", "Übersicht"], ["produkte", "Produkte"], ["neu", "Planen"], ["lager", "Lager"], ["mehr", "Mehr"]];
+  const inMehr = !["start", "produkte", "lager"].includes(UI.view);
+  document.getElementById("tabbar").innerHTML = tab.map(([k, n]) => k === "neu" ? `<a href="planer.html">${svg("plus")}${n}</a>` : k === "mehr" ? `<button id="more"${inMehr ? ' aria-current="page"' : ""}>${svg("mehr")}${n}</button>` : `<a href="#${k}"${UI.view === k ? ' aria-current="page"' : ""}>${svg(k)}${n}</a>`).join("");
+  document.getElementById("sheet").hidden = !UI.sheet;
+  document.getElementById("sheet").innerHTML = UI.sheet ? `<div class="sheet-bg" id="sheet-bg"></div><div class="sheet"><nav class="nav">${navHtml()}</nav><div style="display:flex;justify-content:space-between;align-items:center;padding:12px 6px 0"><span class="live${document.getElementById("live").classList.contains("on") ? " on" : ""}">${document.getElementById("live").textContent}</span><button class="btn small" id="logout2">Abmelden</button></div></div>` : "";
+  document.getElementById("whobox").innerHTML = whoPicker();
+  document.getElementById("whobox-m").innerHTML = whoPicker().replace('id="who"', 'id="who-m"');
+  document.getElementById("mtitle").textContent = (VIEWS.find(v => v[0] === UI.view) || VIEWS[0])[1];
+  const fn = { start: vStart, produkte: vProdukte, lager: vLager, planungen: vPlanungen, vorlagen: vVorlagen, katalog: vKatalog, regeln: vRegeln, protokoll: vProtokoll }[UI.view] || vStart;
+  const active = document.activeElement && document.activeElement.id, pos = active && document.activeElement.selectionStart;
+  document.getElementById("view").innerHTML = fn();
+  if (active && /^(lf-q|kq|pq)$/.test(active) && document.getElementById(active)) { const el = document.getElementById(active); el.focus(); try { el.setSelectionRange(pos, pos); } catch {} }
+}
+
+/* ---------- Ereignisse ---------- */
+window.addEventListener("hashchange", () => { UI.view = location.hash.slice(1) || "start"; UI.sheet = false; render(); window.scrollTo(0, 0); });
+document.addEventListener("input", e => {
+  if (e.target.id === "lf-q") { UI.f.q = e.target.value; render(); }
+  if (e.target.id === "kq") { UI.kq = e.target.value; render(); }
+  if (e.target.id === "pq") { UI.p.q = e.target.value; render(); }
+});
+document.addEventListener("change", async e => {
+  const t = e.target;
+  if (t.id === "who-m") { store.set("sdo_wer", t.value); render(); }
+  else if (t.id && t.id.startsWith("lf-") && t.id !== "lf-q") { UI.f[t.id.slice(3)] = t.value; render(); }
+  else if (t.id === "pfarbe") { UI.p.farbe = t.value; render(); }
+  else if (t.id === "psort") { UI.p.sort = t.value; render(); }
+  else if (t.id === "fv-farbe" || t.id === "fv-zustand") { UI[t.id === "fv-farbe" ? "fvFarbe" : "fvZustand"] = t.value; if (UI.fv) await checkVorlage(UI.fv); else render(); }
+  else if (t.dataset.pstatus) { await sb.from("planung").update({ status: t.value, geaendert_am: new Date().toISOString(), geaendert_von: me() || null }).eq("id", t.dataset.pstatus); }
+  else if (t.id === "who") render();
+});
+document.addEventListener("click", async e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.id === "more") { UI.sheet = true; render(); }
+  else if (b.id === "sheet-bg" || e.target.id === "sheet-bg") { UI.sheet = false; render(); }
+  else if (b.id === "logout2") { await sb.auth.signOut(); location.reload(); }
+  else if (b.dataset.part) { UI.p.art = b.dataset.part; render(); }
+  else if (b.dataset.pf != null) { UI.pf = b.dataset.pf; render(); }
+  else if (b.dataset.fv) await checkVorlage(b.dataset.fv);
+  else if (b.dataset.pdel) {
+    if (UI.del !== b.dataset.pdel) { UI.del = b.dataset.pdel; render(); setTimeout(() => { if (UI.del === b.dataset.pdel) { UI.del = null; render(); } }, 4000); return; }
+    await sb.from("planung").delete().eq("id", b.dataset.pdel); UI.del = null;
+  }
+});
+document.addEventListener("click", e => { if (e.target.id === "sheet-bg") { UI.sheet = false; render(); } });
+async function checkVorlage(code) {
+  UI.fv = code;
+  const { data, error } = await sb.rpc("fehlteile", { p_vorlage: code, p_farbe: UI.fvFarbe, p_zustand: UI.fvZustand });
+  UI.fvRows = error ? [] : data; render();
+}
+let reloadTimer = null;
+function liveReload() { clearTimeout(reloadTimer); reloadTimer = setTimeout(async () => { await loadAll(); render(); loadBuildable().then(render); }, 400); }
+
+/* ---------- Start ---------- */
+async function start() {
+  const { data } = await sb.auth.getSession();
+  if (!data.session) { document.getElementById("login").hidden = false; document.getElementById("app").hidden = true; return; }
+  const next = new URLSearchParams(location.search).get("next");
+  if (next && /^planer\.html/.test(next)) { location.replace(next); return; }
+  document.getElementById("login").hidden = true; document.getElementById("app").hidden = false;
+  UI.view = location.hash.slice(1) || "start";
+  document.getElementById("view").innerHTML = `<p class="empty">lade…</p>`;
+  try { await loadAll(); } catch (err) { document.getElementById("view").innerHTML = `<p class="err">Daten nicht geladen: ${esc(err.message)}</p>`; return; }
+  if (!D.farben.length) { document.getElementById("view").innerHTML = `<p class="err">Dieser Zugang ist nicht freigeschaltet. Nur info@saleo-group.de hat Zugriff.</p>`; return; }
+  render();
+  loadBuildable().then(render);
+  sb.channel("ops").on("postgres_changes", { event: "*", schema: "public", table: "teil" }, liveReload)
+    .on("postgres_changes", { event: "*", schema: "public", table: "planung" }, liveReload)
+    .on("postgres_changes", { event: "*", schema: "public", table: "lagerbewegung" }, liveReload)
+    .subscribe(s => { const el = document.getElementById("live"); el.textContent = s === "SUBSCRIBED" ? "live verbunden" : "offline"; el.classList.toggle("on", s === "SUBSCRIBED"); });
+}
+start();
+</script>
 </body>
 </html>

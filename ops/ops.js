@@ -1,1 +1,34 @@
-const SB_URL="https://uqcropugtdtrzaumjbby.supabase.co",SB_KEY="sb_publishable_HmAnd_xg6k-R2Nl2VAXecg_d-_OM9Kf",sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:!0,autoRefreshToken:!0,detectSessionInUrl:!0}}),store={get(e,t=""){try{return localStorage.getItem(e)??t}catch{return t}},set(e,t){try{localStorage.setItem(e,t)}catch{}}},DEVICE=(()=>{let e=store.get("sdo_dev");return e||(e=Math.random().toString(36).slice(2,10),store.set("sdo_dev",e)),e})(),WHO=["Samuel","Leon"],me=()=>store.get("sdo_wer");async function requireSession(){const{data:e}=await sb.auth.getSession();return e.session?e.session:(location.replace("index.html?next="+encodeURIComponent(location.pathname.split("/").pop()+location.search)),null)}async function fetchAll(e,t="*",o=e=>e){let n=[],s=0;for(;;){const{data:r,error:a}=await o(sb.from(e).select(t)).range(s,s+999);if(a)throw a;if(n=n.concat(r),r.length<1e3)return n;s+=1e3}}const esc=e=>String(e??"").replace(/[&<>"']/g,e=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[e])),eur=e=>(Number(e)||0).toLocaleString("de-DE",{style:"currency",currency:"EUR"}),when=e=>e?new Date(e).toLocaleString("de-DE",{day:"2-digit",month:"2-digit",year:"2-digit",hour:"2-digit",minute:"2-digit"}):"";function whoPicker(e){const t=me();return`<label class="who">Ich bin <select id="who">${t?"":'<option value="">wählen</option>'}${WHO.map(e=>`<option${e===t?" selected":""}>${e}</option>`).join("")}</select></label>`}document.addEventListener("change",e=>{"who"===e.target.id&&(store.set("sdo_wer",e.target.value),document.dispatchEvent(new CustomEvent("who")))});
+/* Saleo Design Ops: gemeinsame Verbindung, Anmeldung, Hilfsfunktionen */
+const SB_URL = "https://uqcropugtdtrzaumjbby.supabase.co";
+const SB_KEY = "sb_publishable_HmAnd_xg6k-R2Nl2VAXecg_d-_OM9Kf";
+const sb = supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+const store = {
+  get(k, d = "") { try { return localStorage.getItem(k) ?? d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} }
+};
+const DEVICE = (() => { let d = store.get("sdo_dev"); if (!d) { d = Math.random().toString(36).slice(2, 10); store.set("sdo_dev", d); } return d; })();
+const WHO = ["Samuel", "Leon"];
+const me = () => store.get("sdo_wer");
+async function requireSession() {
+  const { data } = await sb.auth.getSession();
+  if (!data.session) { location.replace("index.html?next=" + encodeURIComponent(location.pathname.split("/").pop() + location.search)); return null; }
+  return data.session;
+}
+async function fetchAll(table, select = "*", mod = q => q) {
+  let out = [], from = 0;
+  for (;;) {
+    const { data, error } = await mod(sb.from(table).select(select)).range(from, from + 999);
+    if (error) throw error;
+    out = out.concat(data);
+    if (data.length < 1000) return out;
+    from += 1000;
+  }
+}
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const eur = n => (Number(n) || 0).toLocaleString("de-DE", { style: "currency", currency: "EUR" });
+const when = t => t ? new Date(t).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" }) : "";
+function whoPicker(onChange) {
+  const v = me();
+  return `<label class="who">Ich bin <select id="who">${v ? "" : `<option value="">wählen</option>`}${WHO.map(n => `<option${n === v ? " selected" : ""}>${n}</option>`).join("")}</select></label>`;
+}
+document.addEventListener("change", e => { if (e.target.id === "who") { store.set("sdo_wer", e.target.value); document.dispatchEvent(new CustomEvent("who")); } });
