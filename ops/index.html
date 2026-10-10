@@ -192,6 +192,7 @@ function vAuswertung() {
 
 const AST = { heiss: ["warn", "kurz vor Abschluss"], bezahlt: ["new", "bezahlt"], freigegeben: ["ok", "Label wird erstellt"], label: ["ok", "Label gedruckt"], versendet: ["", "versendet"], abgeholt: ["", "abgeholt"], storniert: ["bad", "storniert"] };
 const offeneAuftraege = () => D.auf.filter(a => a.status === "bezahlt");
+const ZART = { waren: "Waren und Dienstleistungen", freunde: "Freunde und Familie" };
 const ZQ = { paypal: "PayPal", bank: "Bank", bar: "bar", kleinanzeigen: "Kleinanzeigen", ueberweisung: "Überweisung" };
 function auftragKarte(a) {
   const ins = a.inserat && D.ins.find(e => e.id === a.inserat), st = AST[a.status] || ["", a.status];
@@ -204,7 +205,7 @@ function auftragKarte(a) {
         <div class="wo">${esc(a.kaeufer_name || "Käufer unbekannt")}${a.kaeufer_kontakt ? " · " + esc(a.kaeufer_kontakt) : ""} · ${when(a.erstellt_am)}</div></div>
       <div class="order-money"><b>${eur(a.erloes)}</b>${a.gewinn_vor_steuern != null ? `<span class="${Number(a.gewinn_vor_steuern) >= 0 ? "good" : "neg"}">Gewinn ${eur(a.gewinn_vor_steuern)}</span>` : ""}</div></div>
     <div class="order-grid">
-      <div><span class="lbl">Zahlung</span>${a.zahlung_id ? `${ZQ[a.zahlung_quelle] || ""} ${eur(a.zahlung_betrag)}<div class="wo">${esc(a.zahlung_absender || "")}${a.bezahlt_am ? " · " + when(a.bezahlt_am) : ""}</div>` : `<span class="wo">noch offen, vereinbart ${eur(a.preis)}</span>`}</div>
+      <div><span class="lbl">Zahlung</span>${a.zahlung_id ? `${ZQ[a.zahlung_quelle] || ""} ${eur(a.zahlung_betrag)}${a.zahlung_art ? `<div class="wo">${ZART[a.zahlung_art]}${a.zahlung_gebuehr ? ", Gebühr " + eur(a.zahlung_gebuehr) : ""}</div>` : ""}<div class="wo">${esc(a.zahlung_absender || "")}${a.bezahlt_am ? " · " + when(a.bezahlt_am) : ""}</div>` : `<span class="wo">noch offen, vereinbart ${eur(a.preis)}</span>`}</div>
       <div><span class="lbl">Zuordnung</span>${a.zuordnung ? `${sich} <span class="wo">${esc(a.zuordnung)}</span>` : `<span class="wo">aus dem Chat</span>`}</div>
       <div><span class="lbl">Versand an</span>${adresse}</div>
       <div><span class="lbl">Paket</span>${pk.kg ? `${num(pk.kg)} kg` : ""}${pk.masse ? ` · ${esc(pk.masse)} cm` : ""}${pk.anzahl > 1 ? ` · ${pk.anzahl} Pakete` : ""}${!pk.kg && !pk.masse ? `<span class="wo">${a.versandart === "dpd" ? "DPD" : esc(a.versandart)}</span>` : ""}${a.lagerort ? `<div class="wo">Lagerort ${esc(a.lagerort)}</div>` : ""}</div>
@@ -217,6 +218,7 @@ function auftragKarte(a) {
 }
 function vAuftraege() {
   const g = s => D.auf.filter(a => s.includes(a.status));
+  const zein = D.zahl.filter(z => (z.richtung || "ein") === "ein"), zaus = D.zahl.filter(z => z.richtung === "aus" && !z.einkauf_id);
   const bez = g(["bezahlt"]), heiss = g(["heiss"]), arbeit = g(["freigegeben", "label"]), fertig = g(["versendet", "abgeholt"]).slice(0, 20);
   const umsatzOffen = [...heiss, ...bez, ...arbeit].reduce((s, a) => s + Number(a.erloes || 0), 0);
   const sec = (t, list, leer, note = "") => `<section class="order-sec"><div class="card-head"><h2>${t} <span class="wo">${list.length}</span></h2>${note ? `<span class="note">${note}</span>` : ""}</div>${list.length ? list.map(auftragKarte).join("") : `<p class="empty">${leer}</p>`}</section>`;
@@ -226,7 +228,8 @@ function vAuftraege() {
     ${sec("Bezahlt: Label freigeben", bez, "Kein bezahlter Auftrag offen.", "Zahlung ist da und zugeordnet")}
     ${sec("Kurz vor Abschluss", heiss, "Gerade nichts kurz vor Abschluss.", "Preis vereinbart, Zahlung steht aus")}
     ${arbeit.length ? sec("Label in Arbeit", arbeit, "") : ""}
-    ${D.zahl.length ? `<section class="card"><div class="card-head"><h2>Zahlungen ohne Zuordnung</h2><span class="note">Kurz sagen, wozu sie gehören</span></div><div class="tablewrap"><table><tbody>${D.zahl.map(z => `<tr><td class="wo">${when(z.zeitpunkt)}</td><td>${ZQ[z.quelle] || z.quelle}</td><td><b>${esc(z.absender || "")}</b><div class="wo">${esc(z.nachricht || "")}</div></td><td class="num"><b>${eur(z.betrag)}</b></td></tr>`).join("")}</tbody></table></div></section>` : ""}
+    ${zein.length ? `<section class="card"><div class="card-head"><h2>Eingänge ohne Zuordnung</h2><span class="note">Kurz sagen, wozu sie gehören</span></div><div class="tablewrap"><table><tbody>${zein.map(z => `<tr><td class="wo">${when(z.zeitpunkt)}</td><td>${ZQ[z.quelle] || z.quelle}</td><td><b>${esc(z.absender || "")}</b><div class="wo">${[z.art ? ZART[z.art] : "", z.nachricht || ""].filter(Boolean).map(esc).join(" · ")}</div></td><td class="num"><b>${eur(z.betrag)}</b>${z.gebuehr > 0 ? `<div class="wo">Gebühr ${eur(z.gebuehr)}</div>` : ""}</td></tr>`).join("")}</tbody></table></div></section>` : ""}
+    ${zaus.length ? `<details class="card fold"><summary>Ausgaben ohne Zuordnung <span class="wo">${zaus.length}</span></summary><p class="note">Sag mir, was ihr damit gekauft habt, dann buche ich es als Einkauf ins Lager.</p><div class="tablewrap"><table><tbody>${zaus.map(z => `<tr><td class="wo">${when(z.zeitpunkt)}</td><td>${ZQ[z.quelle] || z.quelle}</td><td class="wo">${esc([z.absender, z.nachricht].filter(Boolean).join(" · "))}</td><td class="num"><b class="neg">− ${eur(z.betrag)}</b></td></tr>`).join("")}</tbody></table></div></details>` : ""}
     ${fertig.length ? sec("Zuletzt versendet", fertig, "") : ""}`;
 }
 
