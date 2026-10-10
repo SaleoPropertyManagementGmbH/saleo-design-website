@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<base href="/ops/">
+<title>Rechnung · Saleo Design Ops</title>
+<link rel="stylesheet" href="ops.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="ops.js"></script>
+<style>
+  .re-wrap { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
+  .re-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+  .re-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .paper { background: #fff; color: #17191d; border-radius: 6px; box-shadow: var(--shadow); padding: 44px 48px; font-size: 13.5px; line-height: 1.45; }
+  .paper .absender { font-size: 10.5px; color: #555; border-bottom: 1px solid #ccc; display: inline-block; padding-bottom: 2px; margin-bottom: 10px; }
+  .paper .kopf { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .paper .meta td { padding: 1px 0 1px 14px; } .paper .meta td:first-child { padding-left: 0; color: #555; }
+  .paper h2 { font-size: 20px; margin: 30px 0 14px; }
+  .paper table.pos { width: 100%; border-collapse: collapse; }
+  .paper table.pos th { text-align: left; font-size: 11.5px; color: #555; border-bottom: 1px solid #999; padding: 6px 4px; }
+  .paper table.pos td { border-bottom: 1px solid #e3e3e3; padding: 7px 4px; vertical-align: top; }
+  .paper .r { text-align: right; white-space: nowrap; }
+  .paper .summe td { border: 0; padding: 4px; } .paper .summe .end td { font-weight: 700; border-top: 1px solid #999; }
+  .paper .hinweis { margin-top: 18px; font-size: 12.5px; }
+  .paper .fuss { margin-top: 34px; padding-top: 10px; border-top: 1px solid #ccc; font-size: 10.5px; color: #555; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  @media (max-width: 640px) { .paper { padding: 24px 18px; font-size: 12.5px; } .paper .fuss { grid-template-columns: 1fr; } }
+  @media print { .re-top, .banner { display: none !important; } body { background: #fff; } .paper { box-shadow: none; padding: 0; } }
+</style>
+</head>
+<body>
+<div class="re-wrap">
+  <div class="re-top"><a class="btn" href="index.html#auftraege">← Aufträge</a><div class="re-actions" id="actions"></div></div>
+  <div id="msg"></div>
+  <div id="paper"><p class="empty">lade…</p></div>
+</div>
+<script>
+const eurD = n => (Number(n) || 0).toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+const datD = d => new Date(d).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+let R = null, F = {};
+const SONDER = "Gebrauchtgegenstände/Sonderregelung. Differenzbesteuerung nach § 25a UStG, die Umsatzsteuer wird nicht gesondert ausgewiesen.";
+function faellig() { const d = new Date(R.datum); d.setDate(d.getDate() + Number(F.zahlungsziel_tage || 7)); return d; }
+function adresseZeilen() { const a = R.kunde_adresse || {}; return [R.kunde_name, a.zusatz, a.strasse, [a.plz, a.ort].filter(Boolean).join(" "), a.land && a.land !== "DE" ? a.land : ""].filter(Boolean); }
+function zahlungText() {
+  const z = [];
+  if (R.zahlarten.includes("ueberweisung")) z.push(`per Überweisung an ${F.name}, ${F.bank || "Bank"}${F.iban ? ", IBAN " + F.iban : ""}${F.bic ? ", BIC " + F.bic : ""}, Verwendungszweck ${R.nummer}`);
+  if (R.zahlarten.includes("paypal")) z.push(R.paypal_link ? `per PayPal über diesen Link: ${R.paypal_link}` : `per PayPal an ${F.paypal}, bitte mit der Rechnungsnummer ${R.nummer} als Nachricht`);
+  if (R.zahlarten.includes("bar")) z.push("bar bei Abholung");
+  if (R.zahlarten.includes("sumup")) z.push("mit Karte bei Abholung");
+  return z;
+}
+const bezahlt = () => R.status === "bezahlt";
+function render() {
+  const pos = R.positionen;
+  const fehlt = [!F.steuernummer && !F.ust_id ? "Steuernummer bzw. USt-IdNr" : "", R.zahlarten.includes("ueberweisung") && !F.iban ? "IBAN" : "", !R.kunde_adresse ? "Adresse des Kunden" : ""].filter(Boolean);
+  document.getElementById("msg").innerHTML = fehlt.length ? `<div class="banner"><span><b>Noch nicht vollständig:</b> ${fehlt.join(", ")} fehlt. Sag es mir kurz, dann trage ich es nach.</span></div>` : "";
+  document.getElementById("paper").innerHTML = `<div class="paper">
+    <div class="absender">${esc(F.name)} · ${esc(F.strasse)} · ${esc(F.ort)}</div>
+    <div class="kopf"><div>${adresseZeilen().map(esc).join("<br>")}</div>
+      <table class="meta"><tbody><tr><td>Rechnungsnummer</td><td><b>${esc(R.nummer)}</b></td></tr><tr><td>Rechnungsdatum</td><td>${datD(R.datum)}</td></tr><tr><td>Liefer-/Leistungsdatum</td><td>${datD(R.lieferdatum || R.datum)}</td></tr><tr><td>${F.ust_id ? "USt-IdNr" : "Steuernummer"}</td><td>${esc(F.ust_id || F.steuernummer || "beantragt")}</td></tr></tbody></table></div>
+    <h2>Rechnung ${esc(R.nummer)}</h2>
+    <table class="pos"><thead><tr><th>Pos.</th><th>Beschreibung</th><th class="r">Menge</th><th class="r">Einzelpreis</th><th class="r">Gesamt</th></tr></thead><tbody>
+      ${pos.map((p, i) => `<tr><td>${i + 1}</td><td>${esc(p.text)}</td><td class="r">${p.menge}</td><td class="r">${eurD(p.preis)}</td><td class="r">${eurD(p.menge * p.preis)}</td></tr>`).join("")}
+    </tbody></table>
+    <table class="pos summe" style="margin-top:6px"><tbody>
+      ${R.besteuerung === "regel" ? `<tr><td></td><td class="r">Nettobetrag</td><td class="r" style="width:120px">${eurD(R.netto)}</td></tr><tr><td></td><td class="r">zzgl. 19 % USt</td><td class="r">${eurD(R.ust)}</td></tr>` : ""}
+      <tr class="end"><td></td><td class="r">Rechnungsbetrag</td><td class="r" style="width:120px">${eurD(R.brutto)}</td></tr></tbody></table>
+    <div class="hinweis">${R.besteuerung === "differenz" ? `<p>${SONDER}</p>` : ""}
+      ${bezahlt() ? `<p><b>Der Betrag ist bereits bezahlt.</b> Vielen Dank!</p>` : `<p>Bitte zahlen Sie den Rechnungsbetrag bis zum ${datD(faellig())}:</p><ul>${zahlungText().map(t => `<li>${esc(t)}</li>`).join("")}</ul>`}
+      ${R.hinweis ? `<p>${esc(R.hinweis)}</p>` : ""}<p>Vielen Dank für Ihren Einkauf!</p></div>
+    <div class="fuss"><div>${esc(F.name)}<br>${esc(F.strasse)}<br>${esc(F.ort)}</div><div>${esc(F.register)}<br>Geschäftsführer: ${esc(F.geschaeftsfuehrer)}<br>${F.ust_id ? "USt-IdNr " + esc(F.ust_id) : F.steuernummer ? "Steuernummer " + esc(F.steuernummer) : ""}</div><div>${esc(F.email)} · ${esc(F.web)}<br>${esc(F.bank || "")}${F.iban ? "<br>IBAN " + esc(F.iban) : ""}</div></div>
+  </div>`;
+  const st = { entwurf: "Entwurf", gesendet: "gesendet " + (R.gesendet_am ? when(R.gesendet_am) : ""), bezahlt: "bezahlt", storniert: "storniert" }[R.status];
+  document.getElementById("actions").innerHTML = `<span class="badge ${R.status === "bezahlt" ? "ok" : R.status === "entwurf" ? "warn" : ""}">${esc(st)}</span>
+    <button class="btn primary" id="send">${R.status === "entwurf" ? "Rechnung senden" : "Erneut senden"}</button><button class="btn" id="pdf">PDF</button>`;
+}
+function pdf() {
+  const { jsPDF } = window.jspdf, d = new jsPDF({ unit: "mm", format: "a4" });
+  const L = 20, Rr = 190; let y = 20;
+  d.setFont("helvetica", "normal"); d.setFontSize(8); d.setTextColor(90);
+  d.text(`${F.name} · ${F.strasse} · ${F.ort}`, L, 48);
+  d.setTextColor(20); d.setFontSize(10.5);
+  d.setFont("helvetica", "bold"); d.setFontSize(15); d.text("Saleo Design", L, y); d.setFont("helvetica", "normal"); d.setFontSize(9); d.setTextColor(90); d.text(`${F.web} · ${F.email}`, L, y + 5); d.setTextColor(20);
+  d.setFontSize(10.5); adresseZeilen().forEach((z, i) => d.text(z, L, 55 + i * 5));
+  const meta = [["Rechnungsnummer", R.nummer], ["Rechnungsdatum", datD(R.datum)], ["Liefer-/Leistungsdatum", datD(R.lieferdatum || R.datum)], [F.ust_id ? "USt-IdNr" : "Steuernummer", F.ust_id || F.steuernummer || "beantragt"]];
+  d.setFontSize(9.5); meta.forEach(([k, v], i) => { d.setTextColor(90); d.text(k, 125, 55 + i * 5); d.setTextColor(20); d.text(String(v), Rr, 55 + i * 5, { align: "right" }); });
+  y = 92; d.setFont("helvetica", "bold"); d.setFontSize(15); d.text(`Rechnung ${R.nummer}`, L, y);
+  y += 10; d.setFontSize(9); d.setTextColor(90); d.text("Pos.", L, y); d.text("Beschreibung", L + 12, y); d.text("Menge", 130, y, { align: "right" }); d.text("Einzelpreis", 160, y, { align: "right" }); d.text("Gesamt", Rr, y, { align: "right" });
+  d.setDrawColor(150); d.line(L, y + 2, Rr, y + 2); d.setTextColor(20); d.setFont("helvetica", "normal"); d.setFontSize(10);
+  y += 8;
+  R.positionen.forEach((p, i) => {
+    const zeilen = d.splitTextToSize(p.text, 82);
+    d.text(String(i + 1), L, y); d.text(zeilen, L + 12, y); d.text(String(p.menge), 130, y, { align: "right" }); d.text(eurD(p.preis), 160, y, { align: "right" }); d.text(eurD(p.menge * p.preis), Rr, y, { align: "right" });
+    y += zeilen.length * 5 + 2; d.setDrawColor(225); d.line(L, y - 3, Rr, y - 3);
+  });
+  y += 3;
+  if (R.besteuerung === "regel") { d.text("Nettobetrag", 160, y, { align: "right" }); d.text(eurD(R.netto), Rr, y, { align: "right" }); y += 5; d.text("zzgl. 19 % USt", 160, y, { align: "right" }); d.text(eurD(R.ust), Rr, y, { align: "right" }); y += 5; }
+  d.setDrawColor(150); d.line(120, y - 3.5, Rr, y - 3.5); d.setFont("helvetica", "bold"); d.text("Rechnungsbetrag", 160, y + 1, { align: "right" }); d.text(eurD(R.brutto), Rr, y + 1, { align: "right" }); d.setFont("helvetica", "normal");
+  y += 12; d.setFontSize(9.5);
+  const absatz = t => { const z = d.splitTextToSize(t, Rr - L); d.text(z, L, y); y += z.length * 4.6 + 2; };
+  if (R.besteuerung === "differenz") absatz(SONDER);
+  if (bezahlt()) absatz("Der Betrag ist bereits bezahlt. Vielen Dank!");
+  else { absatz(`Bitte zahlen Sie den Rechnungsbetrag bis zum ${datD(faellig())}:`); zahlungText().forEach(t => absatz("• " + t)); }
+  if (R.hinweis) absatz(R.hinweis);
+  absatz("Vielen Dank für Ihren Einkauf!");
+  d.setFontSize(7.5); d.setTextColor(90); d.setDrawColor(200); d.line(L, 272, Rr, 272);
+  [[`${F.name}`, F.strasse, F.ort], [F.register, `Geschäftsführer: ${F.geschaeftsfuehrer}`, F.ust_id ? `USt-IdNr ${F.ust_id}` : F.steuernummer ? `Steuernummer ${F.steuernummer}` : ""], [`${F.email} · ${F.web}`, F.bank || "", F.iban ? `IBAN ${F.iban}` : ""]]
+    .forEach((col, c) => col.filter(Boolean).forEach((t, i) => d.text(d.splitTextToSize(String(t), 55), L + c * 58, 277 + i * 3.6)));
+  return d;
+}
+const dateiname = () => `Rechnung_${R.nummer}_Saleo_Design.pdf`;
+const mailText = () => `Guten Tag ${R.kunde_name},\n\nanbei erhalten Sie Ihre Rechnung ${R.nummer} über ${eurD(R.brutto)}.${bezahlt() ? "" : ` Bitte zahlen Sie bis zum ${datD(faellig())}, alle Zahlungsmöglichkeiten stehen auf der Rechnung.`}\n\nVielen Dank für Ihren Einkauf und viele Grüße\nIhr Team von Saleo Design`;
+async function senden() {
+  if (!me()) { document.getElementById("msg").innerHTML = `<div class="banner"><span>Bitte zuerst in der Übersicht bei „Ich bin“ auswählen, wer sendet.</span></div>`; return; }
+  const blob = pdf().output("blob"), file = new File([blob], dateiname(), { type: "application/pdf" });
+  const betreff = `Ihre Rechnung ${R.nummer} von Saleo Design`;
+  let ok = false;
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: betreff, text: mailText() }); ok = true; } catch (e) { if (e.name === "AbortError") return; }
+  }
+  if (!ok) {
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = dateiname(); a.click();
+    location.href = `mailto:${encodeURIComponent(R.kunde_email || "")}?subject=${encodeURIComponent(betreff)}&body=${encodeURIComponent(mailText() + "\n\n(PDF im Anhang)")}`;
+    document.getElementById("msg").innerHTML = `<div class="banner info"><span>Die PDF ist heruntergeladen und die Mail vorbereitet. Bitte die PDF an die Mail hängen und senden.</span><button class="btn small primary" id="markiert">Ist gesendet</button></div>`;
+    return;
+  }
+  await markieren();
+}
+async function markieren() {
+  if (R.status === "entwurf") await sb.rpc("rechnung_gesendet", { p_id: R.id, p_wer: me(), p_an: R.kunde_email || null });
+  await laden(); document.getElementById("msg").innerHTML = `<div class="banner info"><span>Rechnung als gesendet vermerkt. Sobald das Geld da ist, ordne ich die Zahlung zu.</span></div>`;
+}
+async function laden() {
+  const id = new URLSearchParams(location.search).get("id");
+  const [{ data: r, error }, { data: f }] = await Promise.all([sb.from("rechnung").select("*").eq("id", id).single(), sb.from("firma").select("*")]);
+  if (error || !r) { document.getElementById("paper").innerHTML = `<p class="err">Rechnung nicht gefunden.</p>`; return; }
+  R = r; F = Object.fromEntries((f || []).map(x => [x.schluessel, x.wert])); render();
+}
+document.addEventListener("click", e => {
+  if (e.target.id === "pdf") pdf().save(dateiname());
+  if (e.target.id === "send") senden();
+  if (e.target.id === "markiert") markieren();
+});
+(async () => { if (!(await requireSession())) return; await laden(); })();
+</script>
+</body>
+</html>
