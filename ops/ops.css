@@ -277,3 +277,13 @@ details.fold[open] > summary { margin-bottom: 12px; }
 .side { align-self: start; }
 .mobile-only { display: none; }
 @media (max-width: 1020px) { .mobile-only { display: block; } }
+
+/* Fertigmöbel und Auswertung */
+.badge.info { background: var(--accent-soft, #e3e8f2); color: var(--accent); white-space: normal; }
+.product .noimg { width: 100%; height: 100%; display: grid; place-items: center; background: var(--wall); color: var(--muted); }
+.product .noimg svg { width: 56px; height: 56px; fill: none; stroke: currentColor; stroke-width: 1.4; }
+details.teile { font-size: .82rem; margin-top: 6px; }
+details.teile summary { cursor: pointer; color: var(--muted); }
+details.teile .row { display: flex; justify-content: space-between; gap: 8px; padding: 3px 0; border-bottom: 1px solid var(--line, rgba(0,0,0,.06)); }
+td .track { height: 8px; background: var(--wall); border-radius: 99px; overflow: hidden; margin-bottom: 3px; }
+td .fill { height: 100%; background: var(--accent); border-radius: 99px; }

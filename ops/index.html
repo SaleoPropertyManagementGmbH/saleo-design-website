@@ -62,11 +62,13 @@ const ICON = {
   regeln: '<path d="M12 3 4 6v6c0 4.5 3.4 8 8 9 4.6-1 8-4.5 8-9V6z"/><path d="m9 12 2 2 4-4"/>',
   protokoll: '<path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="9"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
+  moebel: '<rect x="3" y="5" width="18" height="12" rx="1.5"/><path d="M12 5v12M3 11h18M6 17v2M18 17v2"/>',
+  auswertung: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   mehr: '<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>'
 };
 const svg = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICON[k]}</svg>`;
-const VIEWS = [["start", "Übersicht"], ["produkte", "Produkte"], ["planungen", "Planungen"], ["lager", "Lager"], ["vorlagen", "Vorlagen"], ["katalog", "Teilekatalog"], ["regeln", "USM-Regeln"], ["protokoll", "Protokoll"]];
-const D = { lager: [], typen: [], farben: [], plan: [], vorlagen: [], vpos: [], std: [], regeln: [], bew: [], build: null, ins: [], insStand: null };
+const VIEWS = [["start", "Übersicht"], ["produkte", "Produkte"], ["moebel", "Fertige Möbel"], ["planungen", "Planungen"], ["lager", "Lager"], ["auswertung", "Auswertung"], ["vorlagen", "Vorlagen"], ["katalog", "Teilekatalog"], ["regeln", "USM-Regeln"], ["protokoll", "Protokoll"]];
+const D = { lager: [], typen: [], farben: [], plan: [], vorlagen: [], vpos: [], std: [], regeln: [], bew: [], build: null, ins: [], insStand: null, moebel: [], mteile: [], ausw: [], verk: [] };
 const UI = { view: "start", f: { q: "", gruppe: "", farbe: "", zustand: "", nur: "voll" }, p: { art: "moebel", farbe: "", q: "", sort: "neu" }, kq: "", fv: null, fvFarbe: "24", fvZustand: "G", fvRows: null, del: null, pf: "", sheet: false };
 const STATUS = { entwurf: "Entwurf", angebot: "Angebot", reserviert: "Reserviert", verkauft: "Verkauft", archiv: "Archiv" };
 const FARBHEX = { "24": "#efeee9", "29": "#c6c8c5", "35": "#a9abae", "32": "#7f8386", "33": "#3b4146", "30": "#232425", "34": "#24344d", "27": "#1a4f8b", "28": "#2f6a46", "36": "#43472f", "25": "#d99c1c", "26": "#e2561d", "23": "#8b1f2a", "22": "#5b3b2a", "31": "#cdbb98", "CR": "#c9ced4", "SW": "#222", "GL": "#cfe6ee" };
@@ -107,7 +109,9 @@ async function loadAll() {
     sb.from("lagerbewegung").select("*").order("zeitpunkt", { ascending: false }).limit(300).then(r => { if (r.error) throw r.error; return r.data; }),
     fetch("data/inserate.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : { inserate: [] }).catch(() => ({ inserate: [] }))
   ]);
-  Object.assign(D, { lager, typen, farben, plan, vorlagen, vpos, std, regeln, bew, ins: ins.inserate || [], insStand: ins.stand });
+  const opt = (t, s = "*", m) => fetchAll(t, s, m).catch(() => []);
+  const [moebel, mteile, ausw, verk] = await Promise.all([opt("moebel", "*", q => q.order("erstellt_am", { ascending: false })), opt("moebel_teil"), opt("auswertung_kategorie"), opt("marge_je_verkauf", "*", q => q.order("datum", { ascending: false }))]);
+  Object.assign(D, { lager, typen, farben, plan, vorlagen, vpos, std, regeln, bew, ins: ins.inserate || [], insStand: ins.stand, moebel, mteile, ausw, verk });
 }
 async function loadBuildable() {
   const jobs = [];
@@ -138,6 +142,52 @@ function produktKarte(e) {
     </div></article>`;
 }
 
+const MST = { aufgebaut: ["ok", "sofort verfügbar"], reserviert: ["warn", "reserviert"], verkauft: ["", "verkauft"], zerlegt: ["", "zerlegt"] };
+const verfuegbareMoebel = () => D.moebel.filter(m => ["aufgebaut", "reserviert"].includes(m.status));
+function moebelWert(m) {
+  return D.mteile.filter(t => t.moebel_id === m.id).reduce((a, t) => { const r = D.lager.find(l => l.code === t.teil); return a + t.menge * Number(r ? r.durchschnittspreis : 0); }, 0);
+}
+function moebelKarte(m) {
+  const ins = m.inserat && D.ins.find(e => e.id === m.inserat), st = MST[m.status] || ["", m.status];
+  const teile = D.mteile.filter(t => t.moebel_id === m.id), n = teile.reduce((a, t) => a + t.menge, 0);
+  return `<article class="product">
+    <a class="img" href="planer.html?moebel=${m.id}">${ins && bild(ins) ? `<img src="${esc(bild(ins, 0, "$_59"))}" alt="" loading="lazy">` : `<div class="noimg">${svg("moebel")}</div>`}
+      <div class="badges"><span class="badge ${st[0]}">${st[1]}</span>${m.zustand === "N" ? `<span class="badge ok">neu</span>` : ""}</div>
+      ${ins && ins.preis ? `<span class="price">${preisText(ins)}</span>` : ""}</a>
+    <div class="body"><h3>${esc(m.name)}</h3>
+      <div class="meta">${m.farbe ? `<span><i class="dot" style="background:${FARBHEX[m.farbe] || "#ccc"}"></i> ${esc(farbName(m.farbe))}</span>` : ""}${m.masse ? `<span>${esc(m.masse)} cm</span>` : ""}${m.lagerort ? `<span>Lagerort ${esc(m.lagerort)}</span>` : ""}</div>
+      <div class="meta"><span>${n} Teile verbaut</span><span>Warenwert ${eur(moebelWert(m)).replace(",00", "")}</span><span>seit ${tageHer(m.erstellt_am).replace("vor ", "")}</span></div>
+      <details class="teile"><summary>Teileliste</summary>${teile.map(t => { const r = D.lager.find(l => l.code === t.teil); return `<div class="row"><span>${t.menge} × ${esc(r ? r.bezeichnung + (r.mass ? " " + r.mass.replace("x", " × ") : "") : t.teil)}</span><span class="code">${esc(t.teil)}</span></div>`; }).join("")}</details>
+      <div class="actions"><a class="btn primary" href="planer.html?moebel=${m.id}">Kalkulieren</a>${ins ? `<a class="btn" href="${esc(ins.url)}" target="_blank" rel="noopener">Anzeige</a>` : ""}</div>
+    </div></article>`;
+}
+function vMoebel() {
+  const da = verfuegbareMoebel(), weg = D.moebel.filter(m => !["aufgebaut", "reserviert"].includes(m.status));
+  const wert = da.reduce((a, m) => a + moebelWert(m), 0);
+  return head("Fertige Möbel", "Komplett gekaufte oder fertig aufgebaute Möbel. Ihre Teile zählen im Lager mit, sind dort aber als verbaut markiert und nicht frei.") +
+    `<div class="stats">${stat("Sofort verfügbar", da.filter(m => m.status === "aufgebaut").length)}${stat("Reserviert", da.filter(m => m.status === "reserviert").length)}${stat("Warenwert aufgebaut", eur(wert).replace(",00", ""))}${stat("Verkauft bisher", D.moebel.filter(m => m.status === "verkauft").length)}</div>
+    ${da.length ? `<div class="products">${da.map(moebelKarte).join("")}</div>` : `<div class="banner info"><span>Noch kein fertiges Möbel erfasst. Einfach per Plaud an Klaus diktieren, z. B. „Fertigmöbel gekauft: Sideboard 153 breit, 74 hoch, 37 tief, schwarz, 2 Klappen, gebraucht, 900 Euro, Benzin 30, Lagerort R1“. Ich rechne es in Einzelteile um und buche es ein.</span></div>`}
+    ${weg.length ? `<section class="card"><div class="card-head"><h2>Verkauft oder zerlegt</h2></div><div class="tablewrap"><table><tbody>${weg.map(m => `<tr><td><b>${esc(m.name)}</b><div class="wo">${esc(m.masse || "")}</div></td><td><span class="badge">${(MST[m.status] || ["", m.status])[1]}</span></td><td class="wo">${when(m.geaendert_am)}</td></tr>`).join("")}</tbody></table></div></section>` : ""}`;
+}
+function vAuswertung() {
+  const a = D.ausw.slice().sort((x, y) => Number(y.rohertrag_je_monat) - Number(x.rohertrag_je_monat));
+  const maxM = Math.max(1, ...a.map(r => Number(r.rohertrag_je_monat) || 0));
+  const tot = D.verk.reduce((s, v) => ({ u: s.u + Number(v.erloes), r: s.r + Number(v.rohertrag), w: s.w + Number(v.wareneinsatz) }), { u: 0, r: 0, w: 0 });
+  const pc = n => n == null ? "–" : Number(n).toLocaleString("de-DE", { maximumFractionDigits: 1 }) + " %";
+  const best = k => a.length ? a.slice().sort((x, y) => Number(y[k]) - Number(x[k]))[0].kategorie : "–";
+  return head("Auswertung", "Was verkauft sich oft, wo verdienen wir am meisten, und was bringt pro Monat unterm Strich am meisten. Füllt sich mit jedem gebuchten Verkauf.") +
+    `<div class="stats">${stat("Verkäufe", D.verk.length)}${stat("Umsatz", eur(tot.u).replace(",00", ""))}${stat("Rohertrag", eur(tot.r).replace(",00", ""), tot.u ? "Marge " + pc(100 * tot.r / tot.u) : "")}${stat("ROI auf Wareneinsatz", tot.w ? pc(100 * tot.r / tot.w) : "–")}</div>
+    ${a.length ? `<div class="stats">${stat("Verkauft sich am häufigsten", esc(best("verkaeufe_je_monat")))}${stat("Höchster ROI", esc(best("roi_prozent")))}${stat("Bester Mittelweg", esc(a[0].kategorie), "höchster Rohertrag pro Monat", "good")}</div>
+    <section class="card"><div class="card-head"><h2>Nach Produktart</h2><span class="note">sortiert nach Rohertrag pro Monat</span></div>
+      <div class="tablewrap"><table><thead><tr><th>Produktart</th><th class="num">Verkäufe</th><th class="num">pro Monat</th><th class="num">Ø Rohertrag</th><th class="num">Marge</th><th class="num">ROI</th><th class="num">Ø Standzeit</th><th>Rohertrag pro Monat</th></tr></thead><tbody>
+      ${a.map(r => `<tr><td><b>${esc(r.kategorie)}</b></td><td class="num">${r.verkaeufe}</td><td class="num">${num(r.verkaeufe_je_monat)}</td><td class="num">${eur(r.rohertrag_je_verkauf)}</td><td class="num">${pc(r.marge_prozent)}</td><td class="num">${pc(r.roi_prozent)}</td><td class="num">${r.standzeit_tage != null ? r.standzeit_tage + " Tage" : "–"}</td><td style="min-width:140px"><div class="track"><div class="fill" style="width:${(Number(r.rohertrag_je_monat) / maxM * 100).toFixed(1)}%"></div></div><span class="wo">${eur(r.rohertrag_je_monat)}</span></td></tr>`).join("")}
+      </tbody></table></div>
+      <p class="note">ROI = Rohertrag geteilt durch Wareneinsatz. Rohertrag pro Monat verbindet beides: Was selten verkauft wird, aber viel bringt, und was oft verkauft wird, aber wenig bringt, landen fair nebeneinander. Standzeit gibt es für Fertigmöbel (Einkauf bis Verkauf).</p></section>
+    <section class="card"><div class="card-head"><h2>Letzte Verkäufe</h2></div><div class="tablewrap"><table><thead><tr><th>Datum</th><th>Verkauf</th><th>Art</th><th class="num">Erlös</th><th class="num">Wareneinsatz</th><th class="num">Rohertrag</th><th class="num">Marge</th></tr></thead><tbody>
+      ${D.verk.slice(0, 50).map(v => `<tr><td class="wo">${new Date(v.datum).toLocaleDateString("de-DE")}</td><td>${esc(v.bezeichnung)}</td><td class="wo">${esc(v.kategorie)}</td><td class="num">${eur(v.erloes)}</td><td class="num">${eur(v.wareneinsatz)}</td><td class="num"><b class="${Number(v.rohertrag) >= 0 ? "good" : "neg"}">${eur(v.rohertrag)}</b></td><td class="num">${pc(v.marge_prozent)}</td></tr>`).join("")}</tbody></table></div></section>`
+    : `<div class="banner info"><span>Noch keine Verkäufe gebucht. Sobald ihr Verkäufe per Plaud an Klaus diktiert („Verkauft: Sideboard schwarz für 1.400 Euro“), entsteht hier pro Produktart: Häufigkeit, Marge, ROI, Standzeit und Rohertrag pro Monat. Nach ein paar Wochen sieht man, welche Möbel sich wirklich lohnen.</span></div>`}`;
+}
+
 /* ---------- Ansichten ---------- */
 function vStart() {
   const wert = D.lager.reduce((a, r) => a + Number(r.wert || 0), 0), teile = D.lager.reduce((a, r) => a + r.bestand, 0);
@@ -147,9 +197,11 @@ function vStart() {
   const h = new Date().getHours(), gruss = h < 11 ? "Guten Morgen" : h < 18 ? "Hallo" : "Guten Abend";
   const empty = !D.lager.some(r => r.bestand > 0);
   return head(`${gruss}${me() ? ", " + esc(me()) : ""}`, `Stand ${new Date().toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" })}`, `<a class="btn primary" href="planer.html">${svg("plus")} Neue Planung</a>`) +
-    `<div class="stats">${stat("Inserate online", aktiv.length, `zusammen ${eur(insWert).replace(",00", "")}`)}${stat("Offene Planungen", offen.length, `${D.plan.filter(p => p.status === "angebot").length} im Angebot`)}${stat("Lagerwert", eur(wert).replace(",00", ""), `${num(teile)} Teile`)}${stat("Unter Mindestbestand", low.length, low.length ? "nachkaufen prüfen" : "alles im grünen Bereich", low.length ? "neg" : "good")}</div>
+    `<div class="stats">${stat("Inserate online", aktiv.length, `zusammen ${eur(insWert).replace(",00", "")}`)}${stat("Fertige Möbel", verfuegbareMoebel().length, "sofort verfügbar")}${stat("Offene Planungen", offen.length, `${D.plan.filter(p => p.status === "angebot").length} im Angebot`)}${stat("Lagerwert", eur(wert).replace(",00", ""), `${num(teile)} Teile`)}${stat("Unter Mindestbestand", low.length, low.length ? "nachkaufen prüfen" : "alles im grünen Bereich", low.length ? "neg" : "good")}</div>
     ${empty ? `<div class="banner info"><span>Das Lager ist noch leer. Inventur einfach per Plaud an Klaus diktieren, pro Regalfach: Anzahl, Teil, Maß, Farbe, Zustand, Preis. Ich buche ein, danach rechnen Planer und Übersicht mit echten Zahlen.</span></div>` : ""}
     <div class="grid-2">
+      ${verfuegbareMoebel().length ? `<section class="card"><div class="card-head"><h2>Fertige Möbel, sofort verfügbar</h2><a href="#moebel">Alle</a></div>
+        ${verfuegbareMoebel().slice(0, 6).map(m => `<div class="list-row"><div class="grow"><div class="t"><a href="planer.html?moebel=${m.id}">${esc(m.name)}</a></div><div class="wo">${[m.masse ? m.masse + " cm" : "", m.lagerort ? "Lagerort " + m.lagerort : "", "Warenwert " + eur(moebelWert(m)).replace(",00", "")].filter(Boolean).join(" · ")}</div></div><span class="badge ${(MST[m.status] || [""])[0]}">${(MST[m.status] || ["", m.status])[1]}</span></div>`).join("")}</section>` : ""}
       <section class="card"><div class="card-head"><h2>Neu auf Kleinanzeigen</h2><a href="#produkte">Alle ${aktiv.length} Produkte</a></div>
         ${aktiv.slice(0, 6).map(e => `<div class="list-row">${bild(e) ? `<img src="${esc(bild(e))}" alt="" loading="lazy">` : ""}<div class="grow"><div class="t">${esc(kurz(e.titel))}</div><div class="wo">${preisText(e)} · online ${tageHer(e.erstellt)}</div></div>${e.planer ? `<a class="btn small" href="planer.html?inserat=${e.id}">Kalkulieren</a>` : `<a class="btn small" href="${esc(e.url)}" target="_blank" rel="noopener">Anzeige</a>`}</div>`).join("") || `<p class="empty">Noch keine Inserate geladen.</p>`}
         <p class="note" style="margin-top:8px">Stand Kleinanzeigen: ${D.insStand ? new Date(D.insStand).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "unbekannt"}</p></section>
@@ -180,15 +232,15 @@ function vProdukte() {
 function vLager() {
   const f = UI.f, q = f.q.toLowerCase();
   const rows = D.lager.filter(r => (!f.gruppe || r.gruppe === f.gruppe) && (!f.farbe || r.farbe === f.farbe) && (!f.zustand || r.zustand === f.zustand)
-    && (f.nur !== "voll" || r.bestand > 0) && (f.nur !== "low" || (r.unter_minimum && r.mindestbestand)) && (f.nur !== "neu" || r.nur_neu)
+    && (f.nur !== "voll" || r.bestand > 0) && (f.nur !== "low" || (r.unter_minimum && r.mindestbestand)) && (f.nur !== "neu" || r.nur_neu) && (f.nur !== "verbaut" || r.verbaut > 0)
     && (!q || (r.code + " " + r.bezeichnung + " " + (r.mass || "") + " " + farbName(r.farbe) + " " + (r.lagerort || "")).toLowerCase().includes(q)))
     .sort((a, b) => Number(b.wert) - Number(a.wert) || a.code.localeCompare(b.code));
   const groups = [...new Set(D.typen.map(t => t.gruppe))].sort();
   const byG = {}; D.lager.forEach(r => byG[r.gruppe] = (byG[r.gruppe] || 0) + Number(r.wert || 0)); const maxG = Math.max(1, ...Object.values(byG));
   const opt = (arr, v) => arr.map(([k, n]) => `<option value="${esc(k)}"${k === v ? " selected" : ""}>${esc(n)}</option>`).join("");
-  const wert = D.lager.reduce((a, r) => a + Number(r.wert || 0), 0), teile = D.lager.reduce((a, r) => a + r.bestand, 0), low = D.lager.filter(r => r.unter_minimum && r.mindestbestand).length;
-  return head("Lager", "Bestand, Durchschnittspreise und Mindestbestände, live aus der Datenbank.") +
-    `<div class="stats">${stat("Lagerwert", eur(wert).replace(",00", ""))}${stat("Teile auf Lager", num(teile))}${stat("Positionen mit Bestand", D.lager.filter(r => r.bestand > 0).length)}${stat("Unter Mindestbestand", low, "", low ? "neg" : "good")}</div>
+  const wert = D.lager.reduce((a, r) => a + Number(r.wert || 0), 0), teile = D.lager.reduce((a, r) => a + r.bestand, 0), low = D.lager.filter(r => r.unter_minimum && r.mindestbestand).length, verb = D.lager.reduce((a, r) => a + (r.verbaut || 0), 0);
+  return head("Lager", "Bestand, Durchschnittspreise und Mindestbestände, live aus der Datenbank. „Frei“ ist Bestand ohne Reservierungen und ohne Teile, die in fertigen Möbeln verbaut sind.") +
+    `<div class="stats">${stat("Lagerwert", eur(wert).replace(",00", ""))}${stat("Teile auf Lager", num(teile), verb ? `davon ${num(verb)} in fertigen Möbeln verbaut` : "")}${stat("Positionen mit Bestand", D.lager.filter(r => r.bestand > 0).length)}${stat("Unter Mindestbestand", low, "", low ? "neg" : "good")}</div>
     <section class="card"><div class="card-head"><h2>Lagerwert nach Gruppe</h2></div>${Object.entries(byG).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<div class="bar"><span>${esc(k.replace(/^[A-Z] /, ""))}</span><div class="track"><div class="fill" style="width:${(v / maxG * 100).toFixed(1)}%"></div></div><span>${eur(v)}</span></div>`).join("") || `<p class="empty">Noch kein Bestand. Sobald die Inventur gebucht ist, steht hier die Verteilung.</p>`}</section>
     <section class="card"><div class="card-head"><h2>Bestand</h2><span class="note">${rows.length} Positionen</span></div>
       <div class="filters" style="margin-bottom:12px">
@@ -196,11 +248,11 @@ function vLager() {
         <select id="lf-gruppe" aria-label="Gruppe"><option value="">Alle Gruppen</option>${opt(groups.map(g => [g, g.replace(/^[A-Z] /, "")]), f.gruppe)}</select>
         <select id="lf-farbe" aria-label="Farbe"><option value="">Alle Farben</option>${opt(D.farben.map(c => [c.code, c.name]), f.farbe)}</select>
         <select id="lf-zustand" aria-label="Zustand">${opt([["", "Neu und gebraucht"], ["G", "Gebraucht"], ["N", "Neu"]], f.zustand)}</select>
-        <select id="lf-nur" aria-label="Anzeige">${opt([["voll", "Nur vorhandene"], ["", "Alle erfassten"], ["low", "Unter Minimum"], ["neu", "Nur-neu-Teile"]], f.nur)}</select>
+        <select id="lf-nur" aria-label="Anzeige">${opt([["voll", "Nur vorhandene"], ["", "Alle erfassten"], ["low", "Unter Minimum"], ["verbaut", "In Fertigmöbeln verbaut"], ["neu", "Nur-neu-Teile"]], f.nur)}</select>
       </div>
-      ${rows.length ? `<div class="tablewrap"><table><thead><tr><th>Teil</th><th>Farbe</th><th>Zustand</th><th class="num">Bestand</th><th class="num">reserviert</th><th class="num">Min.</th><th>Fach</th><th class="num">Ø Preis</th><th class="num">Wert</th></tr></thead><tbody>
-      ${rows.slice(0, 400).map(r => `<tr><td>${esc(r.bezeichnung)} ${esc(r.mass ? r.mass.replace("x", " × ") : "")}${r.generation === "A" ? ` <span class="badge">alte Gen.</span>` : ""}${r.nur_neu ? ` <span class="badge warn">nur neu</span>` : ""}<div class="code">${esc(r.code)}</div></td><td><i class="dot" style="background:${FARBHEX[r.farbe] || "#ccc"}"></i> ${esc(farbName(r.farbe))}</td><td>${r.zustand === "G" ? "gebraucht" : "neu"}</td>
-        <td class="num">${r.unter_minimum && r.mindestbestand ? `<span class="pill warn">${r.bestand}</span>` : r.bestand}</td><td class="num">${r.reserviert || ""}</td><td class="num">${r.mindestbestand ?? ""}</td><td class="code">${esc(r.lagerort || "")}</td><td class="num">${eur(r.durchschnittspreis)}</td><td class="num">${eur(r.wert)}</td></tr>`).join("")}
+      ${rows.length ? `<div class="tablewrap"><table><thead><tr><th>Teil</th><th>Farbe</th><th>Zustand</th><th class="num">Bestand</th><th class="num">frei</th><th class="num">reserviert</th><th class="num">Min.</th><th>Fach</th><th class="num">Ø Preis</th><th class="num">Wert</th></tr></thead><tbody>
+      ${rows.slice(0, 400).map(r => `<tr><td>${esc(r.bezeichnung)} ${esc(r.mass ? r.mass.replace("x", " × ") : "")}${r.generation === "A" ? ` <span class="badge">alte Gen.</span>` : ""}${r.nur_neu ? ` <span class="badge warn">nur neu</span>` : ""}${r.verbaut ? ` <span class="badge info" title="Diese Teile stecken in einem aufgebauten Möbel">${r.verbaut} verbaut in: ${esc(r.verbaut_in || "")}</span>` : ""}<div class="code">${esc(r.code)}</div></td><td><i class="dot" style="background:${FARBHEX[r.farbe] || "#ccc"}"></i> ${esc(farbName(r.farbe))}</td><td>${r.zustand === "G" ? "gebraucht" : "neu"}</td>
+        <td class="num">${r.bestand}</td><td class="num">${r.unter_minimum && r.mindestbestand ? `<span class="pill warn">${r.verfuegbar}</span>` : r.verfuegbar}</td><td class="num">${r.reserviert || ""}</td><td class="num">${r.mindestbestand ?? ""}</td><td class="code">${esc(r.lagerort || "")}</td><td class="num">${eur(r.durchschnittspreis)}</td><td class="num">${eur(r.wert)}</td></tr>`).join("")}
       </tbody></table></div>` : `<p class="empty">Keine Teile für diesen Filter.</p>`}</section>`;
 }
 function vPlanungen() {
@@ -261,7 +313,7 @@ function vProtokoll() {
 }
 function navHtml() {
   const neu = D.ins.filter(istNeu).length;
-  return VIEWS.map(([k, n]) => `<a href="#${k}"${UI.view === k ? ' aria-current="page"' : ""}>${svg(k)}${n}${k === "produkte" && neu ? `<span class="count">${neu} neu</span>` : k === "planungen" && D.plan.length ? `<span class="count">${D.plan.length}</span>` : ""}</a>`).join("");
+  return VIEWS.map(([k, n]) => `<a href="#${k}"${UI.view === k ? ' aria-current="page"' : ""}>${svg(k)}${n}${k === "produkte" && neu ? `<span class="count">${neu} neu</span>` : k === "planungen" && D.plan.length ? `<span class="count">${D.plan.length}</span>` : k === "moebel" && verfuegbareMoebel().length ? `<span class="count">${verfuegbareMoebel().length}</span>` : ""}</a>`).join("");
 }
 function render() {
   document.getElementById("nav").innerHTML = navHtml();
@@ -273,7 +325,7 @@ function render() {
   document.getElementById("whobox").innerHTML = whoPicker();
   document.getElementById("whobox-m").innerHTML = whoPicker().replace('id="who"', 'id="who-m"');
   document.getElementById("mtitle").textContent = (VIEWS.find(v => v[0] === UI.view) || VIEWS[0])[1];
-  const fn = { start: vStart, produkte: vProdukte, lager: vLager, planungen: vPlanungen, vorlagen: vVorlagen, katalog: vKatalog, regeln: vRegeln, protokoll: vProtokoll }[UI.view] || vStart;
+  const fn = { start: vStart, produkte: vProdukte, moebel: vMoebel, auswertung: vAuswertung, lager: vLager, planungen: vPlanungen, vorlagen: vVorlagen, katalog: vKatalog, regeln: vRegeln, protokoll: vProtokoll }[UI.view] || vStart;
   const active = document.activeElement && document.activeElement.id, pos = active && document.activeElement.selectionStart;
   document.getElementById("view").innerHTML = fn();
   if (active && /^(lf-q|kq|pq)$/.test(active) && document.getElementById(active)) { const el = document.getElementById(active); el.focus(); try { el.setSelectionRange(pos, pos); } catch {} }
@@ -334,6 +386,7 @@ async function start() {
   sb.channel("ops").on("postgres_changes", { event: "*", schema: "public", table: "teil" }, liveReload)
     .on("postgres_changes", { event: "*", schema: "public", table: "planung" }, liveReload)
     .on("postgres_changes", { event: "*", schema: "public", table: "lagerbewegung" }, liveReload)
+    .on("postgres_changes", { event: "*", schema: "public", table: "moebel" }, liveReload)
     .subscribe(s => { const el = document.getElementById("live"); el.textContent = s === "SUBSCRIBED" ? "live verbunden" : "offline"; el.classList.toggle("on", s === "SUBSCRIBED"); });
 }
 start();

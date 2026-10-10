@@ -167,15 +167,17 @@ const sels = () => state.fields.filter(f => state.multi.has(f.id));
 function selectOnly(id) { state.sel = id; state.multi = new Set([id]); }
 
 /* ---------- Live-Daten ---------- */
-const LIVE = { teil: [], tt: {}, std: [], ins: [], ok: false };
-const PLAN = { id: null, name: "Neue Planung", status: "entwurf", dirty: false, stamp: null, by: "", inserat: null };
+const LIVE = { teil: [], tt: {}, std: [], ins: [], verb: {}, eigen: {}, ok: false };
+const PLAN = { id: null, name: "Neue Planung", status: "entwurf", dirty: false, stamp: null, by: "", inserat: null, moebel: null };
 const kurzTitel = t => String(t || "").replace(/^USM Haller\s+/i, "");
 async function loadLive() {
-  const [teil, tt, std] = await Promise.all([
+  const [teil, tt, std, verb] = await Promise.all([
     fetchAll("teil", "code,typ,mass,farbe,zustand,generation,bestand,reserviert,durchschnittspreis,lagerort,nur_neu,neupreis"),
     fetchAll("teiltyp", "code,richtwert,standardfarbe"),
-    fetchAll("usm_standard", "*")
+    fetchAll("usm_standard", "*"),
+    fetchAll("teil_verbaut", "*").catch(() => [])
   ]);
+  LIVE.verb = Object.fromEntries(verb.map(v => [v.teil, v]));
   LIVE.teil = teil; LIVE.tt = Object.fromEntries(tt.map(t => [t.code, t])); LIVE.std = std; LIVE.ok = true;
   if (!LIVE.ins.length) LIVE.ins = await fetch("data/inserate.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : { inserate: [] }).then(d => d.inserate || []).catch(() => []);
 }
@@ -190,14 +192,17 @@ function estPrice(typ, mass) {
 function stockOf(e) {
   const t = dbTyp(e), anyMass = ["HW", "KS", "KU", "CO", "FU"].includes(e.typ);
   const rows = LIVE.teil.filter(r => r.typ === t && (anyMass || (r.mass || "") === e.mass) && r.farbe === e.farbe && r.zustand === state.zustand && (r.generation || "N") === (e.gen || "N"));
-  const qty = rows.reduce((a, r) => a + Math.max(0, r.bestand - r.reserviert), 0);
+  // Teile in aufgebauten Fertigmöbeln sind nicht frei, außer es ist genau das Möbel, das gerade geöffnet ist
+  const frei = r => Math.max(0, r.bestand - r.reserviert - ((LIVE.verb[r.code] || {}).verbaut || 0) + (LIVE.eigen[r.code] || 0));
+  const qty = rows.reduce((a, r) => a + frei(r), 0);
+  const verbaut = rows.reduce((a, r) => a + Math.max(0, ((LIVE.verb[r.code] || {}).verbaut || 0) - (LIVE.eigen[r.code] || 0)), 0);
   const stueck = rows.reduce((a, r) => a + r.bestand, 0);
   let price, src;
   if (stueck > 0) { price = rows.reduce((a, r) => a + r.bestand * Number(r.durchschnittspreis), 0) / stueck; src = "Ø"; }
   else if (LIVE.tt[t] && LIVE.tt[t].richtwert != null) { price = Number(LIVE.tt[t].richtwert); src = "Richtwert"; }
   else { price = estPrice(e.typ, e.mass) * (state.zustand === "N" ? 1.6 : 1); src = "Schätzung"; }
   const nurNeu = rows.find(r => r.nur_neu);
-  return { qty, price: Math.round(price * 100) / 100, src, lager: [...new Set(rows.map(r => r.lagerort).filter(Boolean))].join(", "), nurNeu: nurNeu ? Number(nurNeu.neupreis) || null : null };
+  return { qty, verbaut, price: Math.round(price * 100) / 100, src, lager: [...new Set(rows.map(r => r.lagerort).filter(Boolean))].join(", ") + (verbaut ? `${rows.some(r => r.lagerort) ? " · " : ""}${verbaut} verbaut` : ""), nurNeu: nurNeu ? Number(nurNeu.neupreis) || null : null };
 }
 
 /* ---------- Geometrie ---------- */
@@ -753,8 +758,26 @@ function fromInserat(id) {
   state.tab = "calc"; state.view = "intern";
   markDirty();
 }
+async function fromMoebel(id) {
+  const [{ data: m }, { data: teile }] = await Promise.all([sb.from("moebel").select("*").eq("id", id).single(), sb.from("moebel_teil").select("*").eq("moebel_id", id)]);
+  if (!m) { state.flash = "Fertigmöbel nicht gefunden."; return; }
+  PLAN.moebel = m;
+  LIVE.eigen = ["aufgebaut", "reserviert"].includes(m.status) ? Object.fromEntries((teile || []).map(t => [t.teil, t.menge])) : {};
+  if (m.daten && m.daten.fields) { applyData(m.daten); }
+  else state.flash = "Zu diesem Möbel ist kein Aufbau hinterlegt.";
+  if (m.inserat) PLAN.inserat = m.inserat;
+  PLAN.name = m.name; state.tab = "calc"; state.view = "intern";
+}
 function renderSource() {
-  const box = document.getElementById("source"), e = PLAN.inserat && LIVE.ins.find(x => x.id === PLAN.inserat);
+  const box = document.getElementById("source"), m = PLAN.moebel, e = PLAN.inserat && LIVE.ins.find(x => x.id === PLAN.inserat);
+  if (m) {
+    const st = { aufgebaut: ["ok", "aufgebaut, sofort verfügbar"], reserviert: ["warn", "reserviert"], verkauft: ["", "verkauft"], zerlegt: ["", "zerlegt"] }[m.status] || ["", m.status];
+    box.innerHTML = `<div class="card source">${e && e.bilder && e.bilder[0] ? `<div class="thumbs"><img src="${esc(e.bilder[0].replace("$_57", "$_35"))}" alt=""></div>` : ""}
+      <div><b>Fertigmöbel: ${esc(m.name)}</b> <span class="badge ${st[0]}">${st[1]}</span><div class="wo">${[m.masse ? m.masse + " cm" : "", m.lagerort ? "Lagerort " + m.lagerort : "", "eingekauft " + new Date(m.erstellt_am).toLocaleDateString("de-DE")].filter(Boolean).join(" · ")}</div>
+      <div class="note" style="margin-top:4px">Die Teile dieses Möbels zählen im Lager mit, sind aber als verbaut markiert. Hier im Planer gelten sie als vorhanden.</div></div>
+      ${e ? `<a class="btn" href="${esc(e.url)}" target="_blank" rel="noopener">Anzeige öffnen</a>` : ""}</div>`;
+    return;
+  }
   if (!e) { box.innerHTML = ""; return; }
   box.innerHTML = `<div class="card source"><div class="thumbs">${(e.bilder || []).slice(0, 3).map(u => `<a href="${esc(e.url)}" target="_blank" rel="noopener"><img src="${esc(u.replace("$_57", "$_35"))}" alt=""></a>`).join("")}</div>
     <div><b>${esc(kurzTitel(e.titel))}</b><div class="wo">Inserat ${e.preis ? eur(e.preis).replace(",00", "") : "Preis auf Anfrage"}${e.masse && e.masse.b ? ` · ${e.masse.b} × ${e.masse.h} × ${e.masse.t || "?"} cm` : ""}${e.neupreis ? ` · Neupreis ${eur(e.neupreis).replace(",00", "")}` : ""}${e.aktiv ? "" : " · nicht mehr online"}</div>${e.hinweis ? `<div class="note" style="margin-top:4px">${esc(e.hinweis)}</div>` : ""}</div>
@@ -764,6 +787,7 @@ function showBanner(html) { document.getElementById("banner").innerHTML = html ?
 function subscribe() {
   sb.channel("planer")
     .on("postgres_changes", { event: "*", schema: "public", table: "teil" }, async () => { await loadLive(); render(); })
+    .on("postgres_changes", { event: "*", schema: "public", table: "moebel" }, async () => { await loadLive(); render(); })
     .on("postgres_changes", { event: "UPDATE", schema: "public", table: "planung" }, p => {
       const n = p.new; if (!PLAN.id || n.id !== PLAN.id || (n.daten && n.daten._geraet === DEVICE)) return;
       showBanner(`<span><b>${esc(n.geaendert_von || "Jemand")}</b> hat diese Planung um ${when(n.geaendert_am)} auf einem anderen Gerät gespeichert.</span><span><button class="btn" id="reload">Diese Version laden</button> <button class="btn" id="keep">Meine behalten</button></span>`);
@@ -835,6 +859,7 @@ document.addEventListener("change", e => {
   if (t.id === "p-status") { PLAN.status = t.value; markDirty(); }
   else if (t.id === "tplsel" && t.value) {
     const [k, v] = [t.value.slice(0, 1), t.value.slice(2)];
+    if (PLAN.moebel) { PLAN.moebel = null; LIVE.eigen = {}; }
     if (k === "i") fromInserat(v); else if (k === "s") fromStandard(v); else { tryChange(() => { state.fields = TEMPLATES[v](); }); selectOnly(state.fields[0].id); state.price = null; PLAN.inserat = null; }
     t.value = "";
   }
@@ -878,6 +903,7 @@ window.addEventListener("beforeunload", e => { if (PLAN.dirty) { e.preventDefaul
   if (qs.get("id")) await loadPlan(qs.get("id"));
   else if (qs.get("std")) { fromStandard(qs.get("std")); PLAN.dirty = false; }
   else if (qs.get("inserat")) { fromInserat(qs.get("inserat")); PLAN.dirty = false; }
+  else if (qs.get("moebel")) { await fromMoebel(qs.get("moebel")); PLAN.dirty = false; }
   render();
   subscribe();
 })();
