@@ -287,3 +287,20 @@ details.teile summary { cursor: pointer; color: var(--muted); }
 details.teile .row { display: flex; justify-content: space-between; gap: 8px; padding: 3px 0; border-bottom: 1px solid var(--line, rgba(0,0,0,.06)); }
 td .track { height: 8px; background: var(--wall); border-radius: 99px; overflow: hidden; margin-bottom: 3px; }
 td .fill { height: 100%; background: var(--accent); border-radius: 99px; }
+
+/* Aufträge */
+.nav .count.hot { color: #fff; background: var(--bad); border-radius: 99px; padding: 0 7px; }
+.order-sec { margin-bottom: 22px; }
+.order-sec > .card-head { margin-bottom: 10px; }
+.card.order { margin-bottom: 12px; }
+.order-top { display: flex; gap: 12px; align-items: flex-start; }
+.order-top img, .order-top .noimg.small { width: 64px; height: 64px; border-radius: var(--radius-s); object-fit: cover; flex: none; }
+.noimg.small { display: grid; place-items: center; background: var(--wall); color: var(--muted); }
+.noimg.small svg { width: 30px; height: 30px; fill: none; stroke: currentColor; stroke-width: 1.4; }
+.order-top .grow { min-width: 0; flex: 1; }
+.order-money { text-align: right; display: flex; flex-direction: column; gap: 2px; white-space: nowrap; }
+.order-money b { font-size: 1.15rem; }
+.order-money span { font-size: .85rem; font-weight: 600; }
+.order-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px 18px; margin: 14px 0 6px; font-size: .9rem; }
+.order-grid .lbl { display: block; font-size: .74rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 3px; }
+.card.order .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
