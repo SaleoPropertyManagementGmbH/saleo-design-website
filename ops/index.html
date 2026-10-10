@@ -79,6 +79,7 @@ const kurz = t => String(t || "").replace(/^USM Haller\s+/i, "");
 const tageHer = t => { const d = Math.floor((Date.now() - new Date(t)) / 864e5); return d <= 0 ? "heute" : d === 1 ? "gestern" : `vor ${d} Tagen`; };
 const preisText = e => e.preis != null ? eur(e.preis).replace(",00", "") + (e.vb ? " VB" : "") : "Preis auf Anfrage";
 const bild = (e, i = 0, r = "$_35") => ((e.bilder || [])[i] || "").replace("$_57", r);
+const proTag = e => { const v = e.aufrufeVerlauf || []; if (v.length < 2) return null; const [d0, a0] = v[0], [d1, a1] = v[v.length - 1]; const t = (new Date(d1) - new Date(d0)) / 864e5; return t > 0 ? (a1 - a0) / t : null; };
 const istNeu = e => e.aktiv && (Date.now() - new Date(e.erstellt)) < 3 * 864e5;
 
 /* ---------- Anmeldung ---------- */
@@ -139,7 +140,7 @@ function produktKarte(e) {
     <div class="body">
       <h3>${esc(kurz(e.titel))}</h3>
       <div class="meta">${e.farbe ? `<span><i class="dot" style="background:${FARBHEX[e.farbe] || "#ccc"}"></i> ${esc(farbName(e.farbe))}</span>` : ""}${m ? `<span>${m}</span>` : ""}${fronten ? `<span>${fronten}</span>` : ""}</div>
-      <div class="meta"><span>online ${tageHer(e.erstellt)}</span>${e.neupreis ? `<span>Neupreis ${eur(e.neupreis).replace(",00", "")}</span>` : ""}</div>
+      <div class="meta">${e.aufrufe != null ? `<span>${num(e.aufrufe)} Aufrufe${proTag(e) != null ? ` · ${num(Math.round(proTag(e)))}/Tag` : ""}</span>` : ""}<span>online ${tageHer(e.erstellt)}</span>${e.neupreis ? `<span>Neupreis ${eur(e.neupreis).replace(",00", "")}</span>` : ""}</div>
       <div class="actions">${e.planer ? `<a class="btn primary" href="planer.html?inserat=${e.id}">Kalkulieren</a>` : ""}<a class="btn" href="${esc(e.url)}" target="_blank" rel="noopener">Anzeige</a></div>
     </div></article>`;
 }
@@ -177,6 +178,12 @@ function vAuswertung() {
   const tot = D.verk.reduce((s, v) => ({ u: s.u + Number(v.erloes), r: s.r + Number(v.rohertrag), w: s.w + Number(v.wareneinsatz) }), { u: 0, r: 0, w: 0 });
   const pc = n => n == null ? "–" : Number(n).toLocaleString("de-DE", { maximumFractionDigits: 1 }) + " %";
   const best = k => a.length ? a.slice().sort((x, y) => Number(y[k]) - Number(x[k]))[0].kategorie : "–";
+  const insV = D.ins.filter(e => e.aktiv && e.aufrufe != null).sort((x, y) => y.aufrufe - x.aufrufe);
+  const maxV = Math.max(1, ...insV.map(e => e.aufrufe));
+  const insBlock = insV.length ? `<section class="card"><div class="card-head"><h2>Aufrufe auf Kleinanzeigen</h2><span class="note">${insV.length} Inserate · Stand ${new Date((insV[0].aufrufeVerlauf || [[D.insStand]]).slice(-1)[0][0]).toLocaleDateString("de-DE")}</span></div>
+      <div class="tablewrap"><table><thead><tr><th>Inserat</th><th class="num">Preis</th><th class="num">pro Tag</th><th>Aufrufe gesamt</th></tr></thead><tbody>
+      ${insV.map(e => `<tr><td>${e.planer ? `<a href="planer.html?inserat=${e.id}">${esc(kurz(e.titel))}</a>` : esc(kurz(e.titel))}</td><td class="num">${preisText(e)}</td><td class="num">${proTag(e) != null ? num(Math.round(proTag(e))) : "–"}</td><td style="min-width:140px"><div class="track"><div class="fill" style="width:${(e.aufrufe / maxV * 100).toFixed(1)}%"></div></div><span class="wo">${num(e.aufrufe)}</span></td></tr>`).join("")}</tbody></table></div>
+      <p class="note">Aufrufe pro Tag erscheinen ab dem zweiten täglichen Abgleich. Merkliste und Chats sieht nur euer angemeldetes Konto, die kommen über den Browser dazu.</p></section>` : "";
   return head("Auswertung", "Was verkauft sich oft, wo verdienen wir am meisten, und was bringt pro Monat unterm Strich am meisten. Füllt sich mit jedem gebuchten Verkauf.") +
     `<div class="stats">${stat("Verkäufe", D.verk.length)}${stat("Umsatz", eur(tot.u).replace(",00", ""))}${stat("Rohertrag", eur(tot.r).replace(",00", ""), tot.u ? "Marge " + pc(100 * tot.r / tot.u) : "")}${stat("ROI auf Wareneinsatz", tot.w ? pc(100 * tot.r / tot.w) : "–")}</div>
     ${a.length ? `<div class="stats">${stat("Verkauft sich am häufigsten", esc(best("verkaeufe_je_monat")))}${stat("Höchster ROI", esc(best("roi_prozent")))}${stat("Bester Mittelweg", esc(a[0].kategorie), "höchster Rohertrag pro Monat", "good")}</div>
@@ -187,7 +194,7 @@ function vAuswertung() {
       <p class="note">ROI = Rohertrag geteilt durch Wareneinsatz. Rohertrag pro Monat verbindet beides: Was selten verkauft wird, aber viel bringt, und was oft verkauft wird, aber wenig bringt, landen fair nebeneinander. Standzeit gibt es für Fertigmöbel (Einkauf bis Verkauf).</p></section>
     <section class="card"><div class="card-head"><h2>Letzte Verkäufe</h2></div><div class="tablewrap"><table><thead><tr><th>Datum</th><th>Verkauf</th><th>Art</th><th class="num">Erlös</th><th class="num">Wareneinsatz</th><th class="num">Rohertrag</th><th class="num">Marge</th></tr></thead><tbody>
       ${D.verk.slice(0, 50).map(v => `<tr><td class="wo">${new Date(v.datum).toLocaleDateString("de-DE")}</td><td>${esc(v.bezeichnung)}</td><td class="wo">${esc(v.kategorie)}</td><td class="num">${eur(v.erloes)}</td><td class="num">${eur(v.wareneinsatz)}</td><td class="num"><b class="${Number(v.rohertrag) >= 0 ? "good" : "neg"}">${eur(v.rohertrag)}</b></td><td class="num">${pc(v.marge_prozent)}</td></tr>`).join("")}</tbody></table></div></section>`
-    : `<div class="banner info"><span>Noch keine Verkäufe gebucht. Sobald ihr Verkäufe per Plaud an Klaus diktiert („Verkauft: Sideboard schwarz für 1.400 Euro“), entsteht hier pro Produktart: Häufigkeit, Marge, ROI, Standzeit und Rohertrag pro Monat. Nach ein paar Wochen sieht man, welche Möbel sich wirklich lohnen.</span></div>`}`;
+    : `<div class="banner info"><span>Noch keine Verkäufe gebucht. Sobald ihr Verkäufe per Plaud an Klaus diktiert („Verkauft: Sideboard schwarz für 1.400 Euro“), entsteht hier pro Produktart: Häufigkeit, Marge, ROI, Standzeit und Rohertrag pro Monat. Nach ein paar Wochen sieht man, welche Möbel sich wirklich lohnen.</span></div>`}` + insBlock;
 }
 
 const AST = { heiss: ["warn", "kurz vor Abschluss"], bezahlt: ["new", "bezahlt"], freigegeben: ["ok", "Label wird erstellt"], label: ["ok", "Label gedruckt"], versendet: ["", "versendet"], abgeholt: ["", "abgeholt"], storniert: ["bad", "storniert"] };
@@ -262,7 +269,7 @@ function vStart() {
 function vProdukte() {
   const p = UI.p, q = p.q.toLowerCase();
   let list = D.ins.filter(e => (p.art === "alle" || e.art === p.art || (p.art === "weg" && !e.aktiv)) && (p.art === "weg" || e.aktiv) && (!p.farbe || e.farbe === p.farbe) && (!q || (e.titel + " " + e.beschreibung).toLowerCase().includes(q)));
-  list = list.sort((a, b) => p.sort === "preis" ? (b.preis || 0) - (a.preis || 0) : p.sort === "preis-auf" ? (a.preis || 0) - (b.preis || 0) : new Date(b.erstellt) - new Date(a.erstellt));
+  list = list.sort((a, b) => p.sort === "aufrufe" ? (b.aufrufe || 0) - (a.aufrufe || 0) : p.sort === "preis" ? (b.preis || 0) - (a.preis || 0) : p.sort === "preis-auf" ? (a.preis || 0) - (b.preis || 0) : new Date(b.erstellt) - new Date(a.erstellt));
   const count = a => D.ins.filter(e => e.aktiv && (a === "alle" || e.art === a)).length;
   const farben = [...new Set(D.ins.filter(e => e.farbe).map(e => e.farbe))];
   return head("Produkte", `Alles, was auf Kleinanzeigen online ist. Bei Möbeln öffnet „Kalkulieren“ den Planer mit Aufbau, Preis und allen Kennzahlen.`, `<a class="btn" href="https://www.kleinanzeigen.de/pro/saleo-group" target="_blank" rel="noopener">Kleinanzeigen-Profil</a>`) +
@@ -270,7 +277,7 @@ function vProdukte() {
       <div class="chips">${[["moebel", "Möbel"], ["teil", "Einzelteile"], ["tisch", "Tische"], ["alle", "Alle"], ["weg", "Nicht mehr online"]].map(([k, n]) => `<button class="chip" data-part="${k}" aria-pressed="${p.art === k}">${n}${k !== "weg" ? ` <span class="wo">${count(k)}</span>` : ""}</button>`).join("")}</div>
       <input type="search" id="pq" value="${esc(p.q)}" placeholder="Suchen, z. B. Sideboard, 150, grün">
       <select id="pfarbe" aria-label="Farbe"><option value="">Alle Farben</option>${farben.map(c => `<option value="${c}"${p.farbe === c ? " selected" : ""}>${esc(farbName(c))}</option>`).join("")}</select>
-      <select id="psort" aria-label="Sortierung"><option value="neu"${p.sort === "neu" ? " selected" : ""}>Neueste zuerst</option><option value="preis"${p.sort === "preis" ? " selected" : ""}>Preis absteigend</option><option value="preis-auf"${p.sort === "preis-auf" ? " selected" : ""}>Preis aufsteigend</option></select>
+      <select id="psort" aria-label="Sortierung"><option value="neu"${p.sort === "neu" ? " selected" : ""}>Neueste zuerst</option><option value="preis"${p.sort === "preis" ? " selected" : ""}>Preis absteigend</option><option value="preis-auf"${p.sort === "preis-auf" ? " selected" : ""}>Preis aufsteigend</option><option value="aufrufe"${p.sort === "aufrufe" ? " selected" : ""}>Meiste Aufrufe</option></select>
     </div>
     ${list.length ? `<div class="products">${list.map(produktKarte).join("")}</div>` : `<p class="empty">Nichts gefunden.</p>`}
     <p class="note">Stand: ${D.insStand ? new Date(D.insStand).toLocaleString("de-DE") : "unbekannt"}. Ich gleiche Kleinanzeigen regelmäßig ab: Neue Anzeigen kommen dazu, verkaufte oder gelöschte wandern zu „Nicht mehr online“. Den Aufbau im Planer leite ich aus den Maßen im Inserat ab, bitte einmal prüfen.</p>`;

@@ -1,5 +1,5 @@
 {
- "stand": "2026-10-10T18:18:37+00:00",
+ "stand": "2026-10-10T20:19:20+00:00",
  "quelle": "https://www.kleinanzeigen.de/pro/saleo-group",
  "sellerId": "151007875",
  "inserate": [
@@ -31,8 +31,15 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-10",
+     475
+    ]
+   ],
+   "aufrufe": 475
   },
   {
    "id": "3351057564",
@@ -63,8 +70,15 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-10",
+     253
+    ]
+   ],
+   "aufrufe": 253
   },
   {
    "id": "3351047112",
@@ -99,8 +113,15 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-10",
+     834
+    ]
+   ],
+   "aufrufe": 834
   },
   {
    "id": "3454891149",
@@ -167,8 +188,15 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-10",
+     927
+    ]
+   ],
+   "aufrufe": 927
   },
   {
    "id": "3478246237",
@@ -250,8 +278,15 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-10",
+     139
+    ]
+   ],
+   "aufrufe": 139
   },
   {
    "id": "3478242025",
@@ -334,8 +369,15 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-10",
+     226
+    ]
+   ],
+   "aufrufe": 226
   },
   {
    "id": "3478242264",
@@ -416,8 +458,15 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-10",
+     178
+    ]
+   ],
+   "aufrufe": 178
   },
   {
    "id": "3478241354",
@@ -500,8 +549,15 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-10",
+     441
+    ]
+   ],
+   "aufrufe": 441
   },
   {
    "id": "3454095660",
@@ -581,8 +637,15 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-10",
+     603
+    ]
+   ],
+   "aufrufe": 603
   },
   {
    "id": "3402816234",
@@ -611,8 +674,15 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-10",
+     1132
+    ]
+   ],
+   "aufrufe": 1132
   },
   {
    "id": "3532224508",
@@ -693,8 +763,15 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-10",
+     23
+    ]
+   ],
+   "aufrufe": 23
   },
   {
    "id": "3532218786",
@@ -776,8 +853,15 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-10",
+     38
+    ]
+   ],
+   "aufrufe": 38
   },
   {
    "id": "3375183052",
@@ -843,8 +927,15 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-10",
+     811
+    ]
+   ],
+   "aufrufe": 811
   },
   {
    "id": "3452763006",
@@ -927,8 +1018,15 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-10",
+     274
+    ]
+   ],
+   "aufrufe": 274
   },
   {
    "id": "3346608789",
@@ -957,8 +1055,15 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-10",
+     654
+    ]
+   ],
+   "aufrufe": 654
   },
   {
    "id": "3373999795",
@@ -1024,8 +1129,15 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-10",
+     416
+    ]
+   ],
+   "aufrufe": 416
   },
   {
    "id": "3345072346",
@@ -1108,8 +1220,15 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-10",
+     641
+    ]
+   ],
+   "aufrufe": 641
   },
   {
    "id": "3265585789",
@@ -1139,8 +1258,15 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-10",
+     473
+    ]
+   ],
+   "aufrufe": 473
   },
   {
    "id": "3528042689",
@@ -1169,8 +1295,15 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-10",
+     77
+    ]
+   ],
+   "aufrufe": 77
   },
   {
    "id": "3528040054",
@@ -1271,8 +1404,15 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-10",
+     26
+    ]
+   ],
+   "aufrufe": 26
   },
   {
    "id": "3528031830",
@@ -1389,8 +1529,15 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-10",
+     59
+    ]
+   ],
+   "aufrufe": 59
   },
   {
    "id": "3370439730",
@@ -1473,8 +1620,10 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null
   },
   {
    "id": "3178808824",
@@ -1509,8 +1658,10 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null
   },
   {
    "id": "3446228707",
@@ -1593,8 +1744,10 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null
   },
   {
    "id": "3202317278",
@@ -1639,8 +1792,10 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null
   },
   {
    "id": "3443793606",
@@ -1789,8 +1944,15 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-10",
+     444
+    ]
+   ],
+   "aufrufe": 444
   },
   {
    "id": "3443798775",
@@ -1890,8 +2052,10 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null
   },
   {
    "id": "3443243282",
@@ -2037,8 +2201,10 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null
   },
   {
    "id": "3417892468",
@@ -2119,8 +2285,10 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null
   },
   {
    "id": "3332261466",
@@ -2185,8 +2353,10 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null
   },
   {
    "id": "3360116015",
@@ -2215,8 +2385,10 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null
   },
   {
    "id": "3360147901",
@@ -2248,8 +2420,10 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null
   },
   {
    "id": "3360120935",
@@ -2278,8 +2452,10 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null
   },
   {
    "id": "3413029156",
@@ -2309,8 +2485,10 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null
   },
   {
    "id": "3413277611",
@@ -2344,8 +2522,10 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null
   },
   {
    "id": "3357199091",
@@ -2427,8 +2607,10 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null
   },
   {
    "id": "3486517950",
@@ -2544,8 +2726,10 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null
   },
   {
    "id": "3437083363",
@@ -2664,8 +2848,10 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null
   },
   {
    "id": "3512907743",
@@ -2695,8 +2881,10 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null
   },
   {
    "id": "3435949838",
@@ -2778,8 +2966,10 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null
   },
   {
    "id": "3435913489",
@@ -2878,8 +3068,10 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null
   },
   {
    "id": "3248684486",
@@ -2945,8 +3137,10 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null
   },
   {
    "id": "3436415182",
@@ -2975,8 +3169,10 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null
   },
   {
    "id": "3435946492",
@@ -3057,8 +3253,10 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null
   },
   {
    "id": "3435919216",
@@ -3172,8 +3370,10 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null
   },
   {
    "id": "3407534310",
@@ -3202,8 +3402,10 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-10T18:18:37+00:00",
-   "aktiv": true
+   "zuletztGesehen": "2026-10-10T20:19:20+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null
   }
  ]
 }

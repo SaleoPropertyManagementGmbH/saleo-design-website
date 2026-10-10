@@ -1,7 +1,9 @@
 """Kleinanzeigen-Inserate der Saleo Design UG in ops/data/inserate.json umwandeln.
 
-Aufruf: python3 _tools/sync_inserate.py ROHDATEN.json
+Aufruf: python3 _tools/sync_inserate.py ROHDATEN.json [AUFRUFE.json]
 ROHDATEN.json ist die Antwort von get_kleinanzeigen_seller_ads (Seller 151007875, size 100).
+AUFRUFE.json (optional) ist {"AD_ID": aufrufe, ...} aus get_kleinanzeigen_ad mit include_views=true.
+Pro Tag wird ein Aufrufe-Stand je Inserat gespeichert, daraus rechnet die App Aufrufe pro Tag.
 Bestehende Einträge bleiben erhalten; verschwundene Inserate werden als nicht mehr aktiv markiert.
 """
 import itertools
@@ -154,6 +156,8 @@ def main():
     roh = json.load(open(sys.argv[1]))
     ads = roh["data"]["ads"] if "data" in roh else roh["ads"]
     jetzt = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    heute = jetzt[:10]
+    aufrufe = {str(k): int(v) for k, v in json.load(open(sys.argv[2])).items()} if len(sys.argv) > 2 else {}
     alt = {}
     if ZIEL.exists():
         alt = {e["id"]: e for e in json.load(open(ZIEL))["inserate"]}
@@ -171,6 +175,11 @@ def main():
         e["zuerstGesehen"] = frueher.get("zuerstGesehen", jetzt)
         e["zuletztGesehen"] = jetzt
         e["aktiv"] = True
+        verlauf = [v for v in frueher.get("aufrufeVerlauf", []) if v[0] != heute]
+        if e["id"] in aufrufe:
+            verlauf.append([heute, aufrufe[e["id"]]])
+        e["aufrufeVerlauf"] = verlauf[-120:]
+        e["aufrufe"] = verlauf[-1][1] if verlauf else None
         if frueher.get("planerManuell"):
             e["planer"], e["planerManuell"] = frueher["planer"], True
         neu[e["id"]] = e
