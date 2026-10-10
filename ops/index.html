@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Saleo Design Ops</title>
+<meta name="theme-color" content="#1c2f55">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Saleo Ops">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="ops.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="ops.js"></script>
+</head>
+<body>
+<div id="login" class="login" hidden>
+<h1>Saleo Design Ops</h1>
+<form id="lf" style="display:grid;gap:12px">
+<label>E-Mail<input type="email" id="l-mail" value="info@saleo-group.de" autocomplete="username" required></label>
+<label>Passwort<input type="password" id="l-pw" autocomplete="current-password" required minlength="8"></label>
+<label id="l-pw2-box" hidden>Passwort wiederholen<input type="password" id="l-pw2" autocomplete="new-password" minlength="8"></label>
+<button class="btn primary" id="l-go" type="submit">Anmelden</button>
+<div id="l-msg"></div>
+</form>
+<p class="note"><button class="btn" id="l-mode" type="button">Erstes Mal hier? Zugang einrichten</button></p>
+<p class="note">Ein gemeinsamer Zugang für Samuel und Leon. Auf jedem Gerät einmal anmelden, danach bleibt die App angemeldet.</p>
+</div>
+<div id="app" class="wrap" hidden>
+<header class="top">
+<div class="brand"><h1>Saleo Design Ops</h1><span>Lager, Planer, Kalkulation für USM Haller</span></div>
+<div class="right-actions">
+<span class="live" id="live">verbinde…</span>
+<span id="whobox"></span>
+<a class="btn primary" href="planer.html" style="padding:6px 14px;text-decoration:none">Neue Planung</a>
+<button class="btn" id="logout">Abmelden</button>
+</div>
+</header>
+<nav class="appnav" id="nav"></nav>
+<main id="view"></main>
+</div>
+<script src="index.js"></script>
+</body>
+</html>

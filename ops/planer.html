@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Saleo Design Planer</title>
+<meta name="theme-color" content="#1c2f55">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="ops.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="ops.js"></script>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<div class="brand">
+<a href="index.html" class="btn" aria-label="Zur Übersicht">← Übersicht</a>
+<input class="name" id="p-name" value="Neue Planung" aria-label="Name der Planung">
+<span id="p-meta" class="note"></span>
+</div>
+<div class="right-actions">
+<span class="live" id="live">verbinde…</span>
+<span id="whobox"></span>
+<select id="p-status" aria-label="Status"><option value="entwurf">Entwurf</option><option value="angebot">Angebot</option><option value="reserviert">Reserviert</option><option value="verkauft">Verkauft</option><option value="archiv">Archiv</option></select>
+<button class="btn primary" id="save" style="padding:6px 14px">Speichern</button>
+<div class="seg" role="group" aria-label="Ansicht">
+<button id="v-intern" aria-pressed="true">Planer</button>
+<button id="v-kunde" aria-pressed="false">Kundenansicht</button>
+</div>
+</div>
+</header>
+<div id="banner"></div>
+<div class="layout" id="layout">
+<section class="panel" aria-label="Möbel planen">
+<div class="toolbar" id="toolbar">
+<div class="left">
+<div class="step"><span class="no">01</span><span class="eyebrow">Grundtiefe</span><div class="chips" id="depths"></div></div>
+<div class="step"><span class="no">02</span><span class="eyebrow">Start</span><div class="chips" id="templates"></div>
+<select id="std" aria-label="USM-Standardmöbel"><option value="">USM-Standardmöbel…</option></select></div>
+</div>
+<div class="right">
+<button class="chip" id="multimode" aria-pressed="false">Mehrfachauswahl</button>
+<button class="btn" id="selsame">Alle gleichen auswählen</button>
+<button class="btn" id="undo" disabled>Rückgängig</button>
+</div>
+</div>
+<div class="stage" id="stage"></div>
+<div class="dims" id="dims"></div>
+<div class="legend" id="legend"></div>
+<div class="msgs" id="msgs"></div>
+<div class="editor" id="editor"></div>
+<div class="globals" id="globals">
+<label class="f" for="g-color">Grundfarbe ganzes Möbel<select id="g-color"></select></label>
+<label class="f" for="g-zustand">Zustand<select id="g-zustand"><option value="G">Gebraucht</option><option value="N">Neu / neuwertig</option></select></label>
+<label class="f" for="g-base">Unten<select id="g-base"><option value="FU">Nivellierfüße</option><option value="RN100">Lenkrollen Ø 100 (vorne mit Arretierung)</option><option value="RN50">Lenkrollen Ø 50</option></select></label>
+<label class="f" for="g-sides">Außenseiten<select id="g-sides"><option value="BL">Metall</option><option value="GL">Glas</option><option value="">Offen</option></select></label>
+<label class="f" for="g-top">Abdeckung oben<select id="g-top"><option value="BL">Metall</option><option value="GA">Glas</option></select></label>
+</div>
+</section>
+<section class="panel" aria-label="Auswertung" id="right">
+<div class="kpis" id="kpis"></div>
+<div class="tabs" role="tablist" id="tabs">
+<button role="tab" id="t-bom" aria-selected="true">Stückliste</button>
+<button role="tab" id="t-calc" aria-selected="false">Kalkulation</button>
+<button role="tab" id="t-ship" aria-selected="false">Versand</button>
+</div>
+<div id="tabbody"></div>
+</section>
+</div>
+</div>
+<script src="p1.js"></script><script src="p2.js"></script><script src="p4.js"></script><script src="p3.js"></script>
+</body>
+</html>
