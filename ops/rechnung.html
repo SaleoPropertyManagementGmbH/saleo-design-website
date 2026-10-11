@@ -29,6 +29,9 @@
   .paper .fuss { margin-top: 34px; padding-top: 10px; border-top: 1px solid #ccc; font-size: 10.5px; color: #555; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
   .paper .logo { width: 86px; height: 86px; background: #2e3547; color: #fff; display: grid; place-items: end center; padding-bottom: 14px; font: 800 19px/1 Arial, sans-serif; letter-spacing: .02em; margin: 0 auto 26px; }
   @media (max-width: 640px) { .paper { padding: 24px 18px; font-size: 12.5px; } .paper .fuss { grid-template-columns: 1fr; } }
+  .empf-box { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+  .empf { display: flex; gap: 8px; align-items: center; font-weight: 600; flex: 1 1 280px; }
+  .empf input { flex: 1; min-width: 0; }
   @media print { .re-top, .banner { display: none !important; } body { background: #fff; } .paper { box-shadow: none; padding: 0; } }
 </style>
 </head>
@@ -36,6 +39,7 @@
 <div class="re-wrap">
   <div class="re-top"><a class="btn" href="index.html#auftraege">← Aufträge</a><div class="re-actions" id="actions"></div></div>
   <div id="msg"></div>
+  <div id="empf" class="empf-box"></div>
   <div id="paper"><p class="empty">lade…</p></div>
 </div>
 <script>
@@ -84,7 +88,8 @@ function render() {
   </div>`;
   const st = { entwurf: "Entwurf", gesendet: "gesendet " + (R.gesendet_am ? when(R.gesendet_am) : ""), bezahlt: "bezahlt", storniert: "storniert" }[R.status];
   document.getElementById("actions").innerHTML = `<span class="badge ${R.status === "bezahlt" ? "ok" : R.status === "entwurf" ? "warn" : ""}">${esc(st)}</span>
-    <button class="btn primary" id="send">${R.status === "entwurf" ? "Rechnung senden" : "Erneut senden"}</button><button class="btn" id="pdf">PDF</button>`;
+    <button class="btn primary" id="send">${R.status === "entwurf" ? "Rechnung senden" : "Erneut senden"}</button><button class="btn" id="teilen">Teilen</button><button class="btn" id="pdf">PDF</button>`;
+  document.getElementById("empf").innerHTML = R.status === "bezahlt" ? "" : `<label class="empf">An: <input type="email" id="an" value="${esc(R.kunde_email || "")}" placeholder="E-Mail des Kunden" autocomplete="off"></label><span class="note">Kopie geht automatisch an DATEV und in euer Postfach.</span>`;
 }
 function pdf() {
   const { jsPDF } = window.jspdf, d = new jsPDF({ unit: "mm", format: "a4" });
@@ -130,6 +135,25 @@ const dateiname = () => `Rechnung_${R.nummer}_Saleo_Design.pdf`;
 const mailText = () => `Guten Tag ${R.kunde_name},\n\nanbei erhalten Sie Ihre Rechnung ${R.nummer} über ${eurD(R.brutto)}.${bezahlt() ? "" : ` Bitte zahlen Sie bis zum ${datD(faellig())}, alle Zahlungsmöglichkeiten stehen auf der Rechnung.`}\n\nVielen Dank für Ihren Einkauf und viele Grüße\nIhr Team von Saleo Design`;
 async function senden() {
   if (!me()) { document.getElementById("msg").innerHTML = `<div class="banner"><span>Bitte zuerst in der Übersicht bei „Ich bin“ auswählen, wer sendet.</span></div>`; return; }
+  const an = (document.getElementById("an")?.value || "").trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(an)) { document.getElementById("msg").innerHTML = `<div class="banner"><span>Bitte oben die E-Mail-Adresse des Kunden eintragen.</span></div>`; return; }
+  const btn = document.getElementById("send"); btn.disabled = true; btn.textContent = "wird gesendet…";
+  try {
+    const pdfB64 = pdf().output("datauristring").split(",")[1];
+    const { data: s } = await sb.auth.getSession();
+    const res = await fetch(SB_URL + "/functions/v1/rechnung-senden", { method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + s.session.access_token, apikey: SB_KEY },
+      body: JSON.stringify({ rechnung_id: R.id, pdf_base64: pdfB64, an, wer: me(), betreff: `Ihre Rechnung ${R.nummer} von SALEO`, text: mailText() }) });
+    const out = await res.json().catch(() => ({}));
+    if (!res.ok || !out.ok) throw new Error(out.error || out.message || ("Fehler " + res.status));
+    await laden();
+    document.getElementById("msg").innerHTML = `<div class="banner info"><span>Rechnung an ${esc(an)} gesendet, Kopie an DATEV und an euer Postfach. Sobald das Geld da ist, ordne ich die Zahlung zu.</span></div>`;
+  } catch (e) {
+    btn.disabled = false; btn.textContent = "Rechnung senden";
+    document.getElementById("msg").innerHTML = `<div class="banner"><span>Senden hat nicht geklappt: ${esc(e.message)}. Alternativ über „Teilen“ verschicken.</span></div>`;
+  }
+}
+async function teilen() {
+  if (!me()) { document.getElementById("msg").innerHTML = `<div class="banner"><span>Bitte zuerst in der Übersicht bei „Ich bin“ auswählen, wer sendet.</span></div>`; return; }
   const blob = pdf().output("blob"), file = new File([blob], dateiname(), { type: "application/pdf" });
   const betreff = `Ihre Rechnung ${R.nummer} von Saleo Design`;
   let ok = false;
@@ -157,6 +181,7 @@ async function laden() {
 document.addEventListener("click", e => {
   if (e.target.id === "pdf") pdf().save(dateiname());
   if (e.target.id === "send") senden();
+  if (e.target.id === "teilen") teilen();
   if (e.target.id === "markiert") markieren();
 });
 (async () => { if (!(await requireSession())) return; await laden(); })();
