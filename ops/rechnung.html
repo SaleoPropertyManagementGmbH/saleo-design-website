@@ -138,7 +138,7 @@ async function senden() {
   }
   if (!ok) {
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = dateiname(); a.click();
-    location.href = `mailto:${encodeURIComponent(R.kunde_email || "")}?subject=${encodeURIComponent(betreff)}&body=${encodeURIComponent(mailText() + "\n\n(PDF im Anhang)")}`;
+    location.href = `mailto:${encodeURIComponent(R.kunde_email || "")}?${F.datev_rechnungsausgang ? "bcc=" + encodeURIComponent(F.datev_rechnungsausgang) + "&" : ""}subject=${encodeURIComponent(betreff)}&body=${encodeURIComponent(mailText() + "\n\n(PDF im Anhang)")}`;
     document.getElementById("msg").innerHTML = `<div class="banner info"><span>Die PDF ist heruntergeladen und die Mail vorbereitet. Bitte die PDF an die Mail hängen und senden.</span><button class="btn small primary" id="markiert">Ist gesendet</button></div>`;
     return;
   }
