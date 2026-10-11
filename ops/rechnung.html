@@ -83,7 +83,7 @@ function render() {
   document.getElementById("paper").innerHTML = `<div class="paper">
     <div class="head">${window.SALEO_LOGO ? `<img src="${SALEO_LOGO}" alt="SALEO">` : "<b>SALEO</b>"}<div class="titel"><b>RECHNUNG</b><span>Nr. ${esc(R.nummer)}</span></div></div>
     <div class="kopf"><div><div class="absender">${esc(F.name_absender || F.name)} · ${esc(F.strasse)} · ${esc(F.ort)}</div><br>${adresseZeilen().map(esc).join("<br>")}</div>
-      <table class="meta"><tbody><tr><td>Rechnungsnummer</td><td><b>${esc(R.nummer)}</b></td></tr><tr><td>Rechnungsdatum</td><td>${datD(R.datum)}</td></tr><tr><td>Liefer-/Leistungsdatum</td><td>${datD(R.lieferdatum || R.datum)}</td></tr>${bezahlt() ? "" : `<tr><td>Zahlbar bis</td><td>${datD(faellig())}</td></tr>`}${steuerZeilen().length ? "" : `<tr><td>Steuernummer</td><td>beantragt</td></tr>`}</tbody></table></div>
+      <table class="meta"><tbody><tr><td>Rechnungsnummer</td><td><b>${esc(R.nummer)}</b></td></tr>${R.kunde_nr ? `<tr><td>Kundennummer</td><td>${R.kunde_nr}</td></tr>` : ""}<tr><td>Rechnungsdatum</td><td>${datD(R.datum)}</td></tr><tr><td>Liefer-/Leistungsdatum</td><td>${datD(R.lieferdatum || R.datum)}</td></tr>${bezahlt() ? "" : `<tr><td>Zahlbar bis</td><td>${datD(faellig())}</td></tr>`}${steuerZeilen().length ? "" : `<tr><td>Steuernummer</td><td>beantragt</td></tr>`}</tbody></table></div>
     <table class="pos"><thead><tr><th>Pos.</th><th>Beschreibung</th><th class="r">Menge</th><th class="r">Einzelpreis</th><th class="r">Gesamt</th></tr></thead><tbody>
       ${pos.map((p, i) => `<tr><td>${i + 1}</td><td>${esc(p.text)}</td><td class="r">${p.menge}</td><td class="r">${eurD(p.preis)}</td><td class="r">${eurD(p.menge * p.preis)}</td></tr>`).join("")}
     </tbody></table>
@@ -116,7 +116,7 @@ function pdf() {
   fett(false); d.setFontSize(10.5); grau(); d.text(`Nr. ${R.nummer}`, Rr, 31, { align: "right" });
   d.setFontSize(7.5); grau(); const abs = `${F.name_absender || F.name} · ${F.strasse} · ${F.ort}`; d.text(abs, L, 49); d.setDrawColor(200); d.line(L, 50.3, L + d.getTextWidth(abs), 50.3);
   dunkel(); d.setFontSize(10.5); adresseZeilen().forEach((z, i) => d.text(z, L, 57 + i * 5));
-  const meta = [["Rechnungsnummer", R.nummer], ["Rechnungsdatum", datD(R.datum)], ["Liefer-/Leistungsdatum", datD(R.lieferdatum || R.datum)], ...(bezahlt() ? [] : [["Zahlbar bis", datD(faellig())]]), ...(steuerZeilen().length ? [] : [["Steuernummer", "beantragt"]])];
+  const meta = [["Rechnungsnummer", R.nummer], ...(R.kunde_nr ? [["Kundennummer", String(R.kunde_nr)]] : []), ["Rechnungsdatum", datD(R.datum)], ["Liefer-/Leistungsdatum", datD(R.lieferdatum || R.datum)], ...(bezahlt() ? [] : [["Zahlbar bis", datD(faellig())]]), ...(steuerZeilen().length ? [] : [["Steuernummer", "beantragt"]])];
   d.setFillColor(...HELL); d.roundedRect(120, 45, 70, meta.length * 5.6 + 7, 2, 2, "F");
   meta.forEach(([k, v], i) => { const yy = 51.5 + i * 5.6; d.setFontSize(8.5); grau(); d.text(k, 125, yy); d.setFontSize(9.5); dunkel(); fett(i === 0); d.text(String(v), 185, yy, { align: "right" }); fett(false); });
   let y = 96;
