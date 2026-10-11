@@ -2,7 +2,8 @@
 
 Aufruf: python3 _tools/sync_inserate.py ROHDATEN.json [AUFRUFE.json]
 ROHDATEN.json ist die Antwort von get_kleinanzeigen_seller_ads (Seller 151007875, size 100).
-AUFRUFE.json (optional) ist {"AD_ID": aufrufe, ...} aus get_kleinanzeigen_ad mit include_views=true.
+AUFRUFE.json (optional) ist {"AD_ID": aufrufe, ...} oder {"AD_ID": {"besucher": n, "gemerkt": n, "anfragen": n}, ...}
+(Letzteres aus „Meine Anzeigen“ im eingeloggten Kleinanzeigen-Konto, kostenlos).
 Pro Tag wird ein Aufrufe-Stand je Inserat gespeichert, daraus rechnet die App Aufrufe pro Tag.
 Bestehende Einträge bleiben erhalten; verschwundene Inserate werden als nicht mehr aktiv markiert.
 """
@@ -157,7 +158,10 @@ def main():
     ads = roh["data"]["ads"] if "data" in roh else roh["ads"]
     jetzt = datetime.now(timezone.utc).isoformat(timespec="seconds")
     heute = jetzt[:10]
-    aufrufe = {str(k): int(v) for k, v in json.load(open(sys.argv[2])).items()} if len(sys.argv) > 2 else {}
+    aufrufe = {}
+    if len(sys.argv) > 2:
+        for k, v in json.load(open(sys.argv[2])).items():
+            aufrufe[str(k)] = v if isinstance(v, dict) else {"besucher": int(v)}
     alt = {}
     if ZIEL.exists():
         alt = {e["id"]: e for e in json.load(open(ZIEL))["inserate"]}
@@ -176,10 +180,14 @@ def main():
         e["zuletztGesehen"] = jetzt
         e["aktiv"] = True
         verlauf = [v for v in frueher.get("aufrufeVerlauf", []) if v[0] != heute]
-        if e["id"] in aufrufe:
-            verlauf.append([heute, aufrufe[e["id"]]])
+        a = aufrufe.get(e["id"])
+        if a:
+            verlauf.append([heute, a.get("besucher"), a.get("gemerkt"), a.get("anfragen")])
         e["aufrufeVerlauf"] = verlauf[-120:]
-        e["aufrufe"] = verlauf[-1][1] if verlauf else None
+        letzte = verlauf[-1] if verlauf else None
+        e["aufrufe"] = letzte[1] if letzte else None
+        e["gemerkt"] = letzte[2] if letzte and len(letzte) > 2 else frueher.get("gemerkt")
+        e["anfragen"] = letzte[3] if letzte and len(letzte) > 3 else frueher.get("anfragen")
         if frueher.get("planerManuell"):
             e["planer"], e["planerManuell"] = frueher["planer"], True
         neu[e["id"]] = e
