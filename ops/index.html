@@ -112,9 +112,9 @@ async function loadAll() {
     fetch("data/inserate.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : { inserate: [] }).catch(() => ({ inserate: [] }))
   ]);
   const opt = (t, s = "*", m) => fetchAll(t, s, m).catch(() => []);
-  const [moebel, mteile, ausw, verk, auf, zahl] = await Promise.all([opt("moebel", "*", q => q.order("erstellt_am", { ascending: false })), opt("moebel_teil"), opt("auswertung_kategorie"), opt("marge_je_verkauf", "*", q => q.order("datum", { ascending: false })),
-    opt("auftrag_uebersicht", "*", q => q.order("erstellt_am", { ascending: false })), opt("zahlung", "*", q => q.eq("status", "neu").order("zeitpunkt", { ascending: false }))]);
-  Object.assign(D, { lager, typen, farben, plan, vorlagen, vpos, std, regeln, bew, ins: ins.inserate || [], insStand: ins.stand, moebel, mteile, ausw, verk, auf, zahl });
+  const [moebel, mteile, ausw, verk, auf, zahl, verb] = await Promise.all([opt("moebel", "*", q => q.order("erstellt_am", { ascending: false })), opt("moebel_teil"), opt("auswertung_kategorie"), opt("marge_je_verkauf", "*", q => q.order("datum", { ascending: false })),
+    opt("auftrag_uebersicht", "*", q => q.order("erstellt_am", { ascending: false })), opt("zahlung", "*", q => q.eq("status", "neu").order("zeitpunkt", { ascending: false })), opt("verbindung", "*", q => q.order("reihenfolge"))]);
+  Object.assign(D, { lager, typen, farben, plan, vorlagen, vpos, std, regeln, bew, ins: ins.inserate || [], insStand: ins.stand, moebel, mteile, ausw, verk, auf, zahl, verb });
 }
 async function loadBuildable() {
   const jobs = [];
@@ -242,6 +242,13 @@ function vAuftraege() {
 }
 
 /* ---------- Ansichten ---------- */
+function vVerbindungen() {
+  const v = D.verb || []; if (!v.length) return "";
+  const weg = v.filter(x => x.ok === false);
+  const zeile = x => `<div class="verb-row"><span class="dot ${x.ok === true ? "ok" : x.ok === false ? "bad" : "na"}"></span><div class="verb-t"><b>${esc(x.titel)}</b><span>${esc(x.ok === false ? "Anmeldung nötig. " : "")}${esc(x.hinweis || "")}</span></div>${x.ok === false && x.login_url ? `<a class="btn small primary" href="${esc(x.login_url)}" target="_blank" rel="noopener">Anmelden</a>` : `<span class="note">${esc(x.dauerhaft ? "dauerhaft" : x.art)}</span>`}</div>`;
+  return `<details class="card verb"${weg.length ? " open" : ""}><summary class="card-head"><h2>Verbindungen</h2><span class="badge ${weg.length ? "warn" : "ok"}">${weg.length ? weg.length + " brauch" + (weg.length > 1 ? "en" : "t") + " Anmeldung" : "alles verbunden"}</span></summary>
+    ${v.map(zeile).join("")}${weg.length ? `<p class="note" style="margin:8px 0 0">Anmelden bitte am Mac in der Claude-App, dort wo diese Seite offen ist. Dann bleibt die Anmeldung für mich nutzbar.</p>` : ""}</details>`;
+}
 function vStart() {
   const wert = D.lager.reduce((a, r) => a + Number(r.wert || 0), 0), teile = D.lager.reduce((a, r) => a + r.bestand, 0);
   const low = D.lager.filter(r => r.unter_minimum && r.mindestbestand);
@@ -253,6 +260,7 @@ function vStart() {
     `<div class="stats">${stat("Inserate online", aktiv.length, `zusammen ${eur(insWert).replace(",00", "")}`)}${stat("Aufträge offen", offeneAuftraege().length, offeneAuftraege().length ? "Label freigeben" : "nichts zu tun", offeneAuftraege().length ? "neg" : "")}${stat("Fertige Möbel", verfuegbareMoebel().length, "sofort verfügbar")}${stat("Offene Planungen", offen.length, `${D.plan.filter(p => p.status === "angebot").length} im Angebot`)}${stat("Lagerwert", eur(wert).replace(",00", ""), `${num(teile)} Teile`)}${stat("Unter Mindestbestand", low.length, low.length ? "nachkaufen prüfen" : "alles im grünen Bereich", low.length ? "neg" : "good")}</div>
     ${offeneAuftraege().length ? `<div class="banner"><span><b>${offeneAuftraege().length} bezahlte${offeneAuftraege().length > 1 ? "" : "r"} Auftrag${offeneAuftraege().length > 1 ? "e" : ""}</b> warte${offeneAuftraege().length > 1 ? "n" : "t"} auf die Label-Freigabe.</span><a class="btn primary small" href="#auftraege">Ansehen</a></div>` : ""}
     ${empty ? `<div class="banner info"><span>Das Lager ist noch leer. Inventur einfach per Plaud an Klaus diktieren, pro Regalfach: Anzahl, Teil, Maß, Farbe, Zustand, Preis. Ich buche ein, danach rechnen Planer und Übersicht mit echten Zahlen.</span></div>` : ""}
+    ${vVerbindungen()}
     <div class="grid-2">
       ${verfuegbareMoebel().length ? `<section class="card"><div class="card-head"><h2>Fertige Möbel, sofort verfügbar</h2><a href="#moebel">Alle</a></div>
         ${verfuegbareMoebel().slice(0, 6).map(m => `<div class="list-row"><div class="grow"><div class="t"><a href="planer.html?moebel=${m.id}">${esc(m.name)}</a></div><div class="wo">${[m.masse ? m.masse + " cm" : "", m.lagerort ? "Lagerort " + m.lagerort : "", "Warenwert " + eur(moebelWert(m)).replace(",00", "")].filter(Boolean).join(" · ")}</div></div><span class="badge ${(MST[m.status] || [""])[0]}">${(MST[m.status] || ["", m.status])[1]}</span></div>`).join("")}</section>` : ""}
@@ -451,6 +459,7 @@ async function start() {
     .on("postgres_changes", { event: "*", schema: "public", table: "auftrag" }, liveReload)
     .on("postgres_changes", { event: "*", schema: "public", table: "zahlung" }, liveReload)
     .on("postgres_changes", { event: "*", schema: "public", table: "rechnung" }, liveReload)
+    .on("postgres_changes", { event: "*", schema: "public", table: "verbindung" }, liveReload)
     .subscribe(s => { const el = document.getElementById("live"); el.textContent = s === "SUBSCRIBED" ? "live verbunden" : "offline"; el.classList.toggle("on", s === "SUBSCRIBED"); });
 }
 start();
