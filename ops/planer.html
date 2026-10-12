@@ -119,7 +119,7 @@ const NAMES = {
 };
 const HW = {
   SC69: ["Schere 69 N (18444)", 22, 0.3], SC40: ["Schere 40 N, für Klappe 750 × 250", 22, 0.25],
-  DP: ["Dämpferpaket SilentClose (18450)", 9, 0.05], BAA: ["Befestigungsset Schere Typ A (18472)", 12, 0.2],
+  DP: ["Soft-Close-Dämpfer, auf Scharnier aufsteckbar (Sonderausstattung, 18450)", 9, 0.05], BAA: ["Befestigungsset Schere Typ A (18472)", 12, 0.2],
   FBS: ["Scharnier neue Generation (2 je Klappe)", 5, 0.05], PSH: ["Kunststoffteil (1 je Scharnier)", 0.25, 0.005],
   MWS: ["L-Winkel (je Reihe 1 je Innentablar und Außentablar)", 2.5, 0.03], USL: ["Universalschloss neue Generation", 12, 0.1], SKN: ["Schlosskasten neue Generation", 3.5, 0.03],
   GRS: ["Universalverschluss, Griffset mit Schlitz (14131)", 12, 0.1], SL: ["Schloss mit 2 Schlüsseln (14262)", 18, 0.12],
@@ -130,7 +130,7 @@ const HW = {
   TTS: ["Zwischentablarträger-Set Metall (11140)", 9, 0.15], ZGT: ["Glas-Zwischentablarträger-Set (11888)", 11, 0.15],
   BS: ["Blechschraube 4,8 × 9,5", 0.3, 0.005],
   KH: ["Klemmhalter (Halbmond)", 2.5, 0.01], KM: ["Klemme", 1, 0.005], SM4: ["Schraube M4 für Klemmhalter", 0.3, 0.003],
-  SCALT: ["Schere alte Generation (Gasdruckfeder)", 20, 0.35], BSALT: ["Befestigungsschiene alte Generation", 4, 0.05],
+  SCALT: ["Scherenscharnier alte Generation (Liftomat)", 20, 0.35], BSALT: ["Befestigungsschiene alte Generation", 4, 0.05],
   DG: ["Drehgriff mit Kunststoffring (alte Generation)", 10, 0.1], SLALT: ["Schloss alte Generation", 15, 0.12],
   BWALT: ["Befestigungswinkel Front an Ausziehtablar, alt (Paar L/R)", 18, 0.15], ASALT: ["Auszugschiene alte Generation mit Schraube und Mutter (L/R)", 15, 0.6]
 };
@@ -388,8 +388,8 @@ function bom(geo) {
     add(f.front + (f.perf && ["KL", "AZ", "EI"].includes(f.front) ? "P" : ""), `${f.w}x${f.h}`, colOf(f, "front"), 1, oldFront ? "Front alte Generation" : f.perf ? "Front perforiert" : "Front", oldFront ? "A" : "N");
     const n = NAMES[f.front];
     if (f.front === "KL" || f.front === "KLP") {
-      if (old) { hw("SCALT", 2, n); hw("BSALT", 4, n); }
-      else { hw("FBS", 2, n); hw("PSH", 2, n); hw("DP", 2, n); if (f.lock === "U") hw("SKN", 1, n); }
+      if (old) { hw("SCALT", 2, n); hw("BSALT", 4, n); } // alte Generation: Scherenscharniere (Liftomat), passen nur auf alte Klappen
+      else { hw("FBS", 2, n); hw("PSH", 2, n); if (f.soft) hw("DP", 2, n + " · Soft-Close"); if (f.lock === "U") hw("SKN", 1, n); }
     }
     if (f.front === "AZ") {
       add("AT", `${f.w}x${d}`, colOf(f, "einbau"), 1, "Wanne der Schublade");
@@ -492,7 +492,7 @@ function drawing(geo) {
     }
     if (f.front === "GT") inner += `<rect x="${x0 + 2}" y="${yt + 2}" width="${w - 4}" height="${h - 4}" fill="#a9d4e2" opacity=".5" stroke="#7fb3c4"/>` + lockSym(x1 - 12, cym);
     const label = f.front ? NAMES[f.front] + (f.perf ? " perforiert" : "") : ({ "": "offen", ZT: "Zwischentablar", ZG: "Glas-Zwischentablar", AT: "Ausziehtablar", ST: "Schrägtablar" }[f.inside || ""]);
-    const sub = f.front ? ({ U: "Universalschloss", S: "Schloss", D: "Drehgriff", SA: "Schloss" }[f.lock] + (f.gen === "A" ? " · alt" : "") + (f.rahmen && (f.front === "AZ") ? " · Rahmen" : "")) : "";
+    const sub = f.front ? ({ U: "Universalschloss", S: "Schloss", D: "Drehgriff", SA: "Schloss" }[f.lock] + (f.gen === "A" ? " · alt" : "") + (f.soft && f.gen !== "A" ? " · Soft-Close" : "") + (f.rahmen && (f.front === "AZ") ? " · Rahmen" : "")) : "";
     const lc = f.front && f.front !== "GT" ? (darkF ? "#e9ecf1" : "#3f464f") : (darkB && f.back && f.back !== "GL" ? "#e9ecf1" : "var(--muted)");
     const fsz = Math.max(6.5, Math.min(12, (w - 10) * 1.75 / label.length, h / 3.6));
     if (h > 18) inner += `<text x="${cxm}" y="${cym + (sub && h > 40 ? 1 : 4)}" text-anchor="middle" font-family="Archivo, Helvetica Neue, Arial, sans-serif" font-size="${fsz}" letter-spacing=".03em" fill="${lc}" pointer-events="none">${label}</text>`;
@@ -576,6 +576,7 @@ function renderEditor() {
     <div class="group"><span>Front</span><div class="chips">${chips(FRONTS, "front", "front")}</div></div>
     ${list.every(q => ["KL", "AZ", "EI"].includes(q.front)) ? `<div class="group"><span>Ausführung</span><div class="chips"><button class="chip" data-perf="0" aria-pressed="${list.every(q => !q.perf)}">Normal</button><button class="chip" data-perf="1" aria-pressed="${list.every(q => q.perf)}">Perforiert</button></div></div>` : ""}
     ${list.every(q => q.front === "KL" || q.front === "KLP" || q.front === "AZ") ? `<div class="group"><span>Generation</span><div class="chips">${chips(GENS, "gen", "gen")}</div></div>` : ""}
+    ${list.every(q => (q.front === "KL" || q.front === "KLP") && q.gen !== "A") ? `<div class="group"><span>Soft-Close</span><div class="chips"><button class="chip" data-soft="0" aria-pressed="${list.every(q => !q.soft)}">Ohne</button><button class="chip" data-soft="1" aria-pressed="${list.every(q => q.soft)}">Mit Soft-Close-Dämpfern</button></div></div>` : ""}
     ${list.every(q => q.front) ? `<div class="group"><span>Verschluss</span><div class="chips">${chips(LOCKS[list.every(q => q.gen === "A" && (q.front === "KL" || q.front === "KLP" || q.front === "AZ")) ? "A" : "N"], "lock", "lock")}</div></div>` : ""}
     ${list.every(q => q.front === "AZ" || q.inside === "AT") ? `<div class="group"><span>Einlegerahmen</span><div class="chips"><button class="chip" data-rahmen="0" aria-pressed="${list.every(q => !q.rahmen)}">Ohne</button><button class="chip" data-rahmen="1" aria-pressed="${list.every(q => q.rahmen)}">Mit Einlegerahmen</button></div></div>` : ""}
     <div class="group"><span>Seiten</span><div class="chips"><button class="chip" data-open="L" aria-pressed="${list.every(q => q.openL)}">Links offen</button><button class="chip" data-open="R" aria-pressed="${list.every(q => q.openR)}">Rechts offen</button></div></div>
@@ -874,6 +875,7 @@ document.addEventListener("click", async e => {
   else if (t.dataset.front != null && f) tryChange(() => { sels().forEach(q => { q.front = t.dataset.front; }); });
   else if (t.dataset.back != null && f) tryChange(() => { sels().forEach(q => q.back = t.dataset.back); });
   else if (t.dataset.lock != null && f) tryChange(() => { sels().forEach(q => q.lock = t.dataset.lock); });
+  else if (t.dataset.soft != null && f) tryChange(() => { sels().forEach(q => q.soft = t.dataset.soft === "1"); });
   else if (t.dataset.inside != null && f) tryChange(() => { sels().forEach(q => q.inside = t.dataset.inside); });
   else if (t.dataset.gen != null && f) tryChange(() => { sels().forEach(q => { q.gen = t.dataset.gen; q.lock = q.gen === "A" ? "D" : "U"; }); });
   else if (t.dataset.open && f) { const k = "open" + t.dataset.open, v = !sels().every(q => q[k]); tryChange(() => { sels().forEach(q => q[k] = v); }); }
