@@ -324,12 +324,32 @@ ${svgStapel}
     ${n ? `<button class="btn primary pal-open" data-palopen="1">Palette öffnen und Farben verteilen</button>` : ""}</section>${UI.pal ? palModal(teile, pos) : ""}`;
 }
 
-const KAT = { BL: ["Tablar", "Tablar", "tab"], BP: ["Tablar", "Tablar gelocht", "tab"], BPF: ["Tablar", "Tablar perforiert", "tab"], BK: ["Tablar", "Tablar Kabelauslass", "tab"], BV: ["Tablar", "Tablar verkürzt", "tab"], BVS: ["Tablar", "Tablar verkürzt Schwerlast", "tab"],
-  BSL: ["Tablar", "Schwerlasttablar", "tab"], BSZ: ["Tablar", "Boden Einschubtür", "tab"], BRC: ["Tablar", "Rollcontainer-Tablar", "tab"], ZT: ["Tablar", "Zwischentablar", "tab"], GA: ["Tablar", "Glastablar", "tab"],
-  AT: ["Auszug", "Auszugstablar", "aus"], AZ: ["Auszug", "Schublade", "aus"], AZP: ["Auszug", "Schublade perforiert", "aus"],
-  KL: ["Tür", "Klapptür", "tuer"], KLP: ["Tür", "Klapptür perforiert", "tuer"], KLA: ["Tür", "Klapptür Akustik", "tuer"], EI: ["Tür", "Einschubtür (Garage)", "tuer"], EIP: ["Tür", "Einschubtür perforiert", "tuer"], EIA: ["Tür", "Einschubtür Akustik", "tuer"], GT: ["Tür", "Glastür", "tuer"] };
-const katVon = code => { const k = KAT[(code || "").split("-")[0]]; return k ? { gruppe: k[0], name: k[1], cls: k[2] } : null; };
-const katLabel = code => { const k = katVon(code); return k ? `<span class="kat ${k.cls}">${esc(k.name)}</span>` : ""; };
+// Teile-Etiketten: Kategorie (farbig) + Eigenschaften, damit man sofort sieht, was was ist
+const TEIL = {
+  RO: ["Rohr", "gestell"], RS: ["Rohr", "gestell", ["mit Montageschlitz"]], ROX: ["Rohr", "gestell", ["Sondermaß"]], RBU: ["Rohr", "gestell", ["Buffetrohr"]], KU: ["Kugel", "gestell"], CO: ["Connector", "gestell"], FU: ["Fuß", "gestell"], RN: ["Rolle", "gestell"],
+  BL: ["Tablar", "tab"], BP: ["Tablar", "tab", ["gelocht"]], BPF: ["Tablar", "tab", ["perforiert"]], BK: ["Tablar", "tab", ["Kabelauslass"]], BV: ["Tablar", "tab", ["verkürzt"]], BVS: ["Tablar", "tab", ["verkürzt", "Schwerlast"]],
+  BSL: ["Tablar", "tab", ["Schwerlast"]], BSZ: ["Tablar", "tab", ["Schlitze", "Boden Einschubtür"]], BRC: ["Tablar", "tab", ["Rollcontainer"]], BAK: ["Tablar", "tab", ["Akustik"]], PF: ["Tablar", "tab", ["Pflanzenblech"]], RST: ["Tablar", "tab", ["Rost"]], SF: ["Tablar", "tab", ["Soft Panel"]],
+  GA: ["Glas", "glas", ["Glastablar"]], GL: ["Glas", "glas", ["Seite / Rückwand"]], ZG: ["Glas", "glas", ["Zwischentablar"]],
+  KL: ["Klapptür", "tuer"], KLP: ["Klapptür", "tuer", ["perforiert"]], KLA: ["Klapptür", "tuer", ["Akustik"]], EI: ["Garagentür", "tuer", ["Einschubtür"]], EIP: ["Garagentür", "tuer", ["Einschubtür", "perforiert"]], EIA: ["Garagentür", "tuer", ["Einschubtür", "Akustik"]], GT: ["Glastür", "tuer"],
+  AZ: ["Schublade", "aus"], AZP: ["Schublade", "aus", ["perforiert"]], AT: ["Auszug", "aus", ["Auszugstablar"]], ER: ["Einbau", "einbau", ["Einlegerahmen"]], RCS: ["Einbau", "einbau", ["Rollcontainer-Schlitten"]], SLR: ["Einbau", "einbau", ["Schwerlastrahmen"]],
+  ZT: ["Einbau", "einbau", ["Zwischentablar"]], HR: ["Einbau", "einbau", ["Hängeregistratur"]], GST: ["Einbau", "einbau", ["Garderobenstange"]], BST: ["Einbau", "einbau", ["Buchstütze"]], ST: ["Einbau", "einbau", ["Schrägtablar"]], MBE: ["Einbau", "einbau", ["Boxeinsatz"]], INO: ["Einbau", "einbau", ["Inos"]],
+  TB: ["Tisch", "tisch", ["Tischbein"]], TG: ["Tisch", "tisch", ["Tischgestell"]], TP: ["Tisch", "tisch", ["Tischplatte"]], ELE: ["USM E", "elek"] };
+const katVon = code => {
+  const c = code || "", k = TEIL[c.split("-")[0]] || (c.startsWith("HW-") ? ["Beschlag", "beschlag"] : null);
+  if (!k) return null;
+  const props = k[2] || [];
+  return { gruppe: k[0], label: k[0], cls: k[1], props, name: [k[0], ...props.filter(p => !/Einschubtür|Boden Einschubtür/.test(p))].join(" ") };
+};
+const katLabel = code => { const k = katVon(code); return k ? `<span class="kat ${k.cls}">${esc(k.label)}</span>` : ""; };
+const teilEtikett = r => {
+  const k = katVon(r.code), ty = typVon(r.code), props = k ? [...k.props] : [];
+  const gen = ty && ty.mit_generation ? (r.generation === "A" ? `<span class="gen alt">alte Gen.</span>` : `<span class="gen neu">neue Gen.</span>`) : (r.generation === "A" ? `<span class="gen alt">alte Gen.</span>` : "");
+  const mass = r.mass ? r.mass.replace("x", " × ") : "";
+  const name = k && k.cls === "beschlag" ? r.bezeichnung : "";
+  return `<div class="etikett">${k ? `<span class="kat ${k.cls}">${esc(k.label)}</span>` : `<b>${esc(r.bezeichnung)}</b>`}${r.farbe ? ` <i class="dot" title="${esc(farbName(r.farbe))}" style="background:${FARBHEX[r.farbe] || "#ccc"}"></i>` : ""}${mass ? ` <b class="e-mass">${esc(mass)}</b>` : ""}${name ? ` <span class="e-name">${esc(name)}</span>` : ""}</div>
+    <div class="e-props">${props.map(p => `<span class="prop">${esc(p)}</span>`).join("")}${gen}${r.nur_neu ? `<span class="badge warn">nur neu</span>` : ""}</div>
+    ${k && k.cls !== "beschlag" && r.bezeichnung && !r.bezeichnung.toLowerCase().startsWith(k.label.toLowerCase()) ? `<div class="e-bez">${esc(r.bezeichnung)}</div>` : ""}`;
+};
 const PAL_FARBEN = () => D.farben.filter(f => !["SW", "GL", "SO"].includes(f.code));
 const palAuftragName = id => { const a = (D.auf || []).find(x => x.id === id); return a ? (a.kaeufer_name || a.titel || "Auftrag") : null; };
 function palLocal() {
@@ -351,7 +371,7 @@ function palModal(teile, pos) {
   }
   const tiles = offen.map(r => `<button class="pal-tile${UI.palSel === r.code ? " sel" : ""}" draggable="true" data-paltile="${esc(r.code)}" title="${esc(r.code)}">
       <span class="mini" style="width:${Math.round(breite(r.mass) / 750 * 100)}%"></span>
-      <span class="t">${katLabel(r.code) || esc(r.bezeichnung)}</span><span class="m">${esc((r.mass || "").replace("x", " × "))} <span class="gen ${r.generation === "A" ? "alt" : "neu"}">${r.generation === "A" ? "alte Gen." : "neue Gen."}</span></span><b class="n">${frei(r)}</b></button>`).join("");
+      <span class="t">${katLabel(r.code) || esc(r.bezeichnung)}${(katVon(r.code) || { props: [] }).props.filter(x => x !== "Einschubtür").map(x => ` <span class="prop">${esc(x)}</span>`).join("")}</span><span class="m">${esc((r.mass || "").replace("x", " × "))} <span class="gen ${r.generation === "A" ? "alt" : "neu"}">${r.generation === "A" ? "alte Gen." : "neue Gen."}</span></span><b class="n">${frei(r)}</b></button>`).join("");
   const eimer = PAL_FARBEN().map(f => {
     const hier = pos.filter(p => p.zielfarbe === f.code), summe = hier.reduce((s, p) => s + p.menge, 0);
     return `<div class="pal-eimer${summe ? " voll" : ""}${zielF.has(f.code) ? " empf" : ""}${UI.palPulse === f.code ? " pulse" : ""}${UI.palSel ? " ziel" : ""}" data-palfarbe="${f.code}" style="--c:${FARBHEX[f.code] || "#ccc"}">
@@ -584,7 +604,7 @@ function vLager() {
         <select id="lf-nur" aria-label="Anzeige">${opt([["voll", "Nur vorhandene"], ["", "Alle erfassten"], ["low", "Unter Minimum"], ["verbaut", "In Fertigmöbeln verbaut"], ["neu", "Nur-neu-Teile"]], f.nur)}</select>
       </div>
       ${rows.length ? `<div class="tablewrap"><table><thead><tr><th>Teil</th><th>Farbe</th><th>Zustand</th><th class="num">Bestand</th><th class="num">frei</th><th class="num">reserviert</th><th class="num">Min.</th><th>Fach</th><th class="num">Ø Preis</th><th class="num">Wert</th><th class="num" title="Üblicher Kleinanzeigen-Preis je Stück, brutto">Marktpreis</th><th class="num" title="(Marktpreis minus Ø Einkaufspreis), differenzbesteuert ohne USt-Anteil">Marge/Stk.</th></tr></thead><tbody>
-      ${rows.slice(0, 400).map(r => `<tr><td>${(() => { const ty = typVon(r.code); return ty && ty.bild_url ? `<img class="teilbild" src="${esc(ty.bild_url)}" alt="" loading="lazy">` : ""; })()}${esc(r.bezeichnung)} ${esc(r.mass ? r.mass.replace("x", " × ") : "")}${r.generation === "A" ? ` <span class="badge">alte Gen.</span>` : ""}${r.nur_neu ? ` <span class="badge warn">nur neu</span>` : ""}${r.verbaut ? `<details class="verbaut"><summary title="Anzeigen, in welchen Möbeln diese Teile stecken">${num(r.verbaut)} verbaut</summary><ul>${(r.verbaut_liste || []).map(v => `<li><span>${esc(v.name)}${v.einsatz === "buero" ? ` <span class="badge">Büro</span>` : ""}</span><b>${v.menge}</b></li>`).join("")}</ul></details>` : ""}<div class="code">${esc(r.code)} · <label class="fotolink">Foto<input type="file" accept="image/*" capture="environment" data-teilfoto="${esc((typVon(r.code) || {}).code || "")}" hidden></label></div></td><td><i class="dot" style="background:${FARBHEX[r.farbe] || "#ccc"}"></i> ${esc(farbName(r.farbe))}</td><td>${r.zustand === "G" ? "verbaubar" : r.zustand === "S" ? `<span class="badge warn">schlecht</span>` : "neuwertig"}</td>
+      ${rows.slice(0, 400).map(r => `<tr><td>${(() => { const ty = typVon(r.code); return ty && ty.bild_url ? `<img class="teilbild" src="${esc(ty.bild_url)}" alt="" loading="lazy">` : ""; })()}${teilEtikett(r)}${r.verbaut ? `<details class="verbaut"><summary title="Anzeigen, in welchen Möbeln diese Teile stecken">${num(r.verbaut)} verbaut</summary><ul>${(r.verbaut_liste || []).map(v => `<li><span>${esc(v.name)}${v.einsatz === "buero" ? ` <span class="badge">Büro</span>` : ""}</span><b>${v.menge}</b></li>`).join("")}</ul></details>` : ""}<div class="code">${esc(r.code)} · <label class="fotolink">Foto<input type="file" accept="image/*" capture="environment" data-teilfoto="${esc((typVon(r.code) || {}).code || "")}" hidden></label></div></td><td><i class="dot" style="background:${FARBHEX[r.farbe] || "#ccc"}"></i> ${esc(farbName(r.farbe))}</td><td>${r.zustand === "G" ? "verbaubar" : r.zustand === "S" ? `<span class="badge warn">schlecht</span>` : "neuwertig"}</td>
         <td class="num">${r.bestand}</td><td class="num">${r.unter_minimum && r.mindestbestand ? `<span class="pill warn">${r.verfuegbar}</span>` : r.verfuegbar}</td><td class="num">${r.reserviert || ""}</td><td class="num">${r.mindestbestand ?? ""}</td><td class="code">${esc(r.lagerort || "")}</td><td class="num">${eur(r.durchschnittspreis)}</td><td class="num">${eur(r.wert)}</td><td class="num">${r.marktpreis != null ? eur(r.marktpreis) : ""}</td><td class="num">${r.marktpreis == null ? "" : Number(r.durchschnittspreis) === 0 ? `<span class="badge warn" title="Einkaufspreis fehlt noch">EK offen</span>` : `<span class="${Number(r.marge_stueck) < 3 ? "neg" : "good"}">${eur(r.marge_stueck)}</span>`}</td></tr>`).join("")}
       </tbody></table></div>` : `<p class="empty">Keine Teile für diesen Filter.</p>`}</section>`;
 }
