@@ -228,6 +228,25 @@ function auftragKarte(a) {
     <div class="actions">${a.rechnung_id && a.rechnung_status === "entwurf" ? `<a class="btn primary" href="rechnung.html?id=${a.rechnung_id}">Rechnung prüfen und senden</a>` : ""}${a.status === "heiss" ? `<button class="btn" data-abez="${a.id}" title="Backup, falls die Zahlung nicht automatisch erkannt wird">Zahlung ist da</button>` : ""}${a.status === "bezahlt" ? `<button class="btn primary" data-afrei="${a.id}">Label freigeben</button>` : ""}${a.status === "freigegeben" ? `<span class="wo">freigegeben von ${esc(a.freigabe_von || "")} ${a.freigabe_am ? when(a.freigabe_am) : ""}</span><button class="btn small" data-azurueck="${a.id}">Zurücknehmen</button>` : ""}${a.moebel_id ? `<a class="btn small" href="planer.html?moebel=${a.moebel_id}">Kalkulation</a>` : ""}${ins ? `<a class="btn small" href="${esc(ins.url)}" target="_blank" rel="noopener">Anzeige</a>` : ""}</div>
   </article>`;
 }
+function vHandAuftrag() {
+  const mo = (D.moebel || []).filter(m => ["aufgebaut", "reserviert"].includes(m.status));
+  return `<details class="card hand"${UI.handOffen ? " open" : ""}><summary><b>+ Auftrag von Hand anlegen</b> <span class="note">wenn ein Verkauf nicht automatisch erkannt wurde</span></summary>
+    <div class="hand-grid">
+      <label>Möbel<select id="h-moebel"><option value="">anderes / Einzelteile</option>${mo.map(m => `<option value="${m.id}">${esc(m.name)}</option>`).join("")}</select></label>
+      <label>Bezeichnung<input id="h-titel" type="text" placeholder="z. B. Sideboard 2 × 1 schwarz"></label>
+      <label>Preis (€)<input id="h-preis" type="number" step="0.01" inputmode="decimal"></label>
+      <label>Versand<select id="h-versand"><option value="abholung">Abholung</option><option value="dpd">DPD</option></select></label>
+      <label>Versandkosten Kunde (€)<input id="h-vk" type="number" step="0.01" inputmode="decimal" value="0"></label>
+      <label>Kanal<select id="h-kanal"><option value="kleinanzeigen">Kleinanzeigen</option><option value="ebay">eBay</option><option value="direkt">Direkt</option></select></label>
+      <label>Name Käufer<input id="h-name" type="text" autocomplete="off"></label>
+      <label>E-Mail<input id="h-mail" type="email" autocomplete="off"></label>
+      <label>Straße und Nr.<input id="h-str" type="text" autocomplete="off"></label>
+      <label>PLZ<input id="h-plz" type="text" inputmode="numeric" autocomplete="off"></label>
+      <label>Ort<input id="h-ort" type="text" autocomplete="off"></label>
+    </div>
+    <p class="note">Mit Adresse oder E-Mail entsteht sofort ein Rechnungsentwurf. Ohne Adresse nur der Auftrag.</p>
+    <button class="btn primary" data-handneu="1">Auftrag anlegen</button></details>`;
+}
 function vAuftraege() {
   const g = s => D.auf.filter(a => s.includes(a.status));
   const zein = D.zahl.filter(z => (z.richtung || "ein") === "ein"), zaus = D.zahl.filter(z => z.richtung === "aus" && !z.einkauf_id);
@@ -235,7 +254,7 @@ function vAuftraege() {
   const umsatzOffen = [...heiss, ...bez, ...arbeit].reduce((s, a) => s + Number(a.erloes || 0), 0);
   const sec = (t, list, leer, note = "") => `<section class="order-sec"><div class="card-head"><h2>${t} <span class="wo">${list.length}</span></h2>${note ? `<span class="note">${note}</span>` : ""}</div>${list.length ? list.map(auftragKarte).join("") : `<p class="empty">${leer}</p>`}</section>`;
   return head("Aufträge", "Vom Chat über Rechnung und Zahlungseingang bis zum gedruckten DPD-Label. Schreibt ihr im Chat „Wir kümmern uns um die Rechnung“, bereite ich die Rechnung vor. Ihr sendet sie und gebt das Label frei.") +
-    (UI.flash ? `<div class="banner"><span>${esc(UI.flash)}</span></div>` : "") + vClaude() +
+    (UI.flash ? `<div class="banner"><span>${esc(UI.flash)}</span></div>` : "") + vHandAuftrag() + vClaude() +
     `<div class="stats">${stat("Label freigeben", bez.length, bez.length ? "wartet auf euch" : "nichts offen", bez.length ? "neg" : "good")}${stat("Kurz vor Abschluss", heiss.length, "reserviert")}${stat("Label in Arbeit", arbeit.length)}${stat("Offener Umsatz", eur(umsatzOffen).replace(",00", ""))}</div>
     ${sec("Bezahlt: Label freigeben", bez, "Kein bezahlter Auftrag offen.", "Zahlung ist da und zugeordnet")}
     ${sec("Kurz vor Abschluss", heiss, "Gerade nichts kurz vor Abschluss.", "Rechnung vorbereitet oder gesendet, Zahlung steht aus")}
@@ -722,6 +741,16 @@ document.addEventListener("click", async e => {
     palSenden(b);
   }
   else if (b.dataset.palpdf) { palTeilen(b.dataset.palpdf === "laden"); }
+  else if (b.dataset.handneu) {
+    if (!me()) { UI.flash = "Bitte zuerst bei „Ich bin“ auswählen, wer den Auftrag anlegt."; render(); return; }
+    const v = id => (document.getElementById(id)?.value || "").trim();
+    const str = v("h-str"), plz = v("h-plz"), ort = v("h-ort");
+    const p = { moebel_id: v("h-moebel") || null, titel: v("h-titel") || (document.getElementById("h-moebel")?.selectedOptions[0]?.value ? document.getElementById("h-moebel").selectedOptions[0].text : ""), preis: Number(v("h-preis").replace(",", ".")), versandart: v("h-versand"),
+      versand_kunde: Number(v("h-vk").replace(",", ".") || 0), kanal: v("h-kanal"), kunde_name: v("h-name"), email: v("h-mail"), adresse: str || plz || ort ? { strasse: str, plz, ort, land: "DE" } : null, wer: me() };
+    b.disabled = true; b.textContent = "wird angelegt…";
+    const { error } = await sb.rpc("auftrag_von_hand", { p });
+    UI.handOffen = !!error; UI.flash = error ? "Ging nicht: " + error.message : "Auftrag angelegt." + (p.email || p.adresse ? " Der Rechnungsentwurf steht im Auftrag unter „Rechnung prüfen und senden“." : ""); liveReload();
+  }
   else if (b.dataset.palab) {
     if (b.dataset.sicher !== "1") { b.dataset.sicher = "1"; b.textContent = "Sicher? Dann geht alles aus dem Lager"; b.classList.add("primary"); return; }
     b.disabled = true; b.textContent = "wird gebucht…";
