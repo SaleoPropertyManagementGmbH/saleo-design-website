@@ -113,9 +113,9 @@ async function loadAll() {
     fetch("data/inserate.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : { inserate: [] }).catch(() => ({ inserate: [] }))
   ]);
   const opt = (t, s = "*", m) => fetchAll(t, s, m).catch(() => []);
-  const [moebel, mteile, ausw, verk, auf, zahl, verb, besch, beschK] = await Promise.all([opt("moebel", "*", q => q.order("erstellt_am", { ascending: false })), opt("moebel_teil"), opt("auswertung_kategorie"), opt("marge_je_verkauf", "*", q => q.order("datum", { ascending: false })),
-    opt("auftrag_uebersicht", "*", q => q.order("erstellt_am", { ascending: false })), opt("zahlung", "*", q => q.eq("status", "neu").order("zeitpunkt", { ascending: false })), opt("verbindung", "*", q => q.order("reihenfolge")), opt("beschichtung_uebersicht", "*", q => q.order("erstellt_am", { ascending: false })), opt("beschichtung_kandidat")]);
-  Object.assign(D, { lager, typen, farben, plan, vorlagen, vpos, std, regeln, bew, ins: ins.inserate || [], insStand: ins.stand, moebel, mteile, ausw, verk, auf, zahl, verb, besch, beschK });
+  const [moebel, mteile, ausw, verk, auf, zahl, verb, besch, beschK, einkaeufe] = await Promise.all([opt("moebel", "*", q => q.order("erstellt_am", { ascending: false })), opt("moebel_teil"), opt("auswertung_kategorie"), opt("marge_je_verkauf", "*", q => q.order("datum", { ascending: false })),
+    opt("auftrag_uebersicht", "*", q => q.order("erstellt_am", { ascending: false })), opt("zahlung", "*", q => q.eq("status", "neu").order("zeitpunkt", { ascending: false })), opt("verbindung", "*", q => q.order("reihenfolge")), opt("beschichtung_uebersicht", "*", q => q.order("erstellt_am", { ascending: false })), opt("beschichtung_kandidat"), opt("ka_einkauf", "*", q => q.order("geaendert_am", { ascending: false }))]);
+  Object.assign(D, { lager, typen, farben, plan, vorlagen, vpos, std, regeln, bew, ins: ins.inserate || [], insStand: ins.stand, moebel, mteile, ausw, verk, auf, zahl, verb, besch, beschK, einkaeufe });
 }
 async function loadBuildable() {
   const jobs = [];
@@ -260,6 +260,13 @@ function vBeschichtung() {
     ${offen.length ? offen.map(karte).join("") : `<p class="empty">Gerade nichts beim Beschichter.</p>`}
     ${fertig.length ? `<h3 style="margin:22px 0 8px;font-size:1rem">Erledigt</h3>` + fertig.slice(0, 10).map(karte).join("") : ""}`;
 }
+const typVon = code => (D.typen || []).filter(t => code === t.code || code.startsWith(t.code + "-")).sort((a, b) => b.code.length - a.code.length)[0];
+function vEinkaeufe() {
+  const E = (D.einkaeufe || []).filter(e => ["bezahlt", "erhalten"].includes(e.status));
+  if (!E.length) return "";
+  return `<section class="card"><div class="card-head"><h2>Einkäufe unterwegs</h2><span class="note">privater Kleinanzeigen-Account</span></div>
+    ${E.map(e => `<div class="verb-row"><span class="dot ${e.status === "erhalten" ? "ok" : "na"}"></span><div class="verb-t"><b>${esc(e.titel || "Einkauf")}</b><span>${esc(e.verkaeufer || "")} · ${eur(Number(e.preis || 0) + Number(e.versand || 0))}${Number(e.versand) ? " inkl. " + eur(e.versand) + " Versand" : ""}${e.abholung ? " · Abholung" : ""} · ${e.status === "erhalten" ? "angekommen, Teile per Plaud diktieren" : "bezahlt " + (e.bezahlt_am ? new Date(e.bezahlt_am).toLocaleDateString("de-DE") : "")}</span></div>${e.status === "bezahlt" ? `<button class="btn small" data-ekerhalten="${esc(e.id)}">Angekommen</button>` : ""}</div>`).join("")}</section>`;
+}
 function vVerbindungen() {
   const v = D.verb || []; if (!v.length) return "";
   const weg = v.filter(x => x.ok === false);
@@ -278,7 +285,7 @@ function vStart() {
     `<div class="stats">${stat("Inserate online", aktiv.length, `zusammen ${eur(insWert).replace(",00", "")}`)}${stat("Aufträge offen", offeneAuftraege().length, offeneAuftraege().length ? "Label freigeben" : "nichts zu tun", offeneAuftraege().length ? "neg" : "")}${stat("Fertige Möbel", verfuegbareMoebel().length, "sofort verfügbar")}${stat("Offene Planungen", offen.length, `${D.plan.filter(p => p.status === "angebot").length} im Angebot`)}${stat("Lagerwert", eur(wert).replace(",00", ""), `${num(teile)} Teile`)}${stat("Unter Mindestbestand", low.length, low.length ? "nachkaufen prüfen" : "alles im grünen Bereich", low.length ? "neg" : "good")}</div>
     ${offeneAuftraege().length ? `<div class="banner"><span><b>${offeneAuftraege().length} bezahlte${offeneAuftraege().length > 1 ? "" : "r"} Auftrag${offeneAuftraege().length > 1 ? "e" : ""}</b> warte${offeneAuftraege().length > 1 ? "n" : "t"} auf die Label-Freigabe.</span><a class="btn primary small" href="#auftraege">Ansehen</a></div>` : ""}
     ${empty ? `<div class="banner info"><span>Das Lager ist noch leer. Inventur einfach per Plaud an Klaus diktieren, pro Regalfach: Anzahl, Teil, Maß, Farbe, Zustand, Preis. Ich buche ein, danach rechnen Planer und Übersicht mit echten Zahlen.</span></div>` : ""}
-    ${vVerbindungen()}
+    ${vEinkaeufe()}${vVerbindungen()}
     <div class="grid-2">
       ${verfuegbareMoebel().length ? `<section class="card"><div class="card-head"><h2>Fertige Möbel, sofort verfügbar</h2><a href="#moebel">Alle</a></div>
         ${verfuegbareMoebel().slice(0, 6).map(m => `<div class="list-row"><div class="grow"><div class="t"><a href="planer.html?moebel=${m.id}">${esc(m.name)}</a></div><div class="wo">${[m.masse ? m.masse + " cm" : "", m.lagerort ? "Lagerort " + m.lagerort : "", "Warenwert " + eur(moebelWert(m)).replace(",00", "")].filter(Boolean).join(" · ")}</div></div><span class="badge ${(MST[m.status] || [""])[0]}">${(MST[m.status] || ["", m.status])[1]}</span></div>`).join("")}</section>` : ""}
@@ -331,7 +338,7 @@ function vLager() {
         <select id="lf-nur" aria-label="Anzeige">${opt([["voll", "Nur vorhandene"], ["", "Alle erfassten"], ["low", "Unter Minimum"], ["verbaut", "In Fertigmöbeln verbaut"], ["neu", "Nur-neu-Teile"]], f.nur)}</select>
       </div>
       ${rows.length ? `<div class="tablewrap"><table><thead><tr><th>Teil</th><th>Farbe</th><th>Zustand</th><th class="num">Bestand</th><th class="num">frei</th><th class="num">reserviert</th><th class="num">Min.</th><th>Fach</th><th class="num">Ø Preis</th><th class="num">Wert</th></tr></thead><tbody>
-      ${rows.slice(0, 400).map(r => `<tr><td>${esc(r.bezeichnung)} ${esc(r.mass ? r.mass.replace("x", " × ") : "")}${r.generation === "A" ? ` <span class="badge">alte Gen.</span>` : ""}${r.nur_neu ? ` <span class="badge warn">nur neu</span>` : ""}${r.verbaut ? ` <span class="badge info" title="Diese Teile stecken in einem aufgebauten Möbel">${r.verbaut} verbaut in: ${esc(r.verbaut_in || "")}</span>` : ""}<div class="code">${esc(r.code)} · <a href="https://www.google.com/search?tbm=isch&q=${encodeURIComponent("USM Haller " + r.bezeichnung.replace(/\(.*?\)/g, "") + " " + (r.mass && !/^HW/.test(r.code) ? r.mass.replace("x", " x ") : "") + (r.farbe && !["CR", "SW", "GL"].includes(r.farbe) ? " " + farbName(r.farbe) : ""))}" target="_blank" rel="noopener">Bild</a></div></td><td><i class="dot" style="background:${FARBHEX[r.farbe] || "#ccc"}"></i> ${esc(farbName(r.farbe))}</td><td>${r.zustand === "G" ? "verbaubar" : r.zustand === "S" ? `<span class="badge warn">schlecht</span>` : "neuwertig"}</td>
+      ${rows.slice(0, 400).map(r => `<tr><td>${(() => { const ty = typVon(r.code); return ty && ty.bild_url ? `<img class="teilbild" src="${esc(ty.bild_url)}" alt="" loading="lazy">` : ""; })()}${esc(r.bezeichnung)} ${esc(r.mass ? r.mass.replace("x", " × ") : "")}${r.generation === "A" ? ` <span class="badge">alte Gen.</span>` : ""}${r.nur_neu ? ` <span class="badge warn">nur neu</span>` : ""}${r.verbaut ? ` <span class="badge info" title="Diese Teile stecken in einem aufgebauten Möbel">${r.verbaut} verbaut in: ${esc(r.verbaut_in || "")}</span>` : ""}<div class="code">${esc(r.code)} · <a href="https://www.google.com/search?tbm=isch&q=${encodeURIComponent("USM Haller " + r.bezeichnung.replace(/\(.*?\)/g, "") + " " + (r.mass && !/^HW/.test(r.code) ? r.mass.replace("x", " x ") : "") + (r.farbe && !["CR", "SW", "GL"].includes(r.farbe) ? " " + farbName(r.farbe) : ""))}" target="_blank" rel="noopener">Bild suchen</a> · <label class="fotolink">Foto<input type="file" accept="image/*" capture="environment" data-teilfoto="${esc((typVon(r.code) || {}).code || "")}" hidden></label></div></td><td><i class="dot" style="background:${FARBHEX[r.farbe] || "#ccc"}"></i> ${esc(farbName(r.farbe))}</td><td>${r.zustand === "G" ? "verbaubar" : r.zustand === "S" ? `<span class="badge warn">schlecht</span>` : "neuwertig"}</td>
         <td class="num">${r.bestand}</td><td class="num">${r.unter_minimum && r.mindestbestand ? `<span class="pill warn">${r.verfuegbar}</span>` : r.verfuegbar}</td><td class="num">${r.reserviert || ""}</td><td class="num">${r.mindestbestand ?? ""}</td><td class="code">${esc(r.lagerort || "")}</td><td class="num">${eur(r.durchschnittspreis)}</td><td class="num">${eur(r.wert)}</td></tr>`).join("")}
       </tbody></table></div>` : `<p class="empty">Keine Teile für diesen Filter.</p>`}</section>`;
 }
@@ -420,6 +427,15 @@ document.addEventListener("input", e => {
 });
 document.addEventListener("change", async e => {
   const t = e.target;
+  if (t.dataset && t.dataset.teilfoto && t.files && t.files[0]) {
+    const typ = t.dataset.teilfoto, f = t.files[0], pfad = typ + "-" + Date.now() + ".jpg";
+    const blob = await new Promise(res => { const img = new Image(); img.onload = () => { const k = Math.min(1, 900 / Math.max(img.width, img.height)); const c = document.createElement("canvas"); c.width = img.width * k; c.height = img.height * k; c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); c.toBlob(res, "image/jpeg", 0.82); }; img.src = URL.createObjectURL(f); });
+    const up = await sb.storage.from("teilbilder").upload(pfad, blob, { contentType: "image/jpeg", upsert: true });
+    if (up.error) { UI.flash = "Foto ging nicht: " + up.error.message; render(); return; }
+    const url = sb.storage.from("teilbilder").getPublicUrl(pfad).data.publicUrl;
+    await sb.rpc("teiltyp_bild", { p_code: typ, p_url: url });
+    const ty = (D.typen || []).find(x => x.code === typ); if (ty) ty.bild_url = url; render(); return;
+  }
   if (t.id === "who-m") { store.set("sdo_wer", t.value); render(); }
   else if (t.id && t.id.startsWith("lf-") && t.id !== "lf-q") { UI.f[t.id.slice(3)] = t.value; render(); }
   else if (t.id === "pfarbe") { UI.p.farbe = t.value; render(); }
@@ -442,6 +458,7 @@ document.addEventListener("click", async e => {
     const { error } = await sb.rpc("auftrag_freigeben", { p_id: b.dataset.afrei, p_wer: me() });
     UI.flash = error ? "Freigabe ging nicht: " + error.message : null; liveReload();
   }
+  else if (b.dataset.ekerhalten) { b.disabled = true; await sb.rpc("ka_einkauf_status", { p_id: b.dataset.ekerhalten, p_status: "erhalten" }); liveReload(); }
   else if (b.dataset.babgabe) { b.disabled = true; const { error } = await sb.rpc("beschichtung_abgeben", { p_id: b.dataset.babgabe }); UI.flash = error ? "Ging nicht: " + error.message : null; liveReload(); }
   else if (b.dataset.bzurueck) { b.disabled = true; const v = document.getElementById("bk-" + b.dataset.bzurueck)?.value; const farben = {}; document.querySelectorAll('select[id^="bf-"]').forEach(x => { if (x.value) farben[x.id.slice(3)] = x.value; }); const { error } = await sb.rpc("beschichtung_zurueck", { p_id: b.dataset.bzurueck, p_kosten_netto: v ? Number(v) : null, p_farben: farben }); UI.flash = error ? "Ging nicht: " + error.message : null; liveReload(); }
   else if (b.dataset.azurueck) { await sb.rpc("auftrag_zurueck", { p_id: b.dataset.azurueck }); liveReload(); }
@@ -481,6 +498,7 @@ async function start() {
     .on("postgres_changes", { event: "*", schema: "public", table: "rechnung" }, liveReload)
     .on("postgres_changes", { event: "*", schema: "public", table: "verbindung" }, liveReload)
     .on("postgres_changes", { event: "*", schema: "public", table: "beschichtung" }, liveReload)
+    .on("postgres_changes", { event: "*", schema: "public", table: "ka_einkauf" }, liveReload)
     .subscribe(s => { const el = document.getElementById("live"); el.textContent = s === "SUBSCRIBED" ? "live verbunden" : "offline"; el.classList.toggle("on", s === "SUBSCRIBED"); });
 }
 start();
