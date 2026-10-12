@@ -156,7 +156,7 @@ function moebelKarte(m) {
   const teile = D.mteile.filter(t => t.moebel_id === m.id), n = teile.reduce((a, t) => a + t.menge, 0);
   return `<article class="product">
     <a class="img" href="planer.html?moebel=${m.id}">${ins && bild(ins) ? `<img src="${esc(bild(ins, 0, "$_59"))}" alt="" loading="lazy">` : `<div class="noimg">${svg("moebel")}</div>`}
-      <div class="badges"><span class="badge ${st[0]}">${st[1]}</span>${m.zustand === "N" ? `<span class="badge ok">neu</span>` : ""}</div>
+      <div class="badges"><span class="badge ${st[0]}">${st[1]}</span>${m.zustand === "N" ? `<span class="badge ok">neu</span>` : ""}${m.einsatz === "buero" ? `<span class="badge info">im Büro, verkäuflich</span>` : ""}</div>
       ${ins && ins.preis ? `<span class="price">${preisText(ins)}</span>` : ""}</a>
     <div class="body"><h3>${esc(m.name)}</h3>
       <div class="meta">${m.farbe ? `<span><i class="dot" style="background:${FARBHEX[m.farbe] || "#ccc"}"></i> ${esc(farbName(m.farbe))}</span>` : ""}${m.masse ? `<span>${esc(m.masse)} cm</span>` : ""}${m.lagerort ? `<span>Lagerort ${esc(m.lagerort)}</span>` : ""}</div>
@@ -249,7 +249,7 @@ function vBeschichtung() {
   const farbe = c => `<i class="dot" style="background:${FARBHEX[c] || "#ccc"}"></i> ${esc(farbName(c))}`;
   const karte = b => `<section class="card"><div class="card-head"><h2>Beschichtung ${b.nummer}${b.art === "kunde" ? " · Kunde " + esc(b.kunde || "") : ""}</h2><span class="badge ${st[b.status][1]}">${st[b.status][0]}</span></div>
     <div class="tablewrap"><table><thead><tr><th>Teil</th><th class="num">Stück</th><th>von</th><th>neu in</th></tr></thead><tbody>
-    ${(b.positionen || []).map(p => `<tr><td>${esc(p.bezeichnung || p.teil)}${p.teil ? "" : ` <span class="badge">Kundenteil</span>`}</td><td class="num">${p.menge}</td><td>${p.von ? farbe(p.von) : ""}</td><td>${farbe(p.zielfarbe)}</td></tr>`).join("")}</tbody></table></div>
+    ${(b.positionen || []).map(p => `<tr><td>${esc(p.bezeichnung || p.teil)}${p.zweck === "kundenteil" ? ` <span class="badge">Kundenteil${p.kunde ? " " + esc(p.kunde) : ""}</span>` : p.zweck === "auftrag" ? ` <span class="badge info">für ${esc(p.kunde || "Auftrag")}</span>` : ""}</td><td class="num">${p.menge}</td><td>${p.von ? farbe(p.von) : ""}</td><td>${p.zielfarbe ? farbe(p.zielfarbe) : b.status === "beim_beschichter" && p.teil ? `<select id="bf-${p.id}" aria-label="Neue Farbe"><option value="">Farbe wählen</option>${D.farben.filter(f => !["CR", "SW", "GL", "SO"].includes(f.code)).map(f => `<option value="${f.code}">${esc(f.name)}</option>`).join("")}</select>` : `<span class="note">noch offen</span>`}</td></tr>`).join("")}</tbody></table></div>
     <p class="note" style="margin:8px 0">${b.bleche} Bleche · ${b.status === "zurueck" ? "Kosten" : "erwartet"} ${eur(b.kosten_erwartet)} netto${b.abgegeben_am ? " · abgegeben " + new Date(b.abgegeben_am).toLocaleDateString("de-DE") : ""}${b.zurueck_am ? " · zurück " + new Date(b.zurueck_am).toLocaleDateString("de-DE") : ""}${b.beschichter ? " · " + esc(b.beschichter) : ""}</p>
     ${b.status === "sammeln" ? `<button class="btn primary small" data-babgabe="${b.id}">Beim Beschichter abgegeben</button>` : b.status === "beim_beschichter" ? `<div class="row" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><label class="note">Rechnung netto <input type="number" step="0.01" id="bk-${b.id}" placeholder="${Number(b.kosten_erwartet).toFixed(2)}" style="width:110px"></label><button class="btn primary small" data-bzurueck="${b.id}">Zurück, einbuchen</button></div>` : ""}</section>`;
   const offen = B.filter(b => b.status !== "zurueck" && b.status !== "storniert"), fertig = B.filter(b => b.status === "zurueck");
@@ -443,7 +443,7 @@ document.addEventListener("click", async e => {
     UI.flash = error ? "Freigabe ging nicht: " + error.message : null; liveReload();
   }
   else if (b.dataset.babgabe) { b.disabled = true; const { error } = await sb.rpc("beschichtung_abgeben", { p_id: b.dataset.babgabe }); UI.flash = error ? "Ging nicht: " + error.message : null; liveReload(); }
-  else if (b.dataset.bzurueck) { b.disabled = true; const v = document.getElementById("bk-" + b.dataset.bzurueck)?.value; const { error } = await sb.rpc("beschichtung_zurueck", { p_id: b.dataset.bzurueck, p_kosten_netto: v ? Number(v) : null }); UI.flash = error ? "Ging nicht: " + error.message : null; liveReload(); }
+  else if (b.dataset.bzurueck) { b.disabled = true; const v = document.getElementById("bk-" + b.dataset.bzurueck)?.value; const farben = {}; document.querySelectorAll('select[id^="bf-"]').forEach(x => { if (x.value) farben[x.id.slice(3)] = x.value; }); const { error } = await sb.rpc("beschichtung_zurueck", { p_id: b.dataset.bzurueck, p_kosten_netto: v ? Number(v) : null, p_farben: farben }); UI.flash = error ? "Ging nicht: " + error.message : null; liveReload(); }
   else if (b.dataset.azurueck) { await sb.rpc("auftrag_zurueck", { p_id: b.dataset.azurueck }); liveReload(); }
   else if (b.dataset.pdel) {
     if (UI.del !== b.dataset.pdel) { UI.del = b.dataset.pdel; render(); setTimeout(() => { if (UI.del === b.dataset.pdel) { UI.del = null; render(); } }, 4000); return; }

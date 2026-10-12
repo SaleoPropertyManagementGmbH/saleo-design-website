@@ -1,4 +1,4 @@
--- Update v3.12 (12.10.2026): Pulverbeschichtung
+-- Update v3.12 (12.10.2026): Pulverbeschichtung (Palette mit Lagerteilen, Teilen für Kundenaufträge und Kundenteilen) und Büromöbel
 -- Zustand S = schlecht, so nicht verbaubar (nur zum Beschichten). Teile kommen frisch beschichtet als Zustand N (neuwertig) zurück.
 -- Kosten je Blech (Tablar, Seite, Rückwand, Front) netto aus firma.beschichtung_preis_blech (Start 16 €).
 alter table teil drop constraint if exists teil_zustand_check;
@@ -32,10 +32,17 @@ create table if not exists beschichtung_position (
   teil text references teil(code),
   bezeichnung text,
   menge int not null check (menge > 0),
-  zielfarbe text not null references farbe(code),
+  zielfarbe text references farbe(code),
+  zweck text not null default 'lager' check (zweck in ('lager', 'auftrag', 'kundenteil')),
+  auftrag_id uuid references auftrag(id),
+  kunde text,
   einstand_stueck numeric(10,2),
   ziel_teil text references teil(code)
 );
+alter table beschichtung_position add column if not exists zweck text not null default 'lager';
+alter table beschichtung_position add column if not exists auftrag_id uuid references auftrag(id);
+alter table beschichtung_position add column if not exists kunde text;
+alter table beschichtung_position alter column zielfarbe drop not null;
 alter table beschichtung enable row level security;
 alter table beschichtung_position enable row level security;
 grant select on beschichtung, beschichtung_position to authenticated;
@@ -76,8 +83,10 @@ begin
     coalesce((p->>'preis_blech')::numeric, (select wert::numeric from firma where schluessel = 'beschichtung_preis_blech')), p->>'notiz')
   returning id into b;
   for x in select * from jsonb_array_elements(p->'positionen') loop
-    insert into beschichtung_position (beschichtung_id, teil, bezeichnung, menge, zielfarbe)
-    values (b, nullif(x->>'teil', ''), x->>'bezeichnung', (x->>'menge')::int, coalesce(x->>'zielfarbe', (select farbe from teil where code = x->>'teil')));
+    insert into beschichtung_position (beschichtung_id, teil, bezeichnung, menge, zielfarbe, zweck, auftrag_id, kunde)
+    values (b, nullif(x->>'teil', ''), x->>'bezeichnung', (x->>'menge')::int, nullif(x->>'zielfarbe', ''),
+      coalesce(x->>'zweck', case when nullif(x->>'teil', '') is null then 'kundenteil' when x->>'auftrag_id' is not null then 'auftrag' else 'lager' end),
+      nullif(x->>'auftrag_id', '')::uuid, x->>'kunde');
   end loop;
   return b;
 end $$;
@@ -101,7 +110,8 @@ begin
 end $$;
 
 -- Rückgabe: Lagerteile kommen als neuwertig in der Zielfarbe zurück, Einstand = alter Einstand + Beschichtung
-create or replace function beschichtung_zurueck(p_id uuid, p_kosten_netto numeric default null, p_datum date default current_date) returns void
+-- p_farben: {"<position_id>": "30", ...} für Positionen, deren Farbe bei der Abgabe noch offen war
+create or replace function beschichtung_zurueck(p_id uuid, p_kosten_netto numeric default null, p_datum date default current_date, p_farben jsonb default '{}') returns void
 language plpgsql security definer set search_path = public as $$
 declare b beschichtung; pos beschichtung_position; t teil; z text; stk numeric; bleche int; ziel teil;
 begin
@@ -110,6 +120,10 @@ begin
   if b.status <> 'beim_beschichter' then raise exception 'Auftrag ist nicht beim Beschichter'; end if;
   select coalesce(sum(menge), 0) into bleche from beschichtung_position where beschichtung_id = p_id;
   stk := case when p_kosten_netto is not null and bleche > 0 then p_kosten_netto / bleche else b.preis_blech end;
+  update beschichtung_position bp set zielfarbe = p_farben->>bp.id::text where beschichtung_id = p_id and p_farben ? bp.id::text;
+  if exists (select 1 from beschichtung_position where beschichtung_id = p_id and teil is not null and zielfarbe is null) then
+    raise exception 'Bei einigen Teilen fehlt noch die neue Farbe';
+  end if;
   for pos in select * from beschichtung_position where beschichtung_id = p_id and teil is not null loop
     select * into t from teil where code = pos.teil;
     z := teil_code(t.typ, t.mass, pos.zielfarbe, 'N', t.generation);
@@ -119,6 +133,9 @@ begin
     update beschichtung_position set ziel_teil = z where id = pos.id;
     insert into lagerbewegung (art, teil, menge, preis_stueck, bestand_danach, durchschnitt_danach, beleg_id, notiz)
     values ('beschichtung', z, pos.menge, coalesce(pos.einstand_stueck, 0) + stk, ziel.bestand, ziel.durchschnittspreis, p_id, 'Vom Beschichter zurück');
+    if pos.zweck = 'auftrag' and pos.auftrag_id is not null then
+      perform reserviere('Auftrag ' || pos.auftrag_id, z, pos.menge);
+    end if;
   end loop;
   update beschichtung set status = 'zurueck', zurueck_am = p_datum, kosten_netto = coalesce(p_kosten_netto, bleche * b.preis_blech) where id = p_id;
 end $$;
@@ -126,12 +143,13 @@ end $$;
 create or replace view beschichtung_uebersicht with (security_invoker = true) as
 select b.*, coalesce(sum(p.menge), 0)::int as bleche,
   coalesce(b.kosten_netto, coalesce(sum(p.menge), 0) * b.preis_blech) as kosten_erwartet,
-  coalesce(jsonb_agg(jsonb_build_object('teil', p.teil, 'bezeichnung', coalesce(p.bezeichnung, tt.bezeichnung || ' ' || replace(t.mass, 'x', ' × ')), 'menge', p.menge,
+  coalesce(jsonb_agg(jsonb_build_object('id', p.id, 'zweck', p.zweck, 'kunde', coalesce(p.kunde, a.kaeufer_name), 'teil', p.teil, 'bezeichnung', coalesce(p.bezeichnung, tt.bezeichnung || ' ' || replace(t.mass, 'x', ' × ')), 'menge', p.menge,
     'von', t.farbe, 'zielfarbe', p.zielfarbe, 'ziel_teil', p.ziel_teil)) filter (where p.id is not null), '[]') as positionen
 from beschichtung b
 left join beschichtung_position p on p.beschichtung_id = b.id
 left join teil t on t.code = p.teil
 left join teiltyp tt on tt.code = t.typ
+left join auftrag a on a.id = p.auftrag_id
 group by b.id;
 
 -- Kandidaten: alles in Zustand S plus große gebrauchte Bleche
@@ -140,8 +158,13 @@ select t.code, t.typ, tt.bezeichnung, t.mass, t.farbe, t.zustand, t.bestand - t.
 from teil t join teiltyp tt on tt.code = t.typ
 where t.bestand - t.reserviert > 0 and t.zustand = 'S';
 
-revoke execute on function beschichtung_anlegen(jsonb), beschichtung_abgeben(uuid, date), beschichtung_zurueck(uuid, numeric, date) from public, anon;
-grant execute on function beschichtung_anlegen(jsonb), beschichtung_abgeben(uuid, date), beschichtung_zurueck(uuid, numeric, date) to authenticated;
+revoke execute on function beschichtung_anlegen(jsonb), beschichtung_abgeben(uuid, date), beschichtung_zurueck(uuid, numeric, date, jsonb) from public, anon;
+grant execute on function beschichtung_anlegen(jsonb), beschichtung_abgeben(uuid, date), beschichtung_zurueck(uuid, numeric, date, jsonb) to authenticated;
 grant select on beschichtung_uebersicht, beschichtung_kandidat to authenticated;
 do $$ begin begin alter publication supabase_realtime add table beschichtung; exception when others then null; end; end $$;
+
+-- Büromöbel: stehen bei uns im Büro, sind aber verkäuflich (Teile zählen als verbaut)
+alter table moebel add column if not exists einsatz text not null default 'lager';
+alter table moebel drop constraint if exists moebel_einsatz_check;
+alter table moebel add constraint moebel_einsatz_check check (einsatz in ('lager', 'buero'));
 select count(*) as beschichtungen from beschichtung;
