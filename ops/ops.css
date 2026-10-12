@@ -313,3 +313,25 @@ td .fill { height: 100%; background: var(--accent); border-radius: 99px; }
 
 .teilbild { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; float: left; margin: 0 10px 0 0; background: #f2f3f5; }
 .fotolink { color: var(--accent, #27374d); cursor: pointer; text-decoration: underline; }
+
+/* Lager: verbaut aufklappen, Hover */
+details.verbaut { margin: 4px 0 2px; font-size: .78rem; }
+details.verbaut summary { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; list-style: none; padding: 2px 9px; border-radius: 99px; background: var(--wall); color: var(--muted); font-weight: 600; transition: background .18s, color .18s, transform .18s; }
+details.verbaut summary::-webkit-details-marker { display: none; }
+details.verbaut summary::before { content: "▸"; transition: transform .18s; }
+details.verbaut[open] summary::before { transform: rotate(90deg); }
+details.verbaut summary:hover { background: var(--accent); color: #fff; transform: translateY(-1px); }
+details.verbaut ul { list-style: none; margin: 6px 0 2px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2, var(--surface)); display: grid; gap: 4px; max-width: 420px; animation: aufklappen .2s ease-out; }
+details.verbaut li { display: flex; justify-content: space-between; gap: 12px; }
+details.verbaut li b { font-variant-numeric: tabular-nums; }
+@keyframes aufklappen { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.stat { transition: transform .18s ease, box-shadow .18s ease; }
+.stat:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(20, 30, 50, .10); }
+.card { transition: box-shadow .2s ease; }
+.tablewrap tbody tr { transition: background-color .15s ease; }
+.tablewrap tbody tr:hover { background: var(--wall); }
+.bar .fill { transition: width .6s cubic-bezier(.2, .7, .2, 1); }
+.bar:hover .fill { filter: brightness(1.15); }
+.teilbild { transition: transform .2s ease; }
+.teilbild:hover { transform: scale(1.9); position: relative; z-index: 2; box-shadow: 0 6px 18px rgba(0,0,0,.2); }
+@media (prefers-reduced-motion: reduce) { .stat, .stat:hover, details.verbaut summary, .teilbild, .teilbild:hover { transition: none; transform: none; } details.verbaut ul { animation: none; } }

@@ -93,6 +93,7 @@ const CAT = {
   BV: L("750x500 750x350 500x500 500x350"),
   BSZ: L("750x350 500x350"),
   KL: L("750x395 500x395 750x350 500x350 395x350 350x350 750x250 500x250 750x175 500x175"),
+  KLP: L("750x395 500x395 750x350 500x350 395x350 350x350 750x250 500x250 750x175 500x175"),
   AZ: L("750x395 500x395 750x350 500x350 395x350 750x250 500x250 395x250 750x175 500x175 395x175"),
   ER: L("750x500 750x350 500x500 500x350"),
   EI: L("750x350 500x350"),
@@ -109,7 +110,7 @@ const NAMES = {
   BL: "Metallelement", BP: "Metallelement gelocht", BPF: "Metallelement perforiert", BAK: "Akustikelement", GL: "Glaselement", GA: "Glastablar",
   BV: "Metallelement verkürzt", BSZ: "Metallelement mit Schlitzen",
   ZT: "Zwischentablar Metall", ZG: "Zwischentablar Glas", AT: "Ausziehtablar", ST: "Schrägtablar",
-  KL: "Klapptür", AZ: "Schublade", ER: "Einlegerahmen", EI: "Einschubtür", GT: "Glastür", KS: "Kupplungssteg"
+  KL: "Klapptür", KLP: "Klapptür perforiert", AZ: "Schublade", ER: "Einlegerahmen", EI: "Einschubtür", GT: "Glastür", KS: "Kupplungssteg"
 };
 const HW = {
   SC69: ["Schere 69 N (18444)", 22, 0.3], SC40: ["Schere 40 N, für Klapptür 750 × 250", 22, 0.25],
@@ -126,7 +127,7 @@ const HW = {
   DG: ["Drehgriff mit Kunststoffring (alte Generation)", 10, 0.1], SLALT: ["Schloss alte Generation", 15, 0.12],
   BWALT: ["Befestigungswinkel Front an Ausziehtablar, alt (Paar L/R)", 18, 0.15], ASALT: ["Auszugschiene alte Generation mit Schraube und Mutter (L/R)", 15, 0.6]
 };
-const GROUPS = [["Gestell", ["KU", "CO", "RO", "FU", "RN"]], ["Metall- und Glaselemente", ["BL", "BP", "BPF", "BAK", "BV", "BSZ", "GL", "GA"]], ["Einbauten", ["ZT", "ZG", "AT", "ST", "ER"]], ["Fronten", ["KL", "AZ", "EI", "GT", "KS"]], ["Beschläge und Montageteile", ["HW"]]];
+const GROUPS = [["Gestell", ["KU", "CO", "RO", "FU", "RN"]], ["Metall- und Glaselemente", ["BL", "BP", "BPF", "BAK", "BV", "BSZ", "GL", "GA"]], ["Einbauten", ["ZT", "ZG", "AT", "ST", "ER"]], ["Fronten", ["KL", "KLP", "AZ", "EI", "GT", "KS"]], ["Beschläge und Montageteile", ["HW"]]];
 const COLORS = [
   ["24", "Reinweiß", "#efeee9"], ["29", "Lichtgrau", "#c6c8c5"], ["35", "USM Mattsilber", "#a9abae"],
   ["32", "Mittelgrau", "#7f8386"], ["33", "Anthrazitgrau", "#3b4146"], ["30", "Graphitschwarz", "#232425"],
@@ -134,7 +135,7 @@ const COLORS = [
   ["36", "Olivgrün", "#43472f"], ["25", "Goldgelb", "#d99c1c"], ["26", "Reinorange", "#e2561d"],
   ["23", "USM Rubinrot", "#8b1f2a"], ["22", "USM Braun", "#5b3b2a"], ["31", "USM Beige", "#cdbb98"]
 ];
-const FRONTS = [["", "Offen"], ["KL", "Klapptür"], ["AZ", "Schublade"], ["EI", "Einschubtür"], ["GT", "Glastür"]];
+const FRONTS = [["", "Offen"], ["KL", "Klapptür"], ["KLP", "Klapptür perforiert"], ["AZ", "Schublade"], ["EI", "Einschubtür"], ["GT", "Glastür"]];
 const BACKS = [["BL", "Metall"], ["BP", "Gelocht"], ["BPF", "Perforiert"], ["BAK", "Akustik"], ["GL", "Glas"], ["", "Ohne"]];
 const INSIDES = [["", "Keiner"], ["ZT", "Zwischentablar"], ["ZG", "Zwischentablar Glas"], ["AT", "Ausziehtablar"], ["ST", "Schrägtablar"]];
 const LOCKS = { N: [["U", "Universalverschluss"], ["S", "Schloss"]], A: [["D", "Drehgriff"], ["SA", "Schloss alte Generation"]] };
@@ -187,7 +188,7 @@ function estPrice(typ, mass) {
   if (typ === "HW") return HW[mass][1];
   return ({ KU: 4, CO: 1.2, RO: 3 + Number(mass) / 125, FU: 1.5, RN: 9, KS: 5,
     BL: 6 + 75 * a, BP: 8 + 85 * a, BPF: 10 + 90 * a, BAK: 20 + 120 * a, BV: 6 + 75 * a, BSZ: 10 + 80 * a, GL: 20 + 90 * a, GA: 20 + 90 * a,
-    ZT: 10 + 80 * a, ZG: 15 + 90 * a, AT: 40 + 100 * a, ST: 20 + 90 * a, ER: 25 + 60 * a, KL: 50 + 130 * a, AZ: 50 + 130 * a, EI: 70 + 140 * a, GT: 60 + 140 * a })[typ] ?? 10;
+    ZT: 10 + 80 * a, ZG: 15 + 90 * a, AT: 40 + 100 * a, ST: 20 + 90 * a, ER: 25 + 60 * a, KL: 50 + 130 * a, KLP: 60 + 150 * a, AZ: 50 + 130 * a, EI: 70 + 140 * a, GT: 60 + 140 * a })[typ] ?? 10;
 }
 function stockOf(e) {
   const t = dbTyp(e), anyMass = ["HW", "KS", "KU", "CO", "FU"].includes(e.typ);
@@ -306,7 +307,7 @@ function weight(typ, mass) {
   const a = area(mass);
   return ({ KU: 0.07, CO: 0.01, RO: KG_ROHR_M * Number(mass) / 1000, FU: 0.03, RN: String(mass) === "100" ? 0.45 : 0.15, KS: 0.1,
     BL: KG_M2 * a, BP: KG_M2 * a * 0.8, BPF: KG_M2 * a * 0.85, BAK: KG_M2 * a * 1.1, BV: KG_M2 * a * 0.93, BSZ: KG_M2 * a, GL: KG_GLAS_M2 * a, GA: KG_GLAS_M2 * a,
-    ZT: KG_M2 * a, ZG: KG_GLAS_M2 * a * 0.85, AT: KG_M2 * a + 0.5, ST: KG_M2 * a + 0.3, ER: 1.2 + 3 * a, KL: KG_M2 * a * 1.2, AZ: KG_M2 * a * 1.2, EI: KG_M2 * a * 1.2, GT: KG_GLAS_M2 * a })[typ] ?? 0;
+    ZT: KG_M2 * a, ZG: KG_GLAS_M2 * a * 0.85, AT: KG_M2 * a + 0.5, ST: KG_M2 * a + 0.3, ER: 1.2 + 3 * a, KL: KG_M2 * a * 1.2, KLP: KG_M2 * a * 1.1, AZ: KG_M2 * a * 1.2, EI: KG_M2 * a * 1.2, GT: KG_GLAS_M2 * a })[typ] ?? 0;
 }
 const GLASS = ["GL", "GA", "GT", "ZG"];
 function bom(geo) {
@@ -356,10 +357,10 @@ function bom(geo) {
       if (f.inside === "AT" && f.rahmen && erH) add("ER", `${f.w}x${d}`, null, 1, `H ${erH}, Ausziehtablar`);
     }
     if (!f.front) return;
-    const oldFront = old && (f.front === "KL" || f.front === "AZ");
+    const oldFront = old && (f.front === "KL" || f.front === "KLP" || f.front === "AZ");
     add(f.front, `${f.w}x${f.h}`, colOf(f, "front"), 1, oldFront ? "Front alte Generation" : "Front", oldFront ? "A" : "N");
     const n = NAMES[f.front];
-    if (f.front === "KL") {
+    if (f.front === "KL" || f.front === "KLP") {
       if (old) { hw("SCALT", 2, n); hw("BSALT", 4, n); }
       else { hw(f.w === 750 && f.h === 250 ? "SC40" : "SC69", 2, n); hw("DP", 2, n); hw("BAA", 1, n); }
     }
@@ -375,7 +376,7 @@ function bom(geo) {
   });
   const feet = geo.nodes.filter(n => n[1] === 0).length * 2;
   if (state.base === "FU") add("FU", "", null, feet); else add("RN", state.base === "RN100" ? "100" : "50", null, feet);
-  const order = ["KU", "CO", "RO", "FU", "RN", "BL", "BV", "BSZ", "BP", "BPF", "BAK", "GL", "GA", "ZT", "ZG", "AT", "ST", "ER", "KL", "AZ", "EI", "GT", "KS", "HW"];
+  const order = ["KU", "CO", "RO", "FU", "RN", "BL", "BV", "BSZ", "BP", "BPF", "BAK", "GL", "GA", "ZT", "ZG", "AT", "ST", "ER", "KL", "KLP", "AZ", "EI", "GT", "KS", "HW"];
   return [...map.values()].map(e => {
     const s = stockOf(e), kg = weight(e.typ, e.mass);
     if (state.buyNew[e.code] == null && s.nurNeu != null && s.qty < e.qty) state.buyNew[e.code] = s.nurNeu;
@@ -385,7 +386,7 @@ function bom(geo) {
   }).sort((a, b) => order.indexOf(a.typ) - order.indexOf(b.typ) || a.mass.localeCompare(b.mass, "de", { numeric: true }) || a.farbe.localeCompare(b.farbe));
 }
 const partName = r => r.typ === "HW" ? HW[r.mass][0] : r.typ === "RN" ? `Lenkrolle Ø ${r.mass}` : `${NAMES[r.typ]}${r.mass ? " " + r.mass.replace("x", " × ") : ""}`;
-const FARBIG = ["BL", "BP", "BPF", "BAK", "BV", "BSZ", "ZT", "AT", "ST", "KL", "AZ", "EI", "KS"];
+const FARBIG = ["BL", "BP", "BPF", "BAK", "BV", "BSZ", "ZT", "AT", "ST", "KL", "KLP", "AZ", "EI", "KS"];
 
 /* ---------- Format ---------- */
 const pct = n => (n * 100).toLocaleString("de-DE", { maximumFractionDigits: 1 }) + " %";
@@ -454,8 +455,9 @@ function drawing(geo) {
         : `<rect x="${lx - 3.2}" y="${ly - .9}" width="6.4" height="1.8" rx=".4" fill="${slot}"/>`;
       return o;
     };
-    if (["KL", "AZ", "EI"].includes(f.front)) {
+    if (["KL", "KLP", "AZ", "EI"].includes(f.front)) {
       inner += `<rect x="${x0 + 2}" y="${yt + 2}" width="${w - 4}" height="${h - 4}" fill="${cFront}" stroke="#00000026" stroke-width="1"/>`;
+      if (f.front === "KLP") inner += `<rect x="${x0 + 2}" y="${yt + 2}" width="${w - 4}" height="${h - 4}" fill="url(#perf)"/>`;
       if (f.front === "AZ") inner += `<rect x="${x0 + 10}" y="${yb - 7}" width="${w - 20}" height="3.5" fill="${cIn}" stroke="#00000040" stroke-width=".5"><title>Wanne: ${colorName(colOf(f, "einbau"))}</title></rect>`;
       if (f.front === "AZ" && f.gen !== "A" || f.front === "EI") [x0 + 5, x1 - 8].forEach(kx => inner += `<rect x="${kx}" y="${yt + 7}" width="3" height="${Math.max(8, h - 18)}" fill="${cK}" stroke="#00000040" stroke-width=".5"><title>Kupplungssteg: ${colorName(colOf(f, "kupplung"))}</title></rect>`);
       inner += lockSym(cxm, yt + 11);
@@ -514,7 +516,7 @@ function messages(geo) {
   const glas = fs.some(f => f.back === "GL" || f.front === "GT" || f.inside === "ZG") || state.sides === "GL" || state.top === "GA";
   if (rollen && glas) m("bad", "USM: Möbel mit Glaselementen oder Glastüren nie auf Rollen.");
   if (rollen && fs.some(f => f.front === "AZ" || f.front === "EI" || f.inside === "AT")) m("warn", "Rollen mit Auszügen: Gegengewicht nötig, sonst kippt das Möbel beim Ausziehen.");
-  else if (rollen && fs.some(f => f.front === "KL")) m("info", "Rollen mit Klappen: Gegengewicht für die Kippsicherheit einplanen.");
+  else if (rollen && fs.some(f => f.front === "KL" || f.front === "KLP")) m("info", "Rollen mit Klappen: Gegengewicht für die Kippsicherheit einplanen.");
   if (state.sides === "GL" && fs.some(f => f.inside === "ZG")) m("bad", "Glas-Zwischentablar nur mit Metall-Seiten.");
   const fl = fs.filter(f => f._float).length;
   if (fl) m("info", `${fl === 1 ? "Ein Fach steht" : fl + " Fächer stehen"} ohne Fach darunter. Statik bitte selbst einschätzen.`);
@@ -542,8 +544,8 @@ function renderEditor() {
       <label class="f" for="e-h">Höhe<select id="e-h">${opt(TUBES, same("h") ? f.h : null)}</select></label>
     </div>
     <div class="group"><span>Front</span><div class="chips">${chips(FRONTS, "front", "front")}</div></div>
-    ${list.every(q => q.front === "KL" || q.front === "AZ") ? `<div class="group"><span>Generation</span><div class="chips">${chips(GENS, "gen", "gen")}</div></div>` : ""}
-    ${list.every(q => q.front) ? `<div class="group"><span>Verschluss</span><div class="chips">${chips(LOCKS[list.every(q => q.gen === "A" && (q.front === "KL" || q.front === "AZ")) ? "A" : "N"], "lock", "lock")}</div></div>` : ""}
+    ${list.every(q => q.front === "KL" || q.front === "KLP" || q.front === "AZ") ? `<div class="group"><span>Generation</span><div class="chips">${chips(GENS, "gen", "gen")}</div></div>` : ""}
+    ${list.every(q => q.front) ? `<div class="group"><span>Verschluss</span><div class="chips">${chips(LOCKS[list.every(q => q.gen === "A" && (q.front === "KL" || q.front === "KLP" || q.front === "AZ")) ? "A" : "N"], "lock", "lock")}</div></div>` : ""}
     ${list.every(q => q.front === "AZ" || q.inside === "AT") ? `<div class="group"><span>Einlegerahmen</span><div class="chips"><button class="chip" data-rahmen="0" aria-pressed="${list.every(q => !q.rahmen)}">Ohne</button><button class="chip" data-rahmen="1" aria-pressed="${list.every(q => q.rahmen)}">Mit Einlegerahmen</button></div></div>` : ""}
     <div class="group"><span>Seiten</span><div class="chips"><button class="chip" data-open="L" aria-pressed="${list.every(q => q.openL)}">Links offen</button><button class="chip" data-open="R" aria-pressed="${list.every(q => q.openR)}">Rechts offen</button></div></div>
     <div class="group"><span>Rückwand</span><div class="chips">${chips(BACKS, "back", "back")}</div></div>
