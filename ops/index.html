@@ -279,7 +279,7 @@ function vPalette() {
     x += w + gap * k * 2.4; return out + lbl;
   }).join("");
   const latten = [0, 1, 2].map(i => `<rect x="${palX + i * (palW - 60) / 2}" y="${palY + 6}" width="60" height="18" fill="#b48a55"/>`).join("");
-  const svg = `<svg class="palette-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Palette mit ${n} Blechen">
+  const svg = `<svg class="palette-svg" data-palopen="1" viewBox="0 0 ${W} ${H}" role="img" aria-label="Palette mit ${n} Blechen">
     <rect x="${palX}" y="${palY}" width="${palW}" height="7" rx="1" fill="#c89c63"/>${latten}<rect x="${palX}" y="${palY + 24}" width="${palW}" height="6" rx="1" fill="#c89c63"/>
 ${svgStapel}
     ${!n ? `<text x="${W / 2}" y="${palY - 40}" text-anchor="middle" class="pal-lbl">Palette ist leer</text>` : ""}</svg>`;
@@ -287,25 +287,65 @@ ${svgStapel}
   const proFarbe = {}; pos.forEach(p => { const key = p.zielfarbe || ""; proFarbe[key] = (proFarbe[key] || 0) + p.menge; });
   const offen = n - pos.reduce((s, p) => s + p.menge, 0);
   const chips = Object.entries(proFarbe).filter(([c]) => c).map(([c, m]) => `<span class="pal-chip"><i class="dot" style="background:${FARBHEX[c] || "#ccc"}"></i> ${m} × ${esc(farbName(c))}</span>`).join("") + (offen > 0 ? `<span class="pal-chip offen">${offen} × Farbe offen</span>` : "");
-  const fOpt = `<option value="">Farbe</option>` + D.farben.filter(f => !["CR", "SW", "GL", "SO"].includes(f.code)).map(f => `<option value="${f.code}">${esc(f.name)}</option>`).join("");
-  const aOpt = `<option value="">fürs Lager</option>` + (D.auf || []).filter(a => !["storniert", "versendet", "abgeholt", "abgeschlossen"].includes(a.status)).slice(0, 40).map(a => `<option value="${a.id}">${esc((a.kaeufer_name ? a.kaeufer_name + ": " : "") + (a.titel || "").slice(0, 40))}</option>`).join("");
-  const zeilen = teile.map(r => {
-    const zu = pos.filter(p => p.teil === r.code), frei = r.bestand - zu.reduce((s, p) => s + p.menge, 0), id = r.code.replace(/[^A-Za-z0-9]/g, "_");
-    return `<tr><td>${esc(r.bezeichnung)} ${esc((r.mass || "").replace("x", " × "))}${r.generation === "A" ? ` <span class="badge">alte Gen.</span>` : ""}<div class="code">${esc(r.code)}</div>
-      ${zu.map(p => `<span class="pal-chip"><i class="dot" style="background:${FARBHEX[p.zielfarbe] || "#d9d6cf"}"></i> ${p.menge} × ${p.zielfarbe ? esc(farbName(p.zielfarbe)) : "offen"}${p.zweck === "auftrag" ? ` · für ${esc(p.kunde || "Auftrag")}` : ""}<button class="x" data-paldel="${p.id}" title="Zuordnung entfernen" aria-label="Zuordnung entfernen">×</button></span>`).join("")}</td>
-      <td class="num">${r.bestand}</td>
-      <td>${frei > 0 ? `<div class="pal-form"><input type="number" min="1" max="${frei}" value="${frei}" id="pn-${id}" aria-label="Anzahl"><select id="pf-${id}" aria-label="Zielfarbe">${fOpt}</select><select id="pa-${id}" aria-label="Kundenauftrag">${aOpt}</select><button class="btn small" data-palzu="${esc(r.code)}" data-palid="${id}">zuordnen</button></div>` : `<span class="badge ok">alles zugeordnet</span>`}</td></tr>`;
-  }).join("");
   return `<section class="card palette-card"><div class="card-head"><h2>Palette Beschichter</h2><span class="badge ${voll ? "ok" : "warn"}">${voll ? "voll, kann weg" : "wird gesammelt"}</span></div>
     <div class="pal-grid"><div>${svg}</div>
     <div class="pal-side"><div class="pal-fill"><div class="pal-bar"><span style="width:${pct}%"></span></div><p><b>${n}</b> von ca. ${PAL_KAP} Blechen · ${pct} %</p></div>
       ${voll ? `<div class="banner info"><span><b>Die Palette ist voll.</b> Jetzt festlegen, welche Teile in welche Farbe kommen und welche für einen Kundenauftrag sind. Was offen bleibt, wählst du bei der Rückkehr.</span></div>` : `<p class="note">Noch ${PAL_KAP - n} Bleche bis voll. Zielfarbe und Kundenauftrag kannst du schon jetzt zuordnen.</p>`}
       <div class="pal-chips">${chips}</div>
       <p class="note">Erwartet ca. ${eur(n * 16)} netto (${eur(16)} pro Blech).</p>
-      ${n ? `<button class="btn ${voll ? "primary" : ""}" data-palab="1">Palette beim Beschichter abgegeben</button>` : ""}</div></div>
-    ${teile.length ? `<details class="pal-details"${voll ? " open" : ""}><summary>Was liegt drauf, Farbe und Auftrag zuordnen</summary><div class="tablewrap"><table><thead><tr><th>Teil</th><th class="num">Stück</th><th>Zuordnen</th></tr></thead><tbody>${zeilen}</tbody></table></div></details>` : ""}</section>`;
+      ${n ? `<button class="btn" data-palab="1">Palette beim Beschichter abgegeben</button>` : ""}</div></div>
+    ${n ? `<button class="btn primary pal-open" data-palopen="1">Palette öffnen und Farben verteilen</button>` : ""}</section>${UI.pal ? palModal(teile, pos) : ""}`;
 }
 
+const PAL_FARBEN = () => D.farben.filter(f => !["CR", "SW", "GL", "SO"].includes(f.code));
+const palAuftragName = id => { const a = (D.auf || []).find(x => x.id === id); return a ? (a.kaeufer_name || a.titel || "Auftrag") : null; };
+function palLocal() {
+  let pb = (D.besch || []).find(b => b.status === "sammeln" && b.notiz === PAL_ORT);
+  if (!pb) { pb = { id: "neu", nummer: "", status: "sammeln", notiz: PAL_ORT, art: "lager", positionen: [] }; D.besch = [pb, ...(D.besch || [])]; }
+  pb.positionen = pb.positionen || []; return pb;
+}
+function palModal(teile, pos) {
+  const frei = r => r.bestand - pos.filter(p => p.teil === r.code).reduce((s, p) => s + p.menge, 0);
+  const breite = m => { const w = parseInt((m || "").split("x")[0], 10); return w > 0 ? w : 350; };
+  const offen = teile.filter(r => frei(r) > 0);
+  const tiles = offen.map(r => `<button class="pal-tile${UI.palSel === r.code ? " sel" : ""}" draggable="true" data-paltile="${esc(r.code)}" title="${esc(r.code)}">
+      <span class="mini" style="width:${Math.round(breite(r.mass) / 750 * 100)}%"></span>
+      <span class="t">${esc(r.bezeichnung)}</span><span class="m">${esc((r.mass || "").replace("x", " × "))} <span class="gen ${r.generation === "A" ? "alt" : "neu"}">${r.generation === "A" ? "alte Gen." : "neue Gen."}</span></span><b class="n">${frei(r)}</b></button>`).join("");
+  const eimer = PAL_FARBEN().map(f => {
+    const hier = pos.filter(p => p.zielfarbe === f.code), summe = hier.reduce((s, p) => s + p.menge, 0);
+    return `<div class="pal-eimer${summe ? " voll" : ""}${UI.palPulse === f.code ? " pulse" : ""}${UI.palSel ? " ziel" : ""}" data-palfarbe="${f.code}" style="--c:${FARBHEX[f.code] || "#ccc"}">
+      <div class="kopf"><i class="dose"></i><span>${esc(f.name)}</span>${summe ? `<b>${summe}</b>` : ""}</div>
+      ${hier.map(p => { const r = teile.find(t => t.code === p.teil) || {}; return `<div class="drin"><span>${p.menge} × ${esc(r.bezeichnung || p.teil)} ${esc((r.mass || "").replace("x", "×"))}${r.generation === "A" ? " <b class=\"gen alt\">alt</b>" : ""}${p.zweck === "auftrag" ? ` <em>für ${esc(p.kunde || "Auftrag")}</em>` : ""}</span><button data-palminus="${p.id || ""}" data-palteil="${esc(p.teil)}" data-palf="${f.code}" title="Eins zurück auf die Palette" aria-label="Eins zurück">−</button></div>`; }).join("")}</div>`;
+  }).join("");
+  const aOpt = `<option value="">fürs Lager</option>` + (D.auf || []).filter(a => !["storniert", "versendet", "abgeholt", "abgeschlossen"].includes(a.status)).slice(0, 40).map(a => `<option value="${a.id}"${UI.palAuftrag === a.id ? " selected" : ""}>${esc((a.kaeufer_name ? a.kaeufer_name + ": " : "") + (a.titel || "").slice(0, 40))}</option>`).join("");
+  const nOffen = offen.reduce((s, r) => s + frei(r), 0);
+  const anim = UI.palAnim ? " anim" : ""; UI.palAnim = false;
+  return `<div class="pal-modal-bg${anim}" data-palclose="1"></div><div class="pal-modal${anim}" role="dialog" aria-label="Palette sortieren">
+    <div class="pal-mhead"><h2>Palette sortieren</h2><button class="btn small" data-palclose="1">Fertig</button></div>
+    <p class="note">Das A am Ende der Teilenummer heißt alte Generation, ohne A ist es neue Generation. Teil auf eine Farbe ziehen. Am Handy: Teil antippen, dann Farbe antippen. Es gehen alle freien Stück rüber, mit − legst du einzelne zurück auf die Palette.</p>
+    <label class="pal-fuer">Gilt für <select id="pal-auftrag" aria-label="Kundenauftrag">${aOpt}</select></label>
+    <div class="pal-mgrid"><div class="pal-stapel"><h3>Auf der Palette <span class="note">${nOffen} ohne Farbe</span></h3>${tiles || `<p class="empty">Alles verteilt.</p>`}</div>
+    <div class="pal-eimer-grid">${eimer}</div></div></div>`;
+}
+async function palZuordnen(code, farbe) {
+  const r = (D.lager || []).find(x => x.code === code); if (!r) return;
+  const pb = palLocal(), n = r.bestand - pb.positionen.filter(p => p.teil === code).reduce((s, p) => s + p.menge, 0);
+  if (n <= 0) return;
+  const a = UI.palAuftrag || null;
+  let p = pb.positionen.find(x => x.teil === code && (x.zielfarbe || null) === farbe && (x.auftrag_id || null) === a);
+  if (p) p.menge += n; else { p = { id: null, teil: code, menge: n, zielfarbe: farbe, auftrag_id: a, zweck: a ? "auftrag" : "lager", kunde: a ? palAuftragName(a) : null }; pb.positionen.push(p); }
+  UI.palSel = null; UI.palPulse = farbe; render(); setTimeout(() => { if (UI.palPulse === farbe) { UI.palPulse = null; render(); } }, 650);
+  const { data, error } = await sb.rpc("palette_zuordnen", { p_teil: code, p_menge: n, p_zielfarbe: farbe, p_auftrag: a });
+  if (error) { UI.flash = "Ging nicht: " + error.message; liveReload(); return; }
+  p.id = p.id || data;
+}
+async function palMinus(b) {
+  const pb = palLocal(), p = pb.positionen.find(x => x.teil === b.dataset.palteil && x.zielfarbe === b.dataset.palf && (b.dataset.palminus ? x.id === b.dataset.palminus : true));
+  if (!p || !p.id) return;
+  p.menge -= 1; if (p.menge <= 0) pb.positionen = pb.positionen.filter(x => x !== p); render();
+  const { error } = await sb.rpc("palette_menge", { p_pos: p.id, p_menge: Math.max(0, p.menge) });
+  if (error) { UI.flash = "Ging nicht: " + error.message; liveReload(); }
+}
 function vBeschichtung() {
   const B = D.besch || [], K = D.beschK || [];
   const st = { sammeln: ["wird gesammelt", "warn"], beim_beschichter: ["beim Beschichter", "info"], zurueck: ["zurück", "ok"], storniert: ["storniert", ""] };
@@ -569,6 +609,22 @@ document.addEventListener("click", async e => {
   }
 });
 document.addEventListener("click", e => { if (e.target.id === "sheet-bg") { UI.sheet = false; render(); } });
+/* Palette: öffnen, ziehen, antippen */
+document.addEventListener("click", e => {
+  const t = e.target;
+  if (t.closest("[data-palopen]")) { UI.pal = true; UI.palAnim = true; render(); return; }
+  if (t.closest("[data-palclose]")) { UI.pal = false; UI.palSel = null; render(); return; }
+  const tile = t.closest("[data-paltile]"); if (tile) { UI.palSel = UI.palSel === tile.dataset.paltile ? null : tile.dataset.paltile; render(); return; }
+  const mi = t.closest("[data-palminus]"); if (mi) { palMinus(mi); return; }
+  const ei = t.closest("[data-palfarbe]"); if (ei && UI.palSel) palZuordnen(UI.palSel, ei.dataset.palfarbe);
+});
+document.addEventListener("change", e => { if (e.target.id === "pal-auftrag") UI.palAuftrag = e.target.value || null; });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && UI.pal) { UI.pal = false; UI.palSel = null; render(); } });
+document.addEventListener("dragstart", e => { const tile = e.target.closest && e.target.closest("[data-paltile]"); if (tile) { e.dataTransfer.setData("text/plain", tile.dataset.paltile); e.dataTransfer.effectAllowed = "move"; tile.classList.add("drag"); } });
+document.addEventListener("dragend", e => { const tile = e.target.closest && e.target.closest("[data-paltile]"); if (tile) tile.classList.remove("drag"); });
+document.addEventListener("dragover", e => { const ei = e.target.closest && e.target.closest("[data-palfarbe]"); if (ei) { e.preventDefault(); document.querySelectorAll(".pal-eimer.over").forEach(x => x !== ei && x.classList.remove("over")); ei.classList.add("over"); } });
+document.addEventListener("dragleave", e => { const ei = e.target.closest && e.target.closest("[data-palfarbe]"); if (ei && !ei.contains(e.relatedTarget)) ei.classList.remove("over"); });
+document.addEventListener("drop", e => { const ei = e.target.closest && e.target.closest("[data-palfarbe]"); if (ei) { e.preventDefault(); ei.classList.remove("over"); const code = e.dataTransfer.getData("text/plain"); if (code) palZuordnen(code, ei.dataset.palfarbe); } });
 async function checkVorlage(code) {
   UI.fv = code;
   const { data, error } = await sb.rpc("fehlteile", { p_vorlage: code, p_farbe: UI.fvFarbe, p_zustand: UI.fvZustand });

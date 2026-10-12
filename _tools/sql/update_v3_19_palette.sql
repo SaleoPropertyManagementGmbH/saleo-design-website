@@ -66,3 +66,17 @@ end $$;
 
 revoke execute on function palette_beschichtung(), palette_zuordnen(text, int, text, uuid), palette_zuordnung_loeschen(uuid), palette_abgeben() from public, anon;
 grant execute on function palette_beschichtung(), palette_zuordnen(text, int, text, uuid), palette_zuordnung_loeschen(uuid), palette_abgeben() to authenticated;
+
+-- v3.19b: Menge einer Zuordnung ändern (0 = zurück auf die Palette)
+create or replace function palette_menge(p_pos uuid, p_menge int) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if not ist_nutzer() then raise exception 'Kein Zugriff'; end if;
+  if coalesce(p_menge, 0) <= 0 then
+    delete from beschichtung_position p using beschichtung b where p.id = p_pos and b.id = p.beschichtung_id and b.status = 'sammeln';
+  else
+    update beschichtung_position p set menge = p_menge from beschichtung b where p.id = p_pos and b.id = p.beschichtung_id and b.status = 'sammeln';
+  end if;
+end $$;
+revoke execute on function palette_menge(uuid, int) from public, anon;
+grant execute on function palette_menge(uuid, int) to authenticated;
