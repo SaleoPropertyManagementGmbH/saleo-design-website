@@ -1,6 +1,7 @@
 -- v3.21 (12.10.2026): Kalkulation für Aufträge ohne Lagerabbuchung (z. B. Möbel, die nie im Lager gezählt waren).
 -- auftrag.kalkulation = [{text, teil, menge, preis}] nur zur Rechnung, bucht NIE etwas aus. Wareneinsatz fällt darauf zurück.
 alter table auftrag add column if not exists kalkulation jsonb;
+alter table auftrag add column if not exists planung_id uuid;
 
 create or replace view auftrag_uebersicht as
  WITH w AS (
@@ -19,7 +20,7 @@ create or replace view auftrag_uebersicht as
         ), b AS (
          SELECT a.id, a.status, a.kanal, a.inserat, a.moebel_id, a.titel, a.kaeufer_name, a.kaeufer_kontakt, a.adresse, a.versandart, a.preis,
             a.versand_kunde, a.versand_eigen, a.zahlart, a.zahlung_id, a.bezahlt_am, a.sicherheit, a.zuordnung, a.chat_auszug, a.paket,
-            a.sendungsnummer, a.label_url, a.verkauf_id, a.freigabe_von, a.freigabe_am, a.notiz, a.erstellt_am, a.geaendert_am, a.teile, a.kalkulation,
+            a.sendungsnummer, a.label_url, a.verkauf_id, a.freigabe_von, a.freigabe_am, a.notiz, a.erstellt_am, a.geaendert_am, a.teile, a.kalkulation, a.planung_id,
             m.name AS moebel_name, m.lagerort, m.masse AS moebel_masse,
             COALESCE(mv.wareneinsatz, w.wert, wt.wert, wk.wert) AS wareneinsatz,
             COALESCE(w.teile, wt.teile) AS teile_anzahl,
@@ -41,5 +42,5 @@ create or replace view auftrag_uebersicht as
     round(erloes - versand_eigen - zahlung_gebuehr - COALESCE(wareneinsatz, 0::numeric) -
         CASE WHEN besteuerung = 'regel' THEN re_ust ELSE GREATEST(0::numeric, erloes - COALESCE(wareneinsatz, 0::numeric)) * 0.19 / 1.19 END, 2) AS gewinn_vor_steuern,
     zahlung_betrag, zahlung_absender, zahlung_quelle, zahlung_art, rechnung_id, rechnung_nummer, rechnung_status, rechnung_brutto, besteuerung,
-    teile AS teile_liste, verkauf_id IS NOT NULL AS verkauft, kalkulation
+    teile AS teile_liste, verkauf_id IS NOT NULL AS verkauft, kalkulation, planung_id
    FROM b;

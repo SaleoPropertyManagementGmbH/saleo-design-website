@@ -115,11 +115,13 @@ const NAMES = {
   BL: "Metallelement", BP: "Metallelement gelocht", BPF: "Metallelement perforiert", BAK: "Akustikelement", GL: "Glaselement", GA: "Glastablar",
   BV: "Metallelement verkürzt", BSZ: "Metallelement mit Schlitzen", BK: "Metallelement mit Kabeldurchlass", HR: "Hängeregistratur",
   ZT: "Zwischentablar Metall", ZG: "Zwischentablar Glas", AT: "Ausziehtablar", ST: "Schrägtablar",
-  KL: "Klapptür", KLP: "Klapptür perforiert", EIP: "Einschubtür perforiert", AZP: "Schublade perforiert", AZ: "Schublade", ER: "Einlegerahmen", EI: "Einschubtür", GT: "Glastür", KS: "Kupplungssteg"
+  KL: "Klappe", KLP: "Klappe perforiert", EIP: "Einschubtür perforiert", AZP: "Auszugstür perforiert", AZ: "Auszugstür", ER: "Einlegerahmen", EI: "Einschubtür", GT: "Glastür", KS: "Kupplungssteg"
 };
 const HW = {
-  SC69: ["Schere 69 N (18444)", 22, 0.3], SC40: ["Schere 40 N, für Klapptür 750 × 250", 22, 0.25],
+  SC69: ["Schere 69 N (18444)", 22, 0.3], SC40: ["Schere 40 N, für Klappe 750 × 250", 22, 0.25],
   DP: ["Dämpferpaket SilentClose (18450)", 9, 0.05], BAA: ["Befestigungsset Schere Typ A (18472)", 12, 0.2],
+  FBS: ["Scharnier neue Generation (2 je Klappe)", 5, 0.05], PSH: ["Kunststoffteil (1 je Scharnier)", 0.25, 0.005],
+  MWS: ["L-Winkel (je Reihe 1 je Innentablar und Außentablar)", 2.5, 0.03], USL: ["Universalschloss neue Generation", 12, 0.1], SKN: ["Schlosskasten neue Generation", 3.5, 0.03],
   GRS: ["Universalverschluss, Griffset mit Schlitz (14131)", 12, 0.1], SL: ["Schloss mit 2 Schlüsseln (14262)", 18, 0.12],
   TWA: ["Tablarwinkel Ausziehtablar links/rechts", 7, 0.15], TE350: ["Teleskopauszug T350 links/rechts", 18, 0.6], TE500: ["Teleskopauszug T500 links/rechts", 20, 0.8],
   BAAT: ["Befestigungsset Ausziehtablar (18476)", 8, 0.1], BAAZ: ["Befestigungsset Ausziehtür (18475)", 10, 0.15],
@@ -140,10 +142,10 @@ const COLORS = [
   ["36", "Olivgrün", "#43472f"], ["25", "Goldgelb", "#d99c1c"], ["26", "Reinorange", "#e2561d"],
   ["23", "USM Rubinrot", "#8b1f2a"], ["22", "USM Braun", "#5b3b2a"], ["31", "USM Beige", "#cdbb98"]
 ];
-const FRONTS = [["", "Offen"], ["KL", "Klapptür"], ["AZ", "Schublade"], ["EI", "Einschubtür"], ["GT", "Glastür"]];
+const FRONTS = [["", "Offen"], ["KL", "Klappe"], ["AZ", "Auszugstür"], ["EI", "Einschubtür"], ["GT", "Glastür"]];
 const BACKS = [["BL", "Metall"], ["BP", "Gelocht"], ["BPF", "Perforiert"], ["BAK", "Akustik"], ["BK", "Kabeldurchlass"], ["GL", "Glas"], ["", "Ohne"]];
 const INSIDES = [["", "Keiner"], ["ZT", "Zwischentablar"], ["ZG", "Zwischentablar Glas"], ["AT", "Ausziehtablar"], ["ST", "Schrägtablar"], ["HR", "Hängeregistratur"]];
-const LOCKS = { N: [["U", "Universalverschluss"], ["S", "Schloss"]], A: [["D", "Drehgriff"], ["SA", "Schloss alte Generation"]] };
+const LOCKS = { N: [["U", "Universalschloss"], ["S", "Schloss"]], A: [["D", "Drehgriff"], ["SA", "Schloss alte Generation"]] };
 const GENS = [["N", "Neue Generation"], ["A", "Alte Generation"]];
 const PARTS = [["all", "Alles"], ["front", "Front"], ["einbau", "Wanne / Einbau"], ["kupplung", "Kupplungsstege"], ["back", "Rückwand"], ["boden", "Boden"], ["deckel", "Deckel"], ["seiten", "Seiten"]];
 const SCOPES = [["sel", "Auswahl"], ["row", "ganze Reihe"], ["col", "ganze Spalte"], ["check", "Schachbrett"], ["rows2", "jede 2. Reihe"], ["cols2", "jede 2. Spalte"], ["all", "ganzes Möbel"]];
@@ -353,15 +355,24 @@ function bom(geo) {
   });
   if (state.sides) geo.vP.filter(p => p.outer && !p.open).forEach(p => {
     const st = seitenTyp(p);
-    add(st, `${d}x${p.len}`, colOf(p.owner, "seiten"), M, "Seite");
+    add(st, `${d}x${p.len}`, colOf(p.owner, "seiten"), M, "Außentablar");
     if (st === "GL") hw("GH", 4 * M, "Glasseite");
+  });
+  // Innentablar: senkrechte, gelochte Trennwand (Höhe × Tiefe) zwischen Fächern mit Klappen; L-Winkel je Reihe: 1 je Innentablar + 1 je Außentablar
+  const klNeu = f => f && (f.front === "KL" || f.front === "KLP") && f.gen !== "A";
+  geo.vP.forEach(p => {
+    const nb = state.fields.filter(f => (f.x + f.w === p.x || f.x === p.x) && f.y <= p.y1 && f.y + f.h >= p.y2);
+    if (!nb.some(klNeu)) return;
+    if (!p.outer) add("BP", `${d}x${p.len}`, colOf(nb.find(klNeu), "seiten"), M, "Innentablar");
+    hw("MWS", M, "L-Winkel");
   });
   const add1 = add, hw1 = hw;
   state.fields.forEach(f => {
     const add = (t, m, c, q, w, g) => add1(t, m, c, t === f.back && w === "Rückwand" ? q : q * M, w, g);
     const hw = (k, n, w) => hw1(k, n * M, w);
     const old = f.gen === "A";
-    const lockHw = { U: "GRS", S: "SL", D: "DG", SA: "SLALT" }[f.lock] || (old ? "DG" : "GRS");
+    const klN = !old && (f.front === "KL" || f.front === "KLP");
+    const lockHw = klN && f.lock === "U" ? "USL" : ({ U: "GRS", S: "SL", D: "DG", SA: "SLALT" }[f.lock] || (old ? "DG" : "GRS"));
     const erH = [350, 250, 175].find(x => x <= f.h);
     if (f.back) { add(f.back, `${f.w}x${f.h}`, colOf(f, "back"), 1, "Rückwand"); if (f.back === "GL") hw("GH", 4, "Glasrückwand"); }
     if (f.inside) {
@@ -378,7 +389,7 @@ function bom(geo) {
     const n = NAMES[f.front];
     if (f.front === "KL" || f.front === "KLP") {
       if (old) { hw("SCALT", 2, n); hw("BSALT", 4, n); }
-      else { hw(f.w === 750 && f.h === 250 ? "SC40" : "SC69", 2, n); hw("DP", 2, n); hw("BAA", 1, n); }
+      else { hw("FBS", 2, n); hw("PSH", 2, n); hw("DP", 2, n); if (f.lock === "U") hw("SKN", 1, n); }
     }
     if (f.front === "AZ") {
       add("AT", `${f.w}x${d}`, colOf(f, "einbau"), 1, "Wanne der Schublade");
@@ -481,7 +492,7 @@ function drawing(geo) {
     }
     if (f.front === "GT") inner += `<rect x="${x0 + 2}" y="${yt + 2}" width="${w - 4}" height="${h - 4}" fill="#a9d4e2" opacity=".5" stroke="#7fb3c4"/>` + lockSym(x1 - 12, cym);
     const label = f.front ? NAMES[f.front] + (f.perf ? " perforiert" : "") : ({ "": "offen", ZT: "Zwischentablar", ZG: "Glas-Zwischentablar", AT: "Ausziehtablar", ST: "Schrägtablar" }[f.inside || ""]);
-    const sub = f.front ? ({ U: "Universalverschluss", S: "Schloss", D: "Drehgriff", SA: "Schloss" }[f.lock] + (f.gen === "A" ? " · alt" : "") + (f.rahmen && (f.front === "AZ") ? " · Rahmen" : "")) : "";
+    const sub = f.front ? ({ U: "Universalschloss", S: "Schloss", D: "Drehgriff", SA: "Schloss" }[f.lock] + (f.gen === "A" ? " · alt" : "") + (f.rahmen && (f.front === "AZ") ? " · Rahmen" : "")) : "";
     const lc = f.front && f.front !== "GT" ? (darkF ? "#e9ecf1" : "#3f464f") : (darkB && f.back && f.back !== "GL" ? "#e9ecf1" : "var(--muted)");
     const fsz = Math.max(6.5, Math.min(12, (w - 10) * 1.75 / label.length, h / 3.6));
     if (h > 18) inner += `<text x="${cxm}" y="${cym + (sub && h > 40 ? 1 : 4)}" text-anchor="middle" font-family="Archivo, Helvetica Neue, Arial, sans-serif" font-size="${fsz}" letter-spacing=".03em" fill="${lc}" pointer-events="none">${label}</text>`;
@@ -529,7 +540,7 @@ function messages(geo) {
   if (bad.length) m("bad", `Nicht im USM-Programm: ${[...new Set(bad)].join(", ")}.`);
   if (o.h >= ANKER_AB[state.depth]) m("bad", `Wandverankerung zwingend: Außenhöhe ${o.h} mm, bei Tiefe ${state.depth} schreibt USM sie ab ${ANKER_AB[state.depth]} mm vor. Mindestens 2 Sets an den oberen äußeren Ecken, je Set 20 kg Haltekraft.`);
   else if (o.h >= ANKER_AB[state.depth] * 0.75) m("warn", `Hoch und schmal: ab ${ANKER_AB[state.depth]} mm Außenhöhe ist bei Tiefe ${state.depth} eine Wandverankerung Pflicht. USM empfiehlt sie immer.`);
-  if (state.depth === 250 && fs.some(f => ["AZ", "EI"].includes(f.front) || f.inside === "AT" || f.rahmen)) m("bad", "Tiefe 250: keine Schublade, Einschubtür, Ausziehtablar oder Einlegerahmen. Klapptür geht.");
+  if (state.depth === 250 && fs.some(f => ["AZ", "EI"].includes(f.front) || f.inside === "AT" || f.rahmen)) m("bad", "Tiefe 250: keine Schublade, Einschubtür, Ausziehtablar oder Einlegerahmen. Klappe geht.");
   const glas = fs.some(f => f.back === "GL" || f.front === "GT" || f.inside === "ZG") || state.sides === "GL" || state.top === "GA";
   if (rollen && glas) m("bad", "USM: Möbel mit Glaselementen oder Glastüren nie auf Rollen.");
   const rollcontainer = rollen && state.depth === 500 && fs.every(f => f.x === 0 && (f.w === 395 || f.w === 500));
