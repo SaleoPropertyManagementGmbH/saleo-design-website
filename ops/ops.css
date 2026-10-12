@@ -445,3 +445,9 @@ details.teile ul { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 2px;
 .pal-tile .t .kat { font-size: .82rem; }
 .neu-form input.ral { flex: 0 0 70px; }
 .pal-eimer .kopf small.ral { display: block; font-weight: 400; font-size: .7rem; color: var(--muted); }
+.pal-kunde { margin: 0 0 12px; font-size: .86rem; }
+.pal-eimer.empf { border-style: solid; border-color: var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 22%, transparent); }
+.pal-eimer.empf .kopf::after { content: "passt zum Auftrag"; margin-left: auto; font-size: .66rem; font-weight: 600; color: #1f6a40; background: #e4f2ea; border-radius: 999px; padding: 1px 6px; }
+.pal-eimer.empf .kopf b { margin-left: 6px; }
+.pal-eimer .kopf { flex-wrap: wrap; }
+.pal-eimer.empf .kopf::after { order: 9; margin-left: 30px; flex: 0 0 auto; white-space: nowrap; }
