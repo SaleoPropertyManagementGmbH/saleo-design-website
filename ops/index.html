@@ -245,6 +245,67 @@ function vAuftraege() {
 }
 
 /* ---------- Ansichten ---------- */
+/* ---------- Palette Beschichter ---------- */
+const PAL_KAP = 60, PAL_ORT = "Palette Beschichter";
+function vPalette() {
+  const teile = (D.lager || []).filter(r => (r.lagerort || "").includes(PAL_ORT) && r.bestand > 0);
+  const pb = (D.besch || []).find(b => b.status === "sammeln" && b.notiz === PAL_ORT);
+  const pos = pb ? (pb.positionen || []) : [];
+  const n = teile.reduce((s, r) => s + r.bestand, 0), voll = n >= PAL_KAP, pct = Math.min(100, Math.round(n / PAL_KAP * 100));
+  const breite = m => { const w = parseInt((m || "").split("x")[0], 10); return w > 0 ? w : 350; };
+  // Stapel: gleiche Maße auf einen Stapel, jedes Blech einzeln gezeichnet, Farbe = Zielfarbe falls schon zugeordnet
+  const stapel = {};
+  teile.forEach(r => {
+    const key = (r.mass || "?");
+    const st = stapel[key] = stapel[key] || { w: breite(r.mass), mass: r.mass, bleche: [] };
+    const zu = pos.filter(p => p.teil === r.code);
+    let rest = r.bestand;
+    zu.forEach(p => { for (let i = 0; i < p.menge && rest > 0; i++, rest--) st.bleche.push({ r, ziel: p.zielfarbe, kunde: p.zweck === "auftrag" ? p.kunde : null }); });
+    for (; rest > 0; rest--) st.bleche.push({ r, ziel: null });
+  });
+  const S = Object.values(stapel).sort((a, b) => b.w - a.w);
+  const maxN = Math.max(1, ...S.map(x => x.bleche.length)), dick = Math.max(3, Math.min(6, Math.floor(220 / maxN) - 1));
+  const W = 640, H = Math.max(190, maxN * (dick + 1) + 90), palW = 520, palX = (W - palW) / 2, palY = H - 40, gap = 10;
+  const sumW = S.reduce((s, x) => s + x.w, 0) + gap * Math.max(0, S.length - 1);
+  const k = Math.min(0.42, (palW - 20) / Math.max(sumW, 1));
+  let x = palX + (palW - (sumW * k)) / 2;
+  const svgStapel = S.map(st => {
+    const w = st.w * k, out = st.bleche.map((b, i) => {
+      const y = palY - (i + 1) * (dick + 1), fill = b.ziel ? (FARBHEX[b.ziel] || "#ccc") : "#d9d6cf";
+      const front = (b.r.code || "").startsWith("KL");
+      return `<rect class="blech${b.ziel ? " zu" : ""}" x="${x.toFixed(1)}" y="${y}" width="${w.toFixed(1)}" height="${dick}" rx="1" fill="${fill}" stroke="${front ? "rgba(0,0,0,.45)" : "rgba(0,0,0,.18)"}" stroke-width="${front ? 1 : .6}" style="animation-delay:${(i * 18)}ms"><title>${esc(b.r.bezeichnung)} ${esc((b.r.mass || "").replace("x", " × "))}${b.r.generation === "A" ? " (alte Gen.)" : ""}${b.ziel ? " → " + esc(farbName(b.ziel)) : " · Farbe offen"}${b.kunde ? " · für " + esc(b.kunde) : ""}</title></rect>`;
+    }).join("");
+    const lbl = `<text x="${(x + w / 2).toFixed(1)}" y="${palY - st.bleche.length * (dick + 1) - 6}" text-anchor="middle" class="pal-lbl">${esc((st.mass || "").replace("x", "×"))} · ${st.bleche.length}</text>`;
+    x += w + gap * k * 2.4; return out + lbl;
+  }).join("");
+  const latten = [0, 1, 2].map(i => `<rect x="${palX + i * (palW - 60) / 2}" y="${palY + 6}" width="60" height="18" fill="#b48a55"/>`).join("");
+  const svg = `<svg class="palette-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Palette mit ${n} Blechen">
+    <rect x="${palX}" y="${palY}" width="${palW}" height="7" rx="1" fill="#c89c63"/>${latten}<rect x="${palX}" y="${palY + 24}" width="${palW}" height="6" rx="1" fill="#c89c63"/>
+${svgStapel}
+    ${!n ? `<text x="${W / 2}" y="${palY - 40}" text-anchor="middle" class="pal-lbl">Palette ist leer</text>` : ""}</svg>`;
+  // Zusammenfassung je Zielfarbe
+  const proFarbe = {}; pos.forEach(p => { const key = p.zielfarbe || ""; proFarbe[key] = (proFarbe[key] || 0) + p.menge; });
+  const offen = n - pos.reduce((s, p) => s + p.menge, 0);
+  const chips = Object.entries(proFarbe).filter(([c]) => c).map(([c, m]) => `<span class="pal-chip"><i class="dot" style="background:${FARBHEX[c] || "#ccc"}"></i> ${m} × ${esc(farbName(c))}</span>`).join("") + (offen > 0 ? `<span class="pal-chip offen">${offen} × Farbe offen</span>` : "");
+  const fOpt = `<option value="">Farbe</option>` + D.farben.filter(f => !["CR", "SW", "GL", "SO"].includes(f.code)).map(f => `<option value="${f.code}">${esc(f.name)}</option>`).join("");
+  const aOpt = `<option value="">fürs Lager</option>` + (D.auf || []).filter(a => !["storniert", "versendet", "abgeholt", "abgeschlossen"].includes(a.status)).slice(0, 40).map(a => `<option value="${a.id}">${esc((a.kaeufer_name ? a.kaeufer_name + ": " : "") + (a.titel || "").slice(0, 40))}</option>`).join("");
+  const zeilen = teile.map(r => {
+    const zu = pos.filter(p => p.teil === r.code), frei = r.bestand - zu.reduce((s, p) => s + p.menge, 0), id = r.code.replace(/[^A-Za-z0-9]/g, "_");
+    return `<tr><td>${esc(r.bezeichnung)} ${esc((r.mass || "").replace("x", " × "))}${r.generation === "A" ? ` <span class="badge">alte Gen.</span>` : ""}<div class="code">${esc(r.code)}</div>
+      ${zu.map(p => `<span class="pal-chip"><i class="dot" style="background:${FARBHEX[p.zielfarbe] || "#d9d6cf"}"></i> ${p.menge} × ${p.zielfarbe ? esc(farbName(p.zielfarbe)) : "offen"}${p.zweck === "auftrag" ? ` · für ${esc(p.kunde || "Auftrag")}` : ""}<button class="x" data-paldel="${p.id}" title="Zuordnung entfernen" aria-label="Zuordnung entfernen">×</button></span>`).join("")}</td>
+      <td class="num">${r.bestand}</td>
+      <td>${frei > 0 ? `<div class="pal-form"><input type="number" min="1" max="${frei}" value="${frei}" id="pn-${id}" aria-label="Anzahl"><select id="pf-${id}" aria-label="Zielfarbe">${fOpt}</select><select id="pa-${id}" aria-label="Kundenauftrag">${aOpt}</select><button class="btn small" data-palzu="${esc(r.code)}" data-palid="${id}">zuordnen</button></div>` : `<span class="badge ok">alles zugeordnet</span>`}</td></tr>`;
+  }).join("");
+  return `<section class="card palette-card"><div class="card-head"><h2>Palette Beschichter</h2><span class="badge ${voll ? "ok" : "warn"}">${voll ? "voll, kann weg" : "wird gesammelt"}</span></div>
+    <div class="pal-grid"><div>${svg}</div>
+    <div class="pal-side"><div class="pal-fill"><div class="pal-bar"><span style="width:${pct}%"></span></div><p><b>${n}</b> von ca. ${PAL_KAP} Blechen · ${pct} %</p></div>
+      ${voll ? `<div class="banner info"><span><b>Die Palette ist voll.</b> Jetzt festlegen, welche Teile in welche Farbe kommen und welche für einen Kundenauftrag sind. Was offen bleibt, wählst du bei der Rückkehr.</span></div>` : `<p class="note">Noch ${PAL_KAP - n} Bleche bis voll. Zielfarbe und Kundenauftrag kannst du schon jetzt zuordnen.</p>`}
+      <div class="pal-chips">${chips}</div>
+      <p class="note">Erwartet ca. ${eur(n * 16)} netto (${eur(16)} pro Blech).</p>
+      ${n ? `<button class="btn ${voll ? "primary" : ""}" data-palab="1">Palette beim Beschichter abgegeben</button>` : ""}</div></div>
+    ${teile.length ? `<details class="pal-details"${voll ? " open" : ""}><summary>Was liegt drauf, Farbe und Auftrag zuordnen</summary><div class="tablewrap"><table><thead><tr><th>Teil</th><th class="num">Stück</th><th>Zuordnen</th></tr></thead><tbody>${zeilen}</tbody></table></div></details>` : ""}</section>`;
+}
+
 function vBeschichtung() {
   const B = D.besch || [], K = D.beschK || [];
   const st = { sammeln: ["wird gesammelt", "warn"], beim_beschichter: ["beim Beschichter", "info"], zurueck: ["zurück", "ok"], storniert: ["storniert", ""] };
@@ -254,9 +315,10 @@ function vBeschichtung() {
     ${(b.positionen || []).map(p => `<tr><td>${esc(p.bezeichnung || p.teil)}${p.zweck === "auftrag" ? ` <span class="badge info">für ${esc(p.kunde || "Auftrag")}</span>` : ""}</td><td class="num">${p.menge}</td><td>${p.von ? farbe(p.von) : ""}</td><td>${p.zielfarbe ? farbe(p.zielfarbe) : b.status === "beim_beschichter" && p.teil ? `<select id="bf-${p.id}" aria-label="Neue Farbe"><option value="">Farbe wählen</option>${D.farben.filter(f => !["CR", "SW", "GL", "SO"].includes(f.code)).map(f => `<option value="${f.code}">${esc(f.name)}</option>`).join("")}</select>` : `<span class="note">noch offen</span>`}</td></tr>`).join("")}</tbody></table></div>
     <p class="note" style="margin:8px 0">${b.bleche} Bleche · ${b.status === "zurueck" ? "Kosten" : "erwartet"} ${eur(b.kosten_erwartet)} netto${b.abgegeben_am ? " · abgegeben " + new Date(b.abgegeben_am).toLocaleDateString("de-DE") : ""}${b.zurueck_am ? " · zurück " + new Date(b.zurueck_am).toLocaleDateString("de-DE") : ""}${b.beschichter ? " · " + esc(b.beschichter) : ""}</p>
     ${b.status === "sammeln" ? `<button class="btn primary small" data-babgabe="${b.id}">Beim Beschichter abgegeben</button>` : b.status === "beim_beschichter" ? `<div class="row" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><label class="note">Rechnung netto <input type="number" step="0.01" id="bk-${b.id}" placeholder="${Number(b.kosten_erwartet).toFixed(2)}" style="width:110px"></label><button class="btn primary small" data-bzurueck="${b.id}">Zurück, einbuchen</button></div>` : ""}</section>`;
-  const offen = B.filter(b => b.status !== "zurueck" && b.status !== "storniert"), fertig = B.filter(b => b.status === "zurueck");
+  const offen = B.filter(b => b.status !== "zurueck" && b.status !== "storniert" && !(b.status === "sammeln" && b.notiz === PAL_ORT)), fertig = B.filter(b => b.status === "zurueck");
   return head("Beschichtung", "Zerkratzte Bleche und Fronten neu in Original-USM-Farbe. Frisch beschichtete Teile kommen als neuwertig ins Lager.", "") +
     `${UI.flash ? `<div class="banner"><span>${esc(UI.flash)}</span></div>` : ""}<div class="banner info"><span><b>Faustregel:</b> Große Teile (über 35 × 35) lohnen sich schon bei mittlerem Zustand. Kleine Teile bis 35 × 35 nur, wenn sie unbrauchbar sind: neu kosten sie etwa 32 €, das Beschichten ${eur(16)} netto pro Blech. Auftrag einfach per Plaud an Klaus diktieren, z. B. „Zum Beschichter: 4 Tablare 750 × 350 weiß, schlecht, neu in schwarz“.</span></div>
+    ${vPalette()}
     ${K.length ? `<section class="card"><div class="card-head"><h2>Im Lager, nicht verbaubar</h2><span class="note">Zustand schlecht</span></div><div class="tablewrap"><table><thead><tr><th>Teil</th><th class="num">frei</th><th>Farbe</th><th>Empfehlung</th></tr></thead><tbody>
       ${K.map(k => `<tr><td>${esc(k.bezeichnung)} ${esc((k.mass || "").replace("x", " × "))}<div class="code">${esc(k.code)}</div></td><td class="num">${k.frei}</td><td>${farbe(k.farbe)}</td><td>${k.bewertung && k.bewertung.lohnt ? `<span class="badge ok">beschichten</span>` : `<span class="badge">lohnt nicht</span>`}<div class="wo">${esc(k.bewertung ? k.bewertung.grund : "")}</div></td></tr>`).join("")}</tbody></table></div></section>` : ""}
     ${offen.length ? offen.map(karte).join("") : `<p class="empty">Gerade nichts beim Beschichter.</p>`}
@@ -485,6 +547,19 @@ document.addEventListener("click", async e => {
     UI.flash = error ? "Ging nicht: " + error.message : "Verkauft. Die Teile sind aus dem Lager gebucht."; liveReload();
   }
   else if (b.dataset.ekerhalten) { b.disabled = true; await sb.rpc("ka_einkauf_status", { p_id: b.dataset.ekerhalten, p_status: "erhalten" }); liveReload(); }
+  else if (b.dataset.palzu) {
+    const id = b.dataset.palid, n = Number(document.getElementById("pn-" + id)?.value), f = document.getElementById("pf-" + id)?.value || null, a = document.getElementById("pa-" + id)?.value || null;
+    if (!f && !a) { UI.flash = "Bitte Farbe oder Kundenauftrag wählen."; render(); return; }
+    b.disabled = true; const { error } = await sb.rpc("palette_zuordnen", { p_teil: b.dataset.palzu, p_menge: n, p_zielfarbe: f, p_auftrag: a });
+    UI.flash = error ? "Ging nicht: " + error.message : null; liveReload();
+  }
+  else if (b.dataset.paldel) { b.disabled = true; const { error } = await sb.rpc("palette_zuordnung_loeschen", { p_pos: b.dataset.paldel }); UI.flash = error ? "Ging nicht: " + error.message : null; liveReload(); }
+  else if (b.dataset.palab) {
+    if (b.dataset.sicher !== "1") { b.dataset.sicher = "1"; b.textContent = "Sicher? Dann geht alles aus dem Lager"; b.classList.add("primary"); return; }
+    b.disabled = true; b.textContent = "wird gebucht…";
+    const { error } = await sb.rpc("palette_abgeben");
+    UI.flash = error ? "Ging nicht: " + error.message : "Palette ist beim Beschichter. Wenn sie zurück ist, unten „Zurück, einbuchen“."; liveReload();
+  }
   else if (b.dataset.babgabe) { b.disabled = true; const { error } = await sb.rpc("beschichtung_abgeben", { p_id: b.dataset.babgabe }); UI.flash = error ? "Ging nicht: " + error.message : null; liveReload(); }
   else if (b.dataset.bzurueck) { b.disabled = true; const v = document.getElementById("bk-" + b.dataset.bzurueck)?.value; const farben = {}; document.querySelectorAll('select[id^="bf-"]').forEach(x => { if (x.value) farben[x.id.slice(3)] = x.value; }); const { error } = await sb.rpc("beschichtung_zurueck", { p_id: b.dataset.bzurueck, p_kosten_netto: v ? Number(v) : null, p_farben: farben }); UI.flash = error ? "Ging nicht: " + error.message : null; liveReload(); }
   else if (b.dataset.azurueck) { await sb.rpc("auftrag_zurueck", { p_id: b.dataset.azurueck }); liveReload(); }

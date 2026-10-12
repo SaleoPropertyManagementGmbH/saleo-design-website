@@ -350,3 +350,26 @@ details.teile ul { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 2px;
 .claude-item { padding: 10px 12px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); font-size: .9rem; display: grid; gap: 4px; }
 .claude-item .antwort { padding-left: 10px; border-left: 3px solid var(--accent); color: var(--fg-2, var(--fg)); white-space: pre-wrap; }
 @media (max-width: 640px) { .claude-form { flex-direction: column; } .claude-form .btn { width: 100%; } }
+
+/* Palette Beschichter */
+.pal-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 18px; align-items: center; }
+@media (max-width: 760px) { .pal-grid { grid-template-columns: 1fr; } }
+.palette-svg { width: 100%; height: auto; display: block; background: linear-gradient(180deg, var(--surface-2), transparent); border-radius: 12px; }
+.palette-svg .pal-lbl { font: 600 11px system-ui, sans-serif; fill: var(--muted); }
+.palette-svg .blech { animation: blechRein .35s ease-out both; transition: transform .15s ease, filter .15s ease; transform-box: fill-box; }
+.palette-svg .blech:hover { filter: brightness(1.12); transform: translateY(-2px); }
+@keyframes blechRein { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: none; } }
+.pal-bar { height: 10px; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--line); overflow: hidden; }
+.pal-bar span { display: block; height: 100%; background: linear-gradient(90deg, #c89c63, #2e9e5b); transition: width .6s ease; }
+.pal-fill p { margin: 6px 0 10px; }
+.pal-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.pal-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; margin: 4px 4px 0 0; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); font-size: .8rem; }
+.pal-chip.offen { border-style: dashed; color: var(--muted); }
+.pal-chip .x { border: 0; background: none; cursor: pointer; color: var(--muted); font-size: 1rem; line-height: 1; padding: 0 0 0 2px; }
+.pal-chip .x:hover { color: #d9534f; }
+.pal-form { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.pal-form input { width: 64px; }
+.pal-details summary { cursor: pointer; margin: 14px 0 8px; font-weight: 600; }
+@media (prefers-reduced-motion: reduce) { .palette-svg .blech { animation: none; } .pal-bar span { transition: none; } }
+.pal-form select { flex: 1 1 120px; min-width: 0; max-width: 180px; }
+@media (max-width: 600px) { .pal-form { flex-direction: column; align-items: stretch; } .pal-form select, .pal-form input { width: 100%; max-width: none; flex: none; } }
