@@ -1,4 +1,4 @@
--- Update v3.12 (12.10.2026): Pulverbeschichtung (Palette mit Lagerteilen, Teilen für Kundenaufträge und Kundenteilen) und Büromöbel
+-- Update v3.12 (12.10.2026): Pulverbeschichtung (Palette mit eigenen Teilen: Lagerware oder für einen Kundenauftrag) und Büromöbel
 -- Zustand S = schlecht, so nicht verbaubar (nur zum Beschichten). Teile kommen frisch beschichtet als Zustand N (neuwertig) zurück.
 -- Kosten je Blech (Tablar, Seite, Rückwand, Front) netto aus firma.beschichtung_preis_blech (Start 16 €).
 alter table teil drop constraint if exists teil_zustand_check;
@@ -29,11 +29,11 @@ create table if not exists beschichtung (
 create table if not exists beschichtung_position (
   id uuid primary key default gen_random_uuid(),
   beschichtung_id uuid not null references beschichtung(id) on delete cascade,
-  teil text references teil(code),
+  teil text not null references teil(code),
   bezeichnung text,
   menge int not null check (menge > 0),
   zielfarbe text references farbe(code),
-  zweck text not null default 'lager' check (zweck in ('lager', 'auftrag', 'kundenteil')),
+  zweck text not null default 'lager' check (zweck in ('lager', 'auftrag')),
   auftrag_id uuid references auftrag(id),
   kunde text,
   einstand_stueck numeric(10,2),
@@ -71,7 +71,7 @@ begin
   return jsonb_build_object('lohnt', t.zustand = 'S', 'grund', 'Kleines Teil (bis 35 × 35): nur wenn unbrauchbar', 'kosten', preis, 'neupreis', neu);
 end $$;
 
--- Sammelliste anlegen oder ergänzen. p: {"art":"lager|kunde","kunde":"...","notiz":"...","positionen":[{"teil":"BL-750x350-30-S","menge":3,"zielfarbe":"30"} | {"bezeichnung":"Tablar 750 × 350 (Kundenteil)","menge":2,"zielfarbe":"24"}]}
+-- Sammelliste anlegen oder ergänzen. p: {"art":"lager|kunde","kunde":"...","notiz":"...","positionen":[{"teil":"BL-750x350-30-S","menge":3,"zielfarbe":"30"}, {"teil":"KL-750x350-24-G","menge":1,"auftrag_id":"<uuid>"}]} (Farbe darf offen bleiben)
 create or replace function beschichtung_anlegen(p jsonb) returns uuid
 language plpgsql security definer set search_path = public as $$
 declare b uuid; x jsonb;
@@ -85,7 +85,7 @@ begin
   for x in select * from jsonb_array_elements(p->'positionen') loop
     insert into beschichtung_position (beschichtung_id, teil, bezeichnung, menge, zielfarbe, zweck, auftrag_id, kunde)
     values (b, nullif(x->>'teil', ''), x->>'bezeichnung', (x->>'menge')::int, nullif(x->>'zielfarbe', ''),
-      coalesce(x->>'zweck', case when nullif(x->>'teil', '') is null then 'kundenteil' when x->>'auftrag_id' is not null then 'auftrag' else 'lager' end),
+      coalesce(x->>'zweck', case when x->>'auftrag_id' is not null then 'auftrag' else 'lager' end),
       nullif(x->>'auftrag_id', '')::uuid, x->>'kunde');
   end loop;
   return b;
