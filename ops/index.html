@@ -116,6 +116,7 @@ async function loadAll() {
   const [moebel, mteile, ausw, verk, auf, zahl, verb, besch, beschK, einkaeufe, claude] = await Promise.all([opt("moebel", "*", q => q.order("erstellt_am", { ascending: false })), opt("moebel_teil"), opt("auswertung_kategorie"), opt("marge_je_verkauf", "*", q => q.order("datum", { ascending: false })),
     opt("auftrag_uebersicht", "*", q => q.order("erstellt_am", { ascending: false })), opt("zahlung", "*", q => q.eq("status", "neu").order("zeitpunkt", { ascending: false })), opt("verbindung", "*", q => q.order("reihenfolge")), opt("beschichtung_uebersicht", "*", q => q.order("erstellt_am", { ascending: false })), opt("beschichtung_kandidat"), opt("ka_einkauf", "*", q => q.order("geaendert_am", { ascending: false })), opt("claude_auftrag", "*", q => q.order("erstellt_am", { ascending: false }))]);
   Object.assign(D, { lager, typen, farben, plan, vorlagen, vpos, std, regeln, bew, ins: ins.inserate || [], insStand: ins.stand, moebel, mteile, ausw, verk, auf, zahl, verb, besch, beschK, einkaeufe, claude });
+  D.farben.sort((a, b) => (a.sortierung || 0) - (b.sortierung || 0)); D.farben.forEach(f => { if (f.hex) FARBHEX[f.code] = f.hex; });
 }
 async function loadBuildable() {
   const jobs = [];
@@ -273,7 +274,7 @@ function vPalette() {
     const w = st.w * k, out = st.bleche.map((b, i) => {
       const y = palY - (i + 1) * (dick + 1), fill = b.ziel ? (FARBHEX[b.ziel] || "#ccc") : "#d9d6cf";
       const front = (b.r.code || "").startsWith("KL");
-      return `<rect class="blech${b.ziel ? " zu" : ""}" x="${x.toFixed(1)}" y="${y}" width="${w.toFixed(1)}" height="${dick}" rx="1" fill="${fill}" stroke="${front ? "rgba(0,0,0,.45)" : "rgba(0,0,0,.18)"}" stroke-width="${front ? 1 : .6}" style="animation-delay:${(i * 18)}ms"><title>${esc(b.r.bezeichnung)} ${esc((b.r.mass || "").replace("x", " × "))}${b.r.generation === "A" ? " (alte Gen.)" : ""}${b.ziel ? " → " + esc(farbName(b.ziel)) : " · Farbe offen"}${b.kunde ? " · für " + esc(b.kunde) : ""}</title></rect>`;
+      return `<rect class="blech${b.ziel ? " zu" : ""}" x="${x.toFixed(1)}" y="${y}" width="${w.toFixed(1)}" height="${dick}" rx="1" fill="${fill}" stroke="${front ? "rgba(0,0,0,.45)" : "rgba(0,0,0,.18)"}" stroke-width="${front ? 1 : .6}" style="animation-delay:${(i * 18)}ms"><title>${esc(katVon(b.r.code) ? katVon(b.r.code).name : b.r.bezeichnung)} ${esc((b.r.mass || "").replace("x", " × "))}${b.r.generation === "A" ? " (alte Gen.)" : ""}${b.ziel ? " → " + esc(farbName(b.ziel)) : " · Farbe offen"}${b.kunde ? " · für " + esc(b.kunde) : ""}</title></rect>`;
     }).join("");
     const lbl = `<text x="${(x + w / 2).toFixed(1)}" y="${palY - st.bleche.length * (dick + 1) - 6}" text-anchor="middle" class="pal-lbl">${esc((st.mass || "").replace("x", "×"))} · ${st.bleche.length}</text>`;
     x += w + gap * k * 2.4; return out + lbl;
@@ -293,11 +294,20 @@ ${svgStapel}
       ${voll ? `<div class="banner info"><span><b>Die Palette ist voll.</b> Jetzt festlegen, welche Teile in welche Farbe kommen und welche für einen Kundenauftrag sind. Was offen bleibt, wählst du bei der Rückkehr.</span></div>` : `<p class="note">Noch ${PAL_KAP - n} Bleche bis voll. Zielfarbe und Kundenauftrag kannst du schon jetzt zuordnen.</p>`}
       <div class="pal-chips">${chips}</div>
       <p class="note">Erwartet ca. ${eur(n * 16)} netto (${eur(16)} pro Blech).</p>
-      ${n ? `<button class="btn" data-palab="1">Palette beim Beschichter abgegeben</button>` : ""}</div></div>
+      ${pb && pb.gesendet_am ? `<p class="note">✓ Übersicht an ${esc(pb.gesendet_an || "Beschichter")} gesendet, ${when(pb.gesendet_am)}</p>` : ""}
+      ${n ? `<div class="pal-actions"><button class="btn ${voll && !(pb && pb.gesendet_am) ? "primary" : ""}" data-palsend="1">${pb && pb.gesendet_am ? "Nochmal an den Beschichter senden" : "Palette finalisieren und an Beschichter senden"}</button>
+        <button class="btn small" data-palpdf="teilen">PDF teilen (WhatsApp)</button><button class="btn small" data-palpdf="laden">PDF laden</button>
+        <button class="btn small" data-palab="1">Palette beim Beschichter abgegeben</button></div>` : ""}</div></div>
     ${n ? `<button class="btn primary pal-open" data-palopen="1">Palette öffnen und Farben verteilen</button>` : ""}</section>${UI.pal ? palModal(teile, pos) : ""}`;
 }
 
-const PAL_FARBEN = () => D.farben.filter(f => !["CR", "SW", "GL", "SO"].includes(f.code));
+const KAT = { BL: ["Tablar", "Tablar", "tab"], BP: ["Tablar", "Tablar gelocht", "tab"], BPF: ["Tablar", "Tablar perforiert", "tab"], BK: ["Tablar", "Tablar Kabelauslass", "tab"], BV: ["Tablar", "Tablar verkürzt", "tab"], BVS: ["Tablar", "Tablar verkürzt Schwerlast", "tab"],
+  BSL: ["Tablar", "Schwerlasttablar", "tab"], BSZ: ["Tablar", "Boden Einschubtür", "tab"], BRC: ["Tablar", "Rollcontainer-Tablar", "tab"], ZT: ["Tablar", "Zwischentablar", "tab"], GA: ["Tablar", "Glastablar", "tab"],
+  AT: ["Auszug", "Auszugstablar", "aus"], AZ: ["Auszug", "Schublade", "aus"], AZP: ["Auszug", "Schublade perforiert", "aus"],
+  KL: ["Tür", "Klapptür", "tuer"], KLP: ["Tür", "Klapptür perforiert", "tuer"], KLA: ["Tür", "Klapptür Akustik", "tuer"], EI: ["Tür", "Einschubtür (Garage)", "tuer"], EIP: ["Tür", "Einschubtür perforiert", "tuer"], EIA: ["Tür", "Einschubtür Akustik", "tuer"], GT: ["Tür", "Glastür", "tuer"] };
+const katVon = code => { const k = KAT[(code || "").split("-")[0]]; return k ? { gruppe: k[0], name: k[1], cls: k[2] } : null; };
+const katLabel = code => { const k = katVon(code); return k ? `<span class="kat ${k.cls}">${esc(k.name)}</span>` : ""; };
+const PAL_FARBEN = () => D.farben.filter(f => !["SW", "GL", "SO"].includes(f.code));
 const palAuftragName = id => { const a = (D.auf || []).find(x => x.id === id); return a ? (a.kaeufer_name || a.titel || "Auftrag") : null; };
 function palLocal() {
   let pb = (D.besch || []).find(b => b.status === "sammeln" && b.notiz === PAL_ORT);
@@ -310,12 +320,12 @@ function palModal(teile, pos) {
   const offen = teile.filter(r => frei(r) > 0);
   const tiles = offen.map(r => `<button class="pal-tile${UI.palSel === r.code ? " sel" : ""}" draggable="true" data-paltile="${esc(r.code)}" title="${esc(r.code)}">
       <span class="mini" style="width:${Math.round(breite(r.mass) / 750 * 100)}%"></span>
-      <span class="t">${esc(r.bezeichnung)}</span><span class="m">${esc((r.mass || "").replace("x", " × "))} <span class="gen ${r.generation === "A" ? "alt" : "neu"}">${r.generation === "A" ? "alte Gen." : "neue Gen."}</span></span><b class="n">${frei(r)}</b></button>`).join("");
+      <span class="t">${katLabel(r.code) || esc(r.bezeichnung)}</span><span class="m">${esc((r.mass || "").replace("x", " × "))} <span class="gen ${r.generation === "A" ? "alt" : "neu"}">${r.generation === "A" ? "alte Gen." : "neue Gen."}</span></span><b class="n">${frei(r)}</b></button>`).join("");
   const eimer = PAL_FARBEN().map(f => {
     const hier = pos.filter(p => p.zielfarbe === f.code), summe = hier.reduce((s, p) => s + p.menge, 0);
     return `<div class="pal-eimer${summe ? " voll" : ""}${UI.palPulse === f.code ? " pulse" : ""}${UI.palSel ? " ziel" : ""}" data-palfarbe="${f.code}" style="--c:${FARBHEX[f.code] || "#ccc"}">
-      <div class="kopf"><i class="dose"></i><span>${esc(f.name)}</span>${summe ? `<b>${summe}</b>` : ""}</div>
-      ${hier.map(p => { const r = teile.find(t => t.code === p.teil) || {}; return `<div class="drin"><span>${p.menge} × ${esc(r.bezeichnung || p.teil)} ${esc((r.mass || "").replace("x", "×"))}${r.generation === "A" ? " <b class=\"gen alt\">alt</b>" : ""}${p.zweck === "auftrag" ? ` <em>für ${esc(p.kunde || "Auftrag")}</em>` : ""}</span><button data-palminus="${p.id || ""}" data-palteil="${esc(p.teil)}" data-palf="${f.code}" title="Eins zurück auf die Palette" aria-label="Eins zurück">−</button></div>`; }).join("")}</div>`;
+      <div class="kopf"><i class="dose${f.code === "CR" ? " chrom" : ""}"></i><span>${esc(f.name)}${f.sonder || f.code === "CR" ? ` <em class="sonder">Sonder</em>` : ""}</span>${summe ? `<b>${summe}</b>` : ""}</div>
+      ${hier.map(p => { const r = teile.find(t => t.code === p.teil) || {}; return `<div class="drin"><span>${p.menge} × ${katVon(p.teil) ? esc(katVon(p.teil).name) : esc(r.bezeichnung || p.teil)} ${esc((r.mass || "").replace("x", "×"))}${r.generation === "A" ? " <b class=\"gen alt\">alt</b>" : ""}${p.zweck === "auftrag" ? ` <em>für ${esc(p.kunde || "Auftrag")}</em>` : ""}</span><button data-palminus="${p.id || ""}" data-palteil="${esc(p.teil)}" data-palf="${f.code}" title="Eins zurück auf die Palette" aria-label="Eins zurück">−</button></div>`; }).join("")}</div>`;
   }).join("");
   const aOpt = `<option value="">fürs Lager</option>` + (D.auf || []).filter(a => !["storniert", "versendet", "abgeholt", "abgeschlossen"].includes(a.status)).slice(0, 40).map(a => `<option value="${a.id}"${UI.palAuftrag === a.id ? " selected" : ""}>${esc((a.kaeufer_name ? a.kaeufer_name + ": " : "") + (a.titel || "").slice(0, 40))}</option>`).join("");
   const nOffen = offen.reduce((s, r) => s + frei(r), 0);
@@ -324,8 +334,9 @@ function palModal(teile, pos) {
     <div class="pal-mhead"><h2>Palette sortieren</h2><button class="btn small" data-palclose="1">Fertig</button></div>
     <p class="note">Das A am Ende der Teilenummer heißt alte Generation, ohne A ist es neue Generation. Teil auf eine Farbe ziehen. Am Handy: Teil antippen, dann Farbe antippen. Es gehen alle freien Stück rüber, mit − legst du einzelne zurück auf die Palette.</p>
     <label class="pal-fuer">Gilt für <select id="pal-auftrag" aria-label="Kundenauftrag">${aOpt}</select></label>
-    <div class="pal-mgrid"><div class="pal-stapel"><h3>Auf der Palette <span class="note">${nOffen} ohne Farbe</span></h3>${tiles || `<p class="empty">Alles verteilt.</p>`}</div>
-    <div class="pal-eimer-grid">${eimer}</div></div></div>`;
+    <div class="pal-mgrid"><div class="pal-stapel"><h3>Auf der Palette <span class="note">${nOffen} ohne Farbe</span></h3><div class="tiles">${tiles || `<p class="empty">Alles verteilt.</p>`}</div></div>
+    <div class="pal-eimer-grid">${eimer}<div class="pal-eimer neu-farbe"><div class="kopf"><i class="dose plus">+</i><span>Sonderfarbe</span></div>
+      <div class="neu-form"><input id="sf-name" placeholder="Name, z. B. Burgunder" aria-label="Name der Sonderfarbe"><input id="sf-hex" type="color" value="#6b1e2e" aria-label="Farbton"><button class="btn small" data-sfneu="1">Anlegen</button></div></div></div></div></div>`;
 }
 async function palZuordnen(code, farbe) {
   const r = (D.lager || []).find(x => x.code === code); if (!r) return;
@@ -346,8 +357,99 @@ async function palMinus(b) {
   const { error } = await sb.rpc("palette_menge", { p_pos: p.id, p_menge: Math.max(0, p.menge) });
   if (error) { UI.flash = "Ging nicht: " + error.message; liveReload(); }
 }
+/* Palette finalisieren: PDF für den Beschichter */
+function ladeSkript(src) { return new Promise((ok, err) => { if ([...document.scripts].some(s => s.src === src)) return ok(); const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = () => err(new Error("Konnte " + src + " nicht laden")); document.head.appendChild(s); }); }
+function ralText(code) {
+  const f = D.farben.find(x => x.code === code) || {};
+  if (code === "CR") return "Verchromung";
+  if (f.ral) return f.ral;
+  return f.sonder ? "RAL folgt" : "USM-Hausfarbe, kein RAL: bitte nach Musterteil";
+}
+async function palPdf() {
+  await ladeSkript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+  if (!window.SALEO_LOGO) await ladeSkript("logo.js").catch(() => {});
+  const { data: fr } = await sb.from("firma").select("*"); const F = Object.fromEntries((fr || []).map(x => [x.schluessel, x.wert]));
+  const teile = (D.lager || []).filter(r => (r.lagerort || "").includes(PAL_ORT) && r.bestand > 0);
+  const pb = palLocal(), pos = pb.positionen;
+  const gruppen = {};
+  teile.forEach(r => {
+    let rest = r.bestand;
+    pos.filter(p => p.teil === r.code).forEach(p => { rest -= p.menge; (gruppen[p.zielfarbe || ""] = gruppen[p.zielfarbe || ""] || []).push({ r, menge: p.menge, kunde: p.zweck === "auftrag" ? p.kunde : null }); });
+    if (rest > 0) (gruppen[""] = gruppen[""] || []).push({ r, menge: rest });
+  });
+  const reihenfolge = Object.keys(gruppen).sort((a, b) => (a === "") - (b === "") || (D.farben.findIndex(f => f.code === a) - D.farben.findIndex(f => f.code === b)));
+  const n = teile.reduce((s, r) => s + r.bestand, 0);
+  const { jsPDF } = window.jspdf; const d = new jsPDF({ unit: "mm", format: "a4" });
+  const L = 18, Rr = 192, rgb = h => { const m = (h || "#cccccc").replace("#", ""); return [parseInt(m.slice(0, 2), 16), parseInt(m.slice(2, 4), 16), parseInt(m.slice(4, 6), 16)]; };
+  const cm = m => (m || "").split("x").map(v => (Number(v) / 10).toLocaleString("de-DE")).join(" × ");
+  let y = 18;
+  if (window.SALEO_LOGO) { try { d.addImage(SALEO_LOGO, "PNG", L, y - 6, 16, 16); } catch {} }
+  d.setFont("helvetica", "bold"); d.setFontSize(17); d.text("Beschichtungsauftrag", Rr, y, { align: "right" });
+  d.setFont("helvetica", "normal"); d.setFontSize(10); d.setTextColor(90);
+  d.text(`Palette${pb.nummer ? " Nr. " + pb.nummer : ""} · ${new Date().toLocaleDateString("de-DE")}`, Rr, y + 6, { align: "right" });
+  d.text([F.ug_name || "Saleo Design UG (haftungsbeschränkt)", F.ug_strasse || "Hohenstaufenstraße 3", F.ug_ort || "65189 Wiesbaden", [F.telefon, F.email].filter(Boolean).join(" · ")], L, y + 16);
+  d.setTextColor(0); y += 40;
+  d.setFont("helvetica", "bold"); d.setFontSize(11);
+  d.text(`${n} Teile in ${reihenfolge.filter(k => k).length} Farbe${reihenfolge.filter(k => k).length === 1 ? "" : "n"}${gruppen[""] ? ", " + gruppen[""].reduce((s, x) => s + x.menge, 0) + " Teile mit Farbe folgt" : ""}`, L, y);
+  d.setFont("helvetica", "normal"); d.setFontSize(9); d.setTextColor(90);
+  d.text("Maße in cm (Breite × Tiefe bzw. Höhe). Bei Fragen bitte kurz melden.", L, y + 5); d.setTextColor(0); y += 12;
+  const neueSeite = h => { if (y + h > 280) { d.addPage(); y = 20; } };
+  reihenfolge.forEach(k => {
+    const zeilen = gruppen[k], summe = zeilen.reduce((s, x) => s + x.menge, 0);
+    const f = D.farben.find(x => x.code === k);
+    neueSeite(18 + zeilen.length * 6);
+    d.setFillColor(244, 243, 240); d.roundedRect(L, y - 5, Rr - L, 9, 1.5, 1.5, "F");
+    if (k) { d.setFillColor(...rgb(FARBHEX[k])); d.setDrawColor(150); d.roundedRect(L + 2, y - 3.4, 6, 6, 1, 1, "FD"); }
+    d.setFont("helvetica", "bold"); d.setFontSize(11);
+    d.text(k ? (f ? f.name : k) : "Farbe folgt", L + (k ? 11 : 3), y + 1);
+    d.setFont("helvetica", "normal"); d.setFontSize(10);
+    d.text(k ? ralText(k) : "sagen wir noch durch", L + 82, y + 1);
+    d.setFont("helvetica", "bold"); d.text(`${summe} Stück`, Rr - 2, y + 1, { align: "right" });
+    y += 9; d.setFont("helvetica", "normal"); d.setFontSize(9.5);
+    zeilen.sort((a, b) => ((katVon(a.r.code) || {}).gruppe + a.r.code).localeCompare((katVon(b.r.code) || {}).gruppe + b.r.code)).forEach(x => {
+      neueSeite(6);
+      d.text(String(x.menge) + " ×", L + 3, y);
+      d.text(katVon(x.r.code) ? katVon(x.r.code).name : x.r.bezeichnung, L + 14, y);
+      d.text(cm(x.r.mass), L + 82, y);
+      d.setTextColor(110); d.text([x.r.generation === "A" ? "alte Generation" : "", x.kunde ? "für Kunde " + x.kunde : ""].filter(Boolean).join(", "), L + 118, y); d.setTextColor(0);
+      y += 5.6;
+    });
+    y += 4;
+  });
+  neueSeite(20); d.setDrawColor(210); d.line(L, y, Rr, y); y += 6;
+  d.setFontSize(9); d.setTextColor(90);
+  d.text("Bitte alle Teile im angegebenen Farbton pulverbeschichten. USM-Hausfarben ohne RAL bitte nach dem mitgegebenen Musterteil abstimmen.", L, y, { maxWidth: Rr - L });
+  d.text(`${F.ug_name || "Saleo Design UG"} · ${F.web || "saleo-design.de"}`, L, 288);
+  return d;
+}
+const palDatei = () => `Palette_Beschichtung_${new Date().toISOString().slice(0, 10)}.pdf`;
+async function palSenden(b) {
+  if (!me()) { UI.flash = "Bitte zuerst bei „Ich bin“ auswählen, wer sendet."; render(); return; }
+  b.disabled = true; b.textContent = "PDF wird erstellt…";
+  try {
+    const d = await palPdf(); UI.palBlob = d.output("blob");
+    const n = (D.lager || []).filter(r => (r.lagerort || "").includes(PAL_ORT)).reduce((s, r) => s + r.bestand, 0);
+    b.textContent = "wird gesendet…";
+    const { data: s } = await sb.auth.getSession();
+    const res = await fetch(SB_URL + "/functions/v1/beschichter-senden", { method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + s.session.access_token, apikey: SB_KEY },
+      body: JSON.stringify({ pdf_base64: d.output("datauristring").split(",")[1], wer: me(), dateiname: palDatei(), betreff: `Neue Palette zum Beschichten: ${n} Teile (Saleo Design)`,
+        text: `Hallo,\n\nanbei die Übersicht unserer nächsten Palette zum Beschichten: ${n} Teile. Bei jeder Farbe steht der RAL-Ton dabei.\n\nBei Fragen einfach kurz melden.\n\nViele Grüße\nSaleo Design\n${"Hohenstaufenstraße 3, 65189 Wiesbaden"}` }) });
+    const out = await res.json().catch(() => ({}));
+    if (!res.ok || !out.ok) throw new Error(out.error || ("Fehler " + res.status));
+    const pb = palLocal(); pb.gesendet_am = new Date().toISOString(); pb.gesendet_an = out.an;
+    UI.flash = `Palette an ${out.an} gesendet, Kopie in eurem Postfach. Unten kannst du das PDF laden oder per WhatsApp teilen.`; render();
+  } catch (e) { UI.flash = "Senden hat nicht geklappt: " + e.message + ". Du kannst das PDF trotzdem laden und per WhatsApp schicken."; render(); }
+}
+async function palTeilen(nurLaden) {
+  try {
+    if (!UI.palBlob) UI.palBlob = (await palPdf()).output("blob");
+    const file = new File([UI.palBlob], palDatei(), { type: "application/pdf" });
+    if (!nurLaden && navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title: "Palette zum Beschichten" }); return; } catch (e) { if (e.name === "AbortError") return; } }
+    const a = document.createElement("a"); a.href = URL.createObjectURL(UI.palBlob); a.download = palDatei(); a.click();
+  } catch (e) { UI.flash = "PDF ging nicht: " + e.message; render(); }
+}
 function vBeschichtung() {
-  const B = D.besch || [], K = D.beschK || [];
+  const B = D.besch || [], K = (D.beschK || []).filter(k => !["CR", "SW", "GL"].includes(k.farbe) && !((k.lagerort || "").includes(PAL_ORT)) && !(D.lager || []).some(r => r.code === k.code && (r.lagerort || "").includes(PAL_ORT)));
   const st = { sammeln: ["wird gesammelt", "warn"], beim_beschichter: ["beim Beschichter", "info"], zurueck: ["zurück", "ok"], storniert: ["storniert", ""] };
   const farbe = c => `<i class="dot" style="background:${FARBHEX[c] || "#ccc"}"></i> ${esc(farbName(c))}`;
   const karte = b => `<section class="card"><div class="card-head"><h2>Beschichtung ${b.nummer}${b.art === "kunde" ? " · Kunde " + esc(b.kunde || "") : ""}</h2><span class="badge ${st[b.status][1]}">${st[b.status][0]}</span></div>
@@ -359,8 +461,8 @@ function vBeschichtung() {
   return head("Beschichtung", "Zerkratzte Bleche und Fronten neu in Original-USM-Farbe. Frisch beschichtete Teile kommen als neuwertig ins Lager.", "") +
     `${UI.flash ? `<div class="banner"><span>${esc(UI.flash)}</span></div>` : ""}<div class="banner info"><span><b>Faustregel:</b> Große Teile (über 35 × 35) lohnen sich schon bei mittlerem Zustand. Kleine Teile bis 35 × 35 nur, wenn sie unbrauchbar sind: neu kosten sie etwa 32 €, das Beschichten ${eur(16)} netto pro Blech. Auftrag einfach per Plaud an Klaus diktieren, z. B. „Zum Beschichter: 4 Tablare 750 × 350 weiß, schlecht, neu in schwarz“.</span></div>
     ${vPalette()}
-    ${K.length ? `<section class="card"><div class="card-head"><h2>Im Lager, nicht verbaubar</h2><span class="note">Zustand schlecht</span></div><div class="tablewrap"><table><thead><tr><th>Teil</th><th class="num">frei</th><th>Farbe</th><th>Empfehlung</th></tr></thead><tbody>
-      ${K.map(k => `<tr><td>${esc(k.bezeichnung)} ${esc((k.mass || "").replace("x", " × "))}<div class="code">${esc(k.code)}</div></td><td class="num">${k.frei}</td><td>${farbe(k.farbe)}</td><td>${k.bewertung && k.bewertung.lohnt ? `<span class="badge ok">beschichten</span>` : `<span class="badge">lohnt nicht</span>`}<div class="wo">${esc(k.bewertung ? k.bewertung.grund : "")}</div></td></tr>`).join("")}</tbody></table></div></section>` : ""}
+    ${K.length ? `<section class="card"><div class="card-head"><h2>Kandidaten für den Beschichter</h2><span class="note">Lagerbestand in schlechtem Zustand, ohne Rohre und Beschläge</span></div><p class="note" style="margin:0 0 8px">Große Teile lohnen sich immer. Kleine oder schwer verkäufliche Maße trotzdem beschichten, wenn sie kaputt sind, sonst liegt dort totes Kapital.</p><div class="tablewrap"><table><thead><tr><th>Teil</th><th class="num">frei</th><th>Farbe</th><th>Empfehlung</th><th></th></tr></thead><tbody>
+      ${K.map(k => `<tr><td>${katLabel(k.code)} ${esc((k.mass || "").replace("x", " × "))}${katVon(k.code) ? "" : " " + esc(k.bezeichnung)}<div class="code">${esc(k.code)}</div></td><td class="num">${k.frei}</td><td>${farbe(k.farbe)}</td><td>${k.bewertung && k.bewertung.lohnt ? `<span class="badge ok">beschichten</span><div class="wo">${esc(k.bewertung.grund || "")}</div>` : `<span class="badge warn">beschichten, wenn kaputt</span><div class="wo">Kleines Teil: neu kaum teurer, aber kaputt ist es totes Kapital</div>`}</td><td><button class="btn small" data-palauf="${esc(k.code)}">Auf die Palette</button></td></tr>`).join("")}</tbody></table></div></section>` : ""}
     ${offen.length ? offen.map(karte).join("") : `<p class="empty">Gerade nichts beim Beschichter.</p>`}
     ${fertig.length ? `<h3 style="margin:22px 0 8px;font-size:1rem">Erledigt</h3>` + fertig.slice(0, 10).map(karte).join("") : ""}`;
 }
@@ -594,6 +696,21 @@ document.addEventListener("click", async e => {
     UI.flash = error ? "Ging nicht: " + error.message : null; liveReload();
   }
   else if (b.dataset.paldel) { b.disabled = true; const { error } = await sb.rpc("palette_zuordnung_loeschen", { p_pos: b.dataset.paldel }); UI.flash = error ? "Ging nicht: " + error.message : null; liveReload(); }
+  else if (b.dataset.sfneu) {
+    const name = (document.getElementById("sf-name")?.value || "").trim(), hex = document.getElementById("sf-hex")?.value || null;
+    if (!name) { UI.flash = "Bitte einen Namen für die Sonderfarbe eingeben."; render(); return; }
+    b.disabled = true; const { data, error } = await sb.rpc("farbe_sonder_anlegen", { p_name: name, p_hex: hex });
+    if (error) { UI.flash = "Ging nicht: " + error.message; render(); return; }
+    if (!D.farben.find(f => f.code === data)) D.farben.push({ code: data, name, hex, sonder: true, sortierung: 999 });
+    if (hex) FARBHEX[data] = hex; UI.palPulse = data; render(); setTimeout(() => { UI.palPulse = null; render(); }, 650);
+  }
+  else if (b.dataset.palauf) { b.disabled = true; const { error } = await sb.rpc("palette_hinzufuegen", { p_teil: b.dataset.palauf }); UI.flash = error ? "Ging nicht: " + error.message : "Liegt jetzt auf der Palette."; liveReload(); }
+  else if (b.dataset.palsend) {
+    const offen = (D.lager || []).filter(r => (r.lagerort || "").includes(PAL_ORT)).reduce((s, r) => s + r.bestand, 0) - palLocal().positionen.reduce((s, p) => s + p.menge, 0);
+    if (b.dataset.sicher !== "1") { b.dataset.sicher = "1"; b.textContent = offen > 0 ? `${offen} Teile ohne Farbe. Trotzdem senden?` : "Sicher? Dann geht die Mail raus"; b.classList.add("primary"); return; }
+    palSenden(b);
+  }
+  else if (b.dataset.palpdf) { palTeilen(b.dataset.palpdf === "laden"); }
   else if (b.dataset.palab) {
     if (b.dataset.sicher !== "1") { b.dataset.sicher = "1"; b.textContent = "Sicher? Dann geht alles aus dem Lager"; b.classList.add("primary"); return; }
     b.disabled = true; b.textContent = "wird gebucht…";

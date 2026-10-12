@@ -80,3 +80,52 @@ begin
 end $$;
 revoke execute on function palette_menge(uuid, int) from public, anon;
 grant execute on function palette_menge(uuid, int) to authenticated;
+-- v3.19d (12.10.2026): Palette finalisieren, Übersicht per E-Mail an den Beschichter; Sonderfarben mit RAL
+insert into firma (schluessel, wert) values ('beschichter_email', 'alfeo.felgenundpulverwerk@gmx.de')
+  on conflict (schluessel) do update set wert = excluded.wert;
+alter table beschichtung add column if not exists gesendet_am timestamptz;
+alter table beschichtung add column if not exists gesendet_an text;
+alter table beschichtung add column if not exists gesendet_von text;
+
+create or replace view beschichtung_uebersicht as
+SELECT b.id, b.nummer, b.status, b.art, b.kunde, b.auftrag_id, b.beschichter, b.preis_blech, b.kosten_netto, b.abgegeben_am, b.zurueck_am, b.notiz, b.erstellt_am,
+  COALESCE(sum(p.menge), 0::bigint)::integer AS bleche,
+  COALESCE(b.kosten_netto, COALESCE(sum(p.menge), 0::bigint)::numeric * b.preis_blech) AS kosten_erwartet,
+  COALESCE(jsonb_agg(jsonb_build_object('id', p.id, 'zweck', p.zweck, 'kunde', COALESCE(p.kunde, a.kaeufer_name), 'teil', p.teil,
+    'bezeichnung', COALESCE(p.bezeichnung, (tt.bezeichnung || ' '::text) || replace(t.mass, 'x'::text, ' × '::text)), 'menge', p.menge, 'von', t.farbe,
+    'zielfarbe', p.zielfarbe, 'ziel_teil', p.ziel_teil, 'auftrag_id', p.auftrag_id)) FILTER (WHERE p.id IS NOT NULL), '[]'::jsonb) AS positionen,
+  b.gesendet_am, b.gesendet_an, b.gesendet_von
+FROM beschichtung b LEFT JOIN beschichtung_position p ON p.beschichtung_id = b.id LEFT JOIN teil t ON t.code = p.teil
+  LEFT JOIN teiltyp tt ON tt.code = t.typ LEFT JOIN auftrag a ON a.id = p.auftrag_id GROUP BY b.id;
+grant select on beschichtung_uebersicht to authenticated;
+
+create or replace function palette_gesendet(p_an text, p_wer text default null) returns uuid
+language plpgsql security definer set search_path = public as $$
+declare b uuid;
+begin
+  if not ist_nutzer() then raise exception 'Kein Zugriff'; end if;
+  b := palette_beschichtung();
+  update beschichtung set gesendet_am = now(), gesendet_an = p_an, gesendet_von = p_wer where id = b;
+  return b;
+end $$;
+revoke execute on function palette_gesendet(text, text) from public, anon;
+grant execute on function palette_gesendet(text, text) to authenticated;
+
+drop function if exists farbe_sonder_anlegen(text, text);
+create or replace function farbe_sonder_anlegen(p_name text, p_hex text, p_ral text default null) returns text
+language plpgsql security definer set search_path = public as $$
+declare c text; n int; r text := nullif(trim(regexp_replace(coalesce(p_ral, ''), '^\s*(RAL)?\s*', '', 'i')), '');
+begin
+  if not ist_nutzer() then raise exception 'Kein Zugriff'; end if;
+  if coalesce(trim(p_name), '') = '' then raise exception 'Name fehlt'; end if;
+  if r is not null then r := 'RAL ' || r; end if;
+  select code into c from farbe where lower(name) = lower(trim(p_name));
+  if c is not null then update farbe set hex = coalesce(nullif(p_hex, ''), hex), ral = coalesce(r, ral) where code = c; return c; end if;
+  select coalesce(max(substr(code, 2)::int), 0) + 1 into n from farbe where code ~ '^X[0-9]+$';
+  c := 'X' || n;
+  insert into farbe (code, name, hex, ral, sonder, sortierung) values (c, trim(p_name), nullif(p_hex, ''), r, true, 100 + n);
+  return c;
+end $$;
+revoke execute on function farbe_sonder_anlegen(text, text, text) from public, anon;
+grant execute on function farbe_sonder_anlegen(text, text, text) to authenticated;
+select (select wert from firma where schluessel = 'beschichter_email') mail, (select count(*) from beschichtung_uebersicht) v;
