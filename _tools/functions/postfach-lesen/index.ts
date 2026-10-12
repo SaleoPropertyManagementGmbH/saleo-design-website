@@ -35,6 +35,23 @@ Deno.serve(async (req) => {
     auth: { user, pass: Deno.env.get("SMTP_PASSWORT")! } });
   const neu: string[] = [];
   await client.connect();
+  const suche = new URL(req.url).searchParams.get("betreff");
+  if (suche) {
+    const out: string[] = [];
+    for (const box of await client.list()) {
+      if (box.flags?.has("\\Noselect")) continue;
+      const lock = await client.getMailboxLock(box.path);
+      try {
+        const uids = await client.search({ since: new Date(Date.now() - 3 * 24 * 3600e3), subject: suche }, { uid: true }) || [];
+        for (const uid of uids.slice(-5)) {
+          const m = await client.fetchOne(String(uid), { envelope: true, bodyStructure: true }, { uid: true });
+          out.push(`${box.path} | ${m?.envelope?.date?.toISOString?.() || ""} | ${m?.envelope?.subject} | ${JSON.stringify(m?.bodyStructure?.childNodes?.map((c: any) => c.type + ":" + (c.dispositionParameters?.filename || "")) || [])}`);
+        }
+      } finally { lock.release(); }
+    }
+    await client.logout();
+    return new Response(JSON.stringify({ treffer: out }), { headers: { ...cors, "content-type": "application/json" } });
+  }
   const muster = new URL(req.url).searchParams.get("muster");
   if (muster) {
     const out: string[] = [];
