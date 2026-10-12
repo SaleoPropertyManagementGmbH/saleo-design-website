@@ -120,7 +120,7 @@ const NAMES = {
 const HW = {
   SC69: ["Schere 69 N (18444)", 22, 0.3], SC40: ["Schere 40 N, für Klappe 750 × 250", 22, 0.25],
   DP: ["Soft-Close-Dämpfer, auf Scharnier aufsteckbar (Sonderausstattung, 18450)", 9, 0.05], BAA: ["Befestigungsset Schere Typ A (18472)", 12, 0.2],
-  FBS: ["Scharnier neue Generation (2 je Klappe)", 5, 0.05], PSH: ["Kunststoffteil (1 je Scharnier)", 0.25, 0.005],
+  FBS: ["Federbandscharnier (Scharnier neue Generation, 2 je Klappe)", 5, 0.05], PSH: ["Kunststoffteil (1 je Scharnier)", 0.25, 0.005],
   MWS: ["L-Winkel (je Reihe 1 je Innentablar und Außentablar)", 2.5, 0.03], USL: ["Universalschloss neue Generation", 12, 0.1], SKN: ["Schlosskasten neue Generation", 3.5, 0.03],
   GRS: ["Universalverschluss, Griffset mit Schlitz (14131)", 12, 0.1], SL: ["Schloss mit 2 Schlüsseln (14262)", 18, 0.12],
   TWA: ["Tablarwinkel Ausziehtablar links/rechts", 7, 0.15], TE350: ["Teleskopauszug T350 links/rechts", 18, 0.6], TE500: ["Teleskopauszug T500 links/rechts", 20, 0.8],
@@ -130,7 +130,7 @@ const HW = {
   TTS: ["Zwischentablarträger-Set Metall (11140)", 9, 0.15], ZGT: ["Glas-Zwischentablarträger-Set (11888)", 11, 0.15],
   BS: ["Blechschraube 4,8 × 9,5", 0.3, 0.005],
   KH: ["Klemmhalter (Halbmond)", 2.5, 0.01], KM: ["Klemme", 1, 0.005], SM4: ["Schraube M4 für Klemmhalter", 0.3, 0.003],
-  SCALT: ["Scherenscharnier alte Generation (Liftomat)", 20, 0.35], BSALT: ["Befestigungsschiene alte Generation", 4, 0.05],
+  SCALT: ["Liftomat (Scharnier alte Generation)", 20, 0.35], BSALT: ["Befestigungsschiene alte Generation", 4, 0.05],
   DG: ["Drehgriff mit Kunststoffring (alte Generation)", 10, 0.1], SLALT: ["Schloss alte Generation", 15, 0.12],
   BWALT: ["Befestigungswinkel Front an Ausziehtablar, alt (Paar L/R)", 18, 0.15], ASALT: ["Auszugschiene alte Generation mit Schraube und Mutter (L/R)", 15, 0.6]
 };
@@ -388,7 +388,7 @@ function bom(geo) {
     add(f.front + (f.perf && ["KL", "AZ", "EI"].includes(f.front) ? "P" : ""), `${f.w}x${f.h}`, colOf(f, "front"), 1, oldFront ? "Front alte Generation" : f.perf ? "Front perforiert" : "Front", oldFront ? "A" : "N");
     const n = NAMES[f.front];
     if (f.front === "KL" || f.front === "KLP") {
-      if (old) { hw("SCALT", 2, n); hw("BSALT", 4, n); } // alte Generation: Scherenscharniere (Liftomat), passen nur auf alte Klappen
+      if (old) { hw("SCALT", 2, n); hw("BSALT", 4, n); } // alte Klappe: Liftomaten; neue Klappe: Federbandscharniere; Mischen im selben Möbel erlaubt
       else { hw("FBS", 2, n); hw("PSH", 2, n); if (f.soft) hw("DP", 2, n + " · Soft-Close"); if (f.lock === "U") hw("SKN", 1, n); }
     }
     if (f.front === "AZ") {
