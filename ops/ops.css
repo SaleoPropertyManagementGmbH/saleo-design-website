@@ -335,3 +335,9 @@ details.verbaut li b { font-variant-numeric: tabular-nums; }
 .teilbild { transition: transform .2s ease; }
 .teilbild:hover { transform: scale(1.9); position: relative; z-index: 2; box-shadow: 0 6px 18px rgba(0,0,0,.2); }
 @media (prefers-reduced-motion: reduce) { .stat, .stat:hover, details.verbaut summary, .teilbild, .teilbild:hover { transition: none; transform: none; } details.verbaut ul { animation: none; } }
+
+.kalk { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 10px 0 4px; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); }
+.kalk .lbl { display: block; font-size: .74rem; color: var(--muted); }
+.kalk b { font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) { .kalk { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+details.teile ul { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 2px; font-size: .86rem; }

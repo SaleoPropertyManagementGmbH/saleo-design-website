@@ -209,7 +209,7 @@ function auftragKarte(a) {
   const sich = a.sicherheit != null ? `<span class="pill ${a.sicherheit >= 90 ? "ok" : "warn"}">${a.sicherheit} %</span>` : "";
   return `<article class="card order">
     <div class="order-top">${ins && bild(ins) ? `<img src="${esc(bild(ins))}" alt="" loading="lazy">` : `<div class="noimg small">${svg("moebel")}</div>`}
-      <div class="grow"><div class="t"><b>${esc(a.titel)}</b> <span class="badge ${st[0]}">${st[1]}</span></div>
+      <div class="grow"><div class="t"><b>${esc(a.titel)}</b> <span class="badge ${st[0]}">${st[1]}</span>${a.verkauft ? ` <span class="badge ok" title="Bezahlt heißt verkauft: Teile sind aus dem Lager gebucht">✓ verkauft</span>` : ""}</div>
         <div class="wo">${esc(a.kaeufer_name || "Käufer unbekannt")}${a.kaeufer_kontakt ? " · " + esc(a.kaeufer_kontakt) : ""} · ${when(a.erstellt_am)}</div></div>
       <div class="order-money"><b>${eur(a.erloes)}</b>${a.gewinn_vor_steuern != null ? `<span class="${Number(a.gewinn_vor_steuern) >= 0 ? "good" : "neg"}">Gewinn ${eur(a.gewinn_vor_steuern)}</span>` : ""}</div></div>
     <div class="order-grid">
@@ -221,8 +221,10 @@ function auftragKarte(a) {
       <div><span class="lbl">Wareneinsatz</span>${a.wareneinsatz != null ? eur(a.wareneinsatz) : "–"}${a.versand_eigen ? `<div class="wo">Versand ${eur(a.versand_eigen)}</div>` : ""}</div>
       ${a.sendungsnummer ? `<div><span class="lbl">Sendung</span><a href="https://tracking.dpd.de/status/de_DE/parcel/${encodeURIComponent(a.sendungsnummer)}" target="_blank" rel="noopener">${esc(a.sendungsnummer)}</a>${a.label_url ? ` · <a href="${esc(a.label_url)}" target="_blank" rel="noopener">Label</a>` : ""}</div>` : ""}
     </div>
+    ${a.wareneinsatz != null ? `<div class="kalk"><div><span class="lbl">Erlös</span><b>${eur(a.erloes)}</b></div><div><span class="lbl">Material</span>${eur(a.wareneinsatz)}</div><div><span class="lbl">Gewinn vor Steuern</span><b class="${Number(a.gewinn_vor_steuern) >= 0 ? "good" : "neg"}">${eur(a.gewinn_vor_steuern)}</b></div><div><span class="lbl">Marge</span><b>${a.erloes > 0 ? Math.round(Number(a.gewinn_vor_steuern) / Number(a.erloes) * 100) + " %" : "–"}</b></div></div>` : (a.status === "heiss" ? `<p class="wo neg">Noch kein Möbel und keine Teile zugeordnet. Sag mir kurz, was verkauft wird, dann rechne ich die Marge vor.</p>` : "")}
+    ${(a.teile_liste || []).length ? `<details class="teile"><summary>Was aus dem Lager geht (${a.teile_liste.reduce((s, x) => s + Number(x.menge), 0)} Teile)</summary><ul>${a.teile_liste.map(x => `<li>${x.menge} × ${esc((typVon(x.teil) || {}).bezeichnung || x.teil)} <span class="code">${esc(x.teil)}</span></li>`).join("")}</ul></details>` : ""}
     ${a.chat_auszug ? `<details class="teile"><summary>Chat-Auszug</summary><p class="wo" style="white-space:pre-wrap">${esc(a.chat_auszug)}</p></details>` : ""}
-    <div class="actions">${a.rechnung_id && a.rechnung_status === "entwurf" ? `<a class="btn primary" href="rechnung.html?id=${a.rechnung_id}">Rechnung prüfen und senden</a>` : ""}${a.status === "bezahlt" ? `<button class="btn primary" data-afrei="${a.id}">Label freigeben</button>` : ""}${a.status === "freigegeben" ? `<span class="wo">freigegeben von ${esc(a.freigabe_von || "")} ${a.freigabe_am ? when(a.freigabe_am) : ""}</span><button class="btn small" data-azurueck="${a.id}">Zurücknehmen</button>` : ""}${a.moebel_id ? `<a class="btn small" href="planer.html?moebel=${a.moebel_id}">Kalkulation</a>` : ""}${ins ? `<a class="btn small" href="${esc(ins.url)}" target="_blank" rel="noopener">Anzeige</a>` : ""}</div>
+    <div class="actions">${a.rechnung_id && a.rechnung_status === "entwurf" ? `<a class="btn primary" href="rechnung.html?id=${a.rechnung_id}">Rechnung prüfen und senden</a>` : ""}${a.status === "heiss" ? `<button class="btn" data-abez="${a.id}" title="Backup, falls die Zahlung nicht automatisch erkannt wird">Zahlung ist da</button>` : ""}${a.status === "bezahlt" ? `<button class="btn primary" data-afrei="${a.id}">Label freigeben</button>` : ""}${a.status === "freigegeben" ? `<span class="wo">freigegeben von ${esc(a.freigabe_von || "")} ${a.freigabe_am ? when(a.freigabe_am) : ""}</span><button class="btn small" data-azurueck="${a.id}">Zurücknehmen</button>` : ""}${a.moebel_id ? `<a class="btn small" href="planer.html?moebel=${a.moebel_id}">Kalkulation</a>` : ""}${ins ? `<a class="btn small" href="${esc(ins.url)}" target="_blank" rel="noopener">Anzeige</a>` : ""}</div>
   </article>`;
 }
 function vAuftraege() {
@@ -458,6 +460,13 @@ document.addEventListener("click", async e => {
     b.disabled = true; b.textContent = "wird freigegeben…";
     const { error } = await sb.rpc("auftrag_freigeben", { p_id: b.dataset.afrei, p_wer: me() });
     UI.flash = error ? "Freigabe ging nicht: " + error.message : null; liveReload();
+  }
+  else if (b.dataset.abez) {
+    if (!me()) { UI.flash = "Bitte zuerst bei „Ich bin“ auswählen, wer die Zahlung bestätigt."; render(); return; }
+    if (b.dataset.sicher !== "1") { b.dataset.sicher = "1"; b.textContent = "Sicher? Dann ist es verkauft"; b.classList.add("primary"); return; }
+    b.disabled = true; b.textContent = "wird gebucht…";
+    const { error } = await sb.rpc("auftrag_bezahlt_manuell", { p_id: b.dataset.abez, p_wer: me() });
+    UI.flash = error ? "Ging nicht: " + error.message : "Verkauft. Die Teile sind aus dem Lager gebucht."; liveReload();
   }
   else if (b.dataset.ekerhalten) { b.disabled = true; await sb.rpc("ka_einkauf_status", { p_id: b.dataset.ekerhalten, p_status: "erhalten" }); liveReload(); }
   else if (b.dataset.babgabe) { b.disabled = true; const { error } = await sb.rpc("beschichtung_abgeben", { p_id: b.dataset.babgabe }); UI.flash = error ? "Ging nicht: " + error.message : null; liveReload(); }
