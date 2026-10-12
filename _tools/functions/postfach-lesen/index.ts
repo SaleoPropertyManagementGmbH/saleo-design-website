@@ -14,7 +14,10 @@ function auswerten(betreff: string, text: string, von: string) {
   return { titel, inserat, partner, email };
 }
 
+const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type", "Access-Control-Allow-Methods": "POST, OPTIONS" };
+
 Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   // Zugang: pg_cron mit internem Schlüssel oder ein angemeldeter Nutzer der App
   const key = req.headers.get("x-cron-key") || "";
   const soll = (await sb.from("intern_schluessel").select("wert").eq("name", "cron").maybeSingle()).data?.wert;
@@ -26,12 +29,29 @@ Deno.serve(async (req) => {
       erlaubt = !!(await u.rpc("ist_nutzer")).data;
     }
   }
-  if (!erlaubt) return new Response(JSON.stringify({ error: "Kein Zugriff" }), { status: 403 });
+  if (!erlaubt) return new Response(JSON.stringify({ error: "Kein Zugriff" }), { status: 403, headers: cors });
   const user = (await sb.from("firma").select("wert").eq("schluessel", "smtp_user").maybeSingle()).data?.wert || "info@saleo-group.de";
   const client = new ImapFlow({ host: "imap.ionos.de", port: 993, secure: true, logger: false,
     auth: { user, pass: Deno.env.get("SMTP_PASSWORT")! } });
   const neu: string[] = [];
   await client.connect();
+  const muster = new URL(req.url).searchParams.get("muster");
+  if (muster) {
+    const out: string[] = [];
+    for (const path of ["INBOX", "00_INTERN/Paypal", "02_VERKAUF/EBay"]) {
+      const lock = await client.getMailboxLock(path);
+      try {
+        const uids = await client.search({ since: new Date(Date.now() - 40 * 24 * 3600e3), from: muster }, { uid: true }) || [];
+        for (const uid of uids.slice(-3)) {
+          const m = await client.fetchOne(String(uid), { source: true }, { uid: true });
+          const p = await simpleParser(m.source);
+          out.push(`${path} | ${p.from?.text} | ${p.subject}\n${(p.text || "").replace(/\r/g, "").replace(/\n{2,}/g, "\n").slice(0, 1200)}`);
+        }
+      } finally { lock.release(); }
+    }
+    await client.logout();
+    return new Response(JSON.stringify({ muster: out }), { headers: { ...cors, "content-type": "application/json" } });
+  }
   if (new URL(req.url).searchParams.get("debug") === "1") {
     const out: string[] = [];
     const since = new Date(Date.now() - 30 * 24 * 3600e3);
@@ -47,7 +67,7 @@ Deno.serve(async (req) => {
       } finally { lock.release(); }
     }
     await client.logout();
-    return new Response(JSON.stringify({ debug: out }), { headers: { "content-type": "application/json" } });
+    return new Response(JSON.stringify({ debug: out }), { headers: { ...cors, "content-type": "application/json" } });
   }
   const ordner: string[] = [];
   const nurListe = new URL(req.url).searchParams.get("ordner") === "1";
@@ -95,6 +115,31 @@ Deno.serve(async (req) => {
       lock.release();
     }
   }
+  // PayPal-Zahlungseingänge aus den Benachrichtigungs-Mails („… hat dir 75,00 € EUR gesendet“, Transaktionscode)
+  const zahlungen: string[] = [];
+  for (const box of liste) {
+    if (box.flags?.has("\\Noselect") || box.specialUse && /Sent|Drafts/.test(box.specialUse)) continue;
+    const lock = await client.getMailboxLock(box.path);
+    try {
+      const tage = Number(new URL(req.url).searchParams.get("tage") || 2);
+      const uids = await client.search({ since: new Date(Date.now() - tage * 24 * 3600e3), from: "paypal", subject: "Zahlung erhalten" }, { uid: true }) || [];
+      for (const uid of uids) {
+        const m = await client.fetchOne(String(uid), { source: true, envelope: true }, { uid: true });
+        if (!/@paypal\.(de|com)$/i.test(m?.envelope?.from?.[0]?.address || "")) continue;
+        const p = await simpleParser(m.source);
+        const t = (p.text || "").replace(/\r/g, "");
+        const code = (t.match(/Transaktionscode\s*\n?\s*([A-Z0-9]{12,20})/) || [])[1];
+        const g = t.match(/\n\s*(.+?) hat dir ([\d.]+,\d{2}) € EUR gesendet/);
+        if (!code || !g) continue;
+        const betrag = Number(g[2].replace(/\./g, "").replace(",", "."));
+        const nachricht = (t.match(/Nachricht[^\n]*\n\s*(.{1,300})/) || [])[1] || null;
+        const { error } = await sb.from("zahlung").insert({ quelle: "paypal", ext_id: code, betrag, richtung: "ein", zeitpunkt: (p.date || new Date()).toISOString(),
+          absender: g[1].trim(), nachricht, status: "neu", roh: { quelle: "mail", betreff: p.subject } });
+        if (!error) zahlungen.push(`${g[1].trim()} ${betrag} €`);
+      }
+    } finally { lock.release(); }
+  }
   await client.logout();
-  return new Response(JSON.stringify({ neu: neu.length, betreffe: neu, verschoben, ordner }), { headers: { "content-type": "application/json" } });
+  const abgleich = (await sb.rpc("zahlungen_abgleichen")).data;
+  return new Response(JSON.stringify({ neu: neu.length, betreffe: neu, verschoben, zahlungen, abgleich, ordner }), { headers: { ...cors, "content-type": "application/json" } });
 });

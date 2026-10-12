@@ -457,3 +457,4 @@ details.hand summary::-webkit-details-marker { display: none; }
 .hand-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin: 12px 0 8px; }
 .hand-grid label { display: flex; flex-direction: column; gap: 4px; font-size: .82rem; color: var(--muted); }
 .hand-grid input, .hand-grid select { width: 100%; min-width: 0; }
+.refresh-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 12px; }

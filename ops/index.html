@@ -254,7 +254,7 @@ function vAuftraege() {
   const umsatzOffen = [...heiss, ...bez, ...arbeit].reduce((s, a) => s + Number(a.erloes || 0), 0);
   const sec = (t, list, leer, note = "") => `<section class="order-sec"><div class="card-head"><h2>${t} <span class="wo">${list.length}</span></h2>${note ? `<span class="note">${note}</span>` : ""}</div>${list.length ? list.map(auftragKarte).join("") : `<p class="empty">${leer}</p>`}</section>`;
   return head("Aufträge", "Vom Chat über Rechnung und Zahlungseingang bis zum gedruckten DPD-Label. Schreibt ihr im Chat „Wir kümmern uns um die Rechnung“, bereite ich die Rechnung vor. Ihr sendet sie und gebt das Label frei.") +
-    (UI.flash ? `<div class="banner"><span>${esc(UI.flash)}</span></div>` : "") + vHandAuftrag() + vClaude() +
+    (UI.flash ? `<div class="banner"><span>${esc(UI.flash)}</span></div>` : "") + `<div class="refresh-bar"><button class="btn" data-refresh="1">↻ Jetzt aktualisieren</button><span class="note">holt sofort neue Kleinanzeigen-Nachrichten und PayPal-Zahlungen und ordnet sie zu${UI.lastRefresh ? " · zuletzt " + UI.lastRefresh : ""}</span></div>` + vHandAuftrag() + vClaude() +
     `<div class="stats">${stat("Label freigeben", bez.length, bez.length ? "wartet auf euch" : "nichts offen", bez.length ? "neg" : "good")}${stat("Kurz vor Abschluss", heiss.length, "reserviert")}${stat("Label in Arbeit", arbeit.length)}${stat("Offener Umsatz", eur(umsatzOffen).replace(",00", ""))}</div>
     ${sec("Bezahlt: Label freigeben", bez, "Kein bezahlter Auftrag offen.", "Zahlung ist da und zugeordnet")}
     ${sec("Kurz vor Abschluss", heiss, "Gerade nichts kurz vor Abschluss.", "Rechnung vorbereitet oder gesendet, Zahlung steht aus")}
@@ -750,6 +750,18 @@ document.addEventListener("click", async e => {
     b.disabled = true; b.textContent = "wird angelegt…";
     const { error } = await sb.rpc("auftrag_von_hand", { p });
     UI.handOffen = !!error; UI.flash = error ? "Ging nicht: " + error.message : "Auftrag angelegt." + (p.email || p.adresse ? " Der Rechnungsentwurf steht im Auftrag unter „Rechnung prüfen und senden“." : ""); liveReload();
+  }
+  else if (b.dataset.refresh) {
+    b.disabled = true; b.textContent = "wird aktualisiert…";
+    try {
+      const { data: ss } = await sb.auth.getSession();
+      const res = await fetch(SB_URL + "/functions/v1/postfach-lesen", { method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + ss.session.access_token, apikey: SB_KEY }, body: "{}" });
+      const o = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(o.error || "Fehler " + res.status);
+      const z = (o.abgleich && o.abgleich.zugeordnet) || 0;
+      UI.flash = `Aktualisiert: ${o.neu || 0} neue Nachricht${o.neu === 1 ? "" : "en"}, ${(o.zahlungen || []).length} neue PayPal-Zahlung${(o.zahlungen || []).length === 1 ? "" : "en"}${z ? `, ${z} davon einem Auftrag zugeordnet` : ""}.`;
+    } catch (e) { UI.flash = "Aktualisieren ging nicht: " + e.message; }
+    UI.lastRefresh = new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }); liveReload();
   }
   else if (b.dataset.palab) {
     if (b.dataset.sicher !== "1") { b.dataset.sicher = "1"; b.textContent = "Sicher? Dann geht alles aus dem Lager"; b.classList.add("primary"); return; }
