@@ -247,12 +247,15 @@ function vAuftraege() {
 
 /* ---------- Ansichten ---------- */
 /* ---------- Palette Beschichter ---------- */
-const PAL_KAP = 60, PAL_ORT = "Palette Beschichter";
+// Kapazität nach Blechfläche: Europalette mit 2 Aufsatzrahmen (ca. 37 cm hoch), 35er Teile stehen hochkant, größere liegen.
+// Geeicht an Samuels Schätzung 12.10.: 33 Teile (ca. 7,7 m²) sind etwa 15 bis 20 % voll, also rund 44 m² pro Palette.
+const PAL_KAP_M2 = 44, PAL_ORT = "Palette Beschichter";
+const flaecheM2 = r => { const [a, b] = (r.mass || "350x350").split("x").map(Number); return (a || 350) * (b || 350) / 1e6; };
 function vPalette() {
   const teile = (D.lager || []).filter(r => (r.lagerort || "").includes(PAL_ORT) && r.bestand > 0);
   const pb = (D.besch || []).find(b => b.status === "sammeln" && b.notiz === PAL_ORT);
   const pos = pb ? (pb.positionen || []) : [];
-  const n = teile.reduce((s, r) => s + r.bestand, 0), voll = n >= PAL_KAP, pct = Math.min(100, Math.round(n / PAL_KAP * 100));
+  const n = teile.reduce((s, r) => s + r.bestand, 0), m2 = teile.reduce((s, r) => s + r.bestand * flaecheM2(r), 0), pct = Math.min(100, Math.round(m2 / PAL_KAP_M2 * 100)), voll = pct >= 95;
   const breite = m => { const w = parseInt((m || "").split("x")[0], 10); return w > 0 ? w : 350; };
   // Stapel: gleiche Maße auf einen Stapel, jedes Blech einzeln gezeichnet, Farbe = Zielfarbe falls schon zugeordnet
   const stapel = {};
@@ -290,8 +293,8 @@ ${svgStapel}
   const chips = Object.entries(proFarbe).filter(([c]) => c).map(([c, m]) => `<span class="pal-chip"><i class="dot" style="background:${FARBHEX[c] || "#ccc"}"></i> ${m} × ${esc(farbName(c))}</span>`).join("") + (offen > 0 ? `<span class="pal-chip offen">${offen} × Farbe offen</span>` : "");
   return `<section class="card palette-card"><div class="card-head"><h2>Palette Beschichter</h2><span class="badge ${voll ? "ok" : "warn"}">${voll ? "voll, kann weg" : "wird gesammelt"}</span></div>
     <div class="pal-grid"><div>${svg}</div>
-    <div class="pal-side"><div class="pal-fill"><div class="pal-bar"><span style="width:${pct}%"></span></div><p><b>${n}</b> von ca. ${PAL_KAP} Blechen · ${pct} %</p></div>
-      ${voll ? `<div class="banner info"><span><b>Die Palette ist voll.</b> Jetzt festlegen, welche Teile in welche Farbe kommen und welche für einen Kundenauftrag sind. Was offen bleibt, wählst du bei der Rückkehr.</span></div>` : `<p class="note">Noch ${PAL_KAP - n} Bleche bis voll. Zielfarbe und Kundenauftrag kannst du schon jetzt zuordnen.</p>`}
+    <div class="pal-side"><div class="pal-fill"><div class="pal-bar"><span style="width:${pct}%"></span></div><p><b>${n} Teile</b> · ca. <b>${pct} %</b> voll <span class="note">(${m2.toLocaleString("de-DE", { maximumFractionDigits: 1 })} von ca. ${PAL_KAP_M2} m² Blechfläche)</span></p></div>
+      ${voll ? `<div class="banner info"><span><b>Die Palette ist voll.</b> Jetzt festlegen, welche Teile in welche Farbe kommen und welche für einen Kundenauftrag sind. Was offen bleibt, wählst du bei der Rückkehr.</span></div>` : `<p class="note">Noch Platz für ca. ${Math.max(0, Math.round((PAL_KAP_M2 - m2) / 0.2625))} Tablare 75 × 35. Zielfarbe und Kundenauftrag kannst du schon jetzt zuordnen.</p>`}
       <div class="pal-chips">${chips}</div>
       <p class="note">Erwartet ca. ${eur(n * 16)} netto (${eur(16)} pro Blech).</p>
       ${pb && pb.gesendet_am ? `<p class="note">✓ Übersicht an ${esc(pb.gesendet_an || "Beschichter")} gesendet, ${when(pb.gesendet_am)}</p>` : ""}
