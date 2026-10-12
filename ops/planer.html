@@ -58,7 +58,8 @@
           <label class="f" for="g-color">Grundfarbe<select id="g-color"></select></label>
           <label class="f" for="g-zustand">Zustand<select id="g-zustand"><option value="G">Gebraucht</option><option value="N">Neu / neuwertig</option></select></label>
           <label class="f" for="g-base">Unten<select id="g-base"><option value="FU">Nivellierfüße</option><option value="RN100">Lenkrollen Ø 100 (vorne mit Arretierung)</option><option value="RN50">Lenkrollen Ø 50</option></select></label>
-          <label class="f" for="g-sides">Außenseiten<select id="g-sides"><option value="BL">Metall</option><option value="GL">Glas</option><option value="">Offen</option></select></label>
+          <label class="f" for="g-sides">Außenseiten<select id="g-sides"><option value="BL">Metall</option><option value="BP">Gelocht</option><option value="GL">Glas</option><option value="">Offen</option></select></label>
+          <label class="f" for="g-doppel">Aufbau<select id="g-doppel"><option value="0">Einseitig</option><option value="1">Doppelseitig (Rücken an Rücken)</option></select></label>
           <label class="f" for="g-top">Abdeckung oben<select id="g-top"><option value="BL">Metall</option><option value="GA">Glas</option></select></label>
         </div>
       </details>
@@ -90,12 +91,16 @@ const CAT = {
   BAK: L("750x500 750x350 750x250 500x500 500x350 500x250 395x350 350x350 350x250"),
   GL: L("750x500 500x500 500x395 750x350 500x350 395x350 350x350 750x250 500x250 395x250 350x250 250x250"),
   GA: L("750x500 750x350 750x250 500x500 500x395 500x350 500x250 395x350 395x250 350x350 350x250 250x250"),
-  BV: L("750x500 750x350 500x500 500x350"),
+  BV: L("750x500 750x350 500x500 500x350 500x395"),
+  BK: L("750x350 500x350 750x500 500x500 395x350"),
+  HR: L("750x500 750x350 395x500"),
   BSZ: L("750x350 500x350"),
   KL: L("750x395 500x395 750x350 500x350 395x350 350x350 750x250 500x250 750x175 500x175"),
   KLP: L("750x395 500x395 750x350 500x350 395x350 350x350 750x250 500x250 750x175 500x175"),
-  AZ: L("750x395 500x395 750x350 500x350 395x350 750x250 500x250 395x250 750x175 500x175 395x175"),
-  ER: L("750x500 750x350 500x500 500x350"),
+  EIP: L("750x350 500x350"),
+  AZP: L("750x395 500x395 750x350 500x350 395x350 750x250 500x250 395x250 750x175 500x175 395x175 395x100"),
+  AZ: L("750x395 500x395 750x350 500x350 395x350 750x250 500x250 395x250 750x175 500x175 395x175 395x100"),
+  ER: L("750x500 750x350 500x500 500x350 395x500"),
   EI: L("750x350 500x350"),
   GT: L("750x500 500x500 395x500 750x350 500x350 395x350 350x350 750x250 500x250 395x250 350x250 250x250"),
   ZT: L("750x500 750x350 750x250 500x500 500x350 350x350"),
@@ -104,13 +109,13 @@ const CAT = {
   ST: L("750x350 500x350"),
   RO: TUBES.map(String)
 };
-const SYMMETRIC = ["BL", "BP", "BPF", "BAK", "GL", "GA", "BV", "BSZ"];
+const SYMMETRIC = ["BL", "BP", "BPF", "BAK", "GL", "GA", "BV", "BSZ", "BK"];
 const NAMES = {
   KU: "Kugel", CO: "Connector", RO: "Rohr", FU: "Nivellierfuß", RN: "Lenkrolle",
   BL: "Metallelement", BP: "Metallelement gelocht", BPF: "Metallelement perforiert", BAK: "Akustikelement", GL: "Glaselement", GA: "Glastablar",
-  BV: "Metallelement verkürzt", BSZ: "Metallelement mit Schlitzen",
+  BV: "Metallelement verkürzt", BSZ: "Metallelement mit Schlitzen", BK: "Metallelement mit Kabeldurchlass", HR: "Hängeregistratur",
   ZT: "Zwischentablar Metall", ZG: "Zwischentablar Glas", AT: "Ausziehtablar", ST: "Schrägtablar",
-  KL: "Klapptür", KLP: "Klapptür perforiert", AZ: "Schublade", ER: "Einlegerahmen", EI: "Einschubtür", GT: "Glastür", KS: "Kupplungssteg"
+  KL: "Klapptür", KLP: "Klapptür perforiert", EIP: "Einschubtür perforiert", AZP: "Schublade perforiert", AZ: "Schublade", ER: "Einlegerahmen", EI: "Einschubtür", GT: "Glastür", KS: "Kupplungssteg"
 };
 const HW = {
   SC69: ["Schere 69 N (18444)", 22, 0.3], SC40: ["Schere 40 N, für Klapptür 750 × 250", 22, 0.25],
@@ -127,7 +132,7 @@ const HW = {
   DG: ["Drehgriff mit Kunststoffring (alte Generation)", 10, 0.1], SLALT: ["Schloss alte Generation", 15, 0.12],
   BWALT: ["Befestigungswinkel Front an Ausziehtablar, alt (Paar L/R)", 18, 0.15], ASALT: ["Auszugschiene alte Generation mit Schraube und Mutter (L/R)", 15, 0.6]
 };
-const GROUPS = [["Gestell", ["KU", "CO", "RO", "FU", "RN"]], ["Metall- und Glaselemente", ["BL", "BP", "BPF", "BAK", "BV", "BSZ", "GL", "GA"]], ["Einbauten", ["ZT", "ZG", "AT", "ST", "ER"]], ["Fronten", ["KL", "KLP", "AZ", "EI", "GT", "KS"]], ["Beschläge und Montageteile", ["HW"]]];
+const GROUPS = [["Gestell", ["KU", "CO", "RO", "FU", "RN"]], ["Metall- und Glaselemente", ["BL", "BP", "BPF", "BAK", "BK", "BV", "BSZ", "GL", "GA"]], ["Einbauten", ["ZT", "ZG", "AT", "ST", "HR", "ER"]], ["Fronten", ["KL", "KLP", "AZ", "AZP", "EIP", "EI", "GT", "KS"]], ["Beschläge und Montageteile", ["HW"]]];
 const COLORS = [
   ["24", "Reinweiß", "#efeee9"], ["29", "Lichtgrau", "#c6c8c5"], ["35", "USM Mattsilber", "#a9abae"],
   ["32", "Mittelgrau", "#7f8386"], ["33", "Anthrazitgrau", "#3b4146"], ["30", "Graphitschwarz", "#232425"],
@@ -135,9 +140,9 @@ const COLORS = [
   ["36", "Olivgrün", "#43472f"], ["25", "Goldgelb", "#d99c1c"], ["26", "Reinorange", "#e2561d"],
   ["23", "USM Rubinrot", "#8b1f2a"], ["22", "USM Braun", "#5b3b2a"], ["31", "USM Beige", "#cdbb98"]
 ];
-const FRONTS = [["", "Offen"], ["KL", "Klapptür"], ["KLP", "Klapptür perforiert"], ["AZ", "Schublade"], ["EI", "Einschubtür"], ["GT", "Glastür"]];
-const BACKS = [["BL", "Metall"], ["BP", "Gelocht"], ["BPF", "Perforiert"], ["BAK", "Akustik"], ["GL", "Glas"], ["", "Ohne"]];
-const INSIDES = [["", "Keiner"], ["ZT", "Zwischentablar"], ["ZG", "Zwischentablar Glas"], ["AT", "Ausziehtablar"], ["ST", "Schrägtablar"]];
+const FRONTS = [["", "Offen"], ["KL", "Klapptür"], ["AZ", "Schublade"], ["EI", "Einschubtür"], ["GT", "Glastür"]];
+const BACKS = [["BL", "Metall"], ["BP", "Gelocht"], ["BPF", "Perforiert"], ["BAK", "Akustik"], ["BK", "Kabeldurchlass"], ["GL", "Glas"], ["", "Ohne"]];
+const INSIDES = [["", "Keiner"], ["ZT", "Zwischentablar"], ["ZG", "Zwischentablar Glas"], ["AT", "Ausziehtablar"], ["ST", "Schrägtablar"], ["HR", "Hängeregistratur"]];
 const LOCKS = { N: [["U", "Universalverschluss"], ["S", "Schloss"]], A: [["D", "Drehgriff"], ["SA", "Schloss alte Generation"]] };
 const GENS = [["N", "Neue Generation"], ["A", "Alte Generation"]];
 const PARTS = [["all", "Alles"], ["front", "Front"], ["einbau", "Wanne / Einbau"], ["kupplung", "Kupplungsstege"], ["back", "Rückwand"], ["boden", "Boden"], ["deckel", "Deckel"], ["seiten", "Seiten"]];
@@ -157,10 +162,13 @@ const TEMPLATES = {
     F(0, 0, 750, 350, "KL"), F(0, 350, 750, 350), F(0, 700, 750, 350, "", "GL"),
     F(750, 0, 500, 175, "AZ"), F(750, 175, 500, 175, "AZ"), F(750, 350, 500, 350, "GT"),
     F(1250, 0, 395, 350, "KL"), F(1645, 0, 350, 350, "", "BL", "ZT")
-  ]
+  ],
+  "Rollcontainer": () => [Object.assign(F(0, 0, 395, 350, "AZ", "BL", "HR"), { lock: "S" }), Object.assign(F(0, 350, 395, 175, "AZ"), { lock: "S" })]
 };
+const TEMPLATE_OPTS = { "Rollcontainer": { depth: 500, base: "RN50" } };
+const applyTpl = k => { state.fields = TEMPLATES[k](); Object.assign(state, TEMPLATE_OPTS[k] || {}); };
 
-const state = { fields: TEMPLATES["Sideboard"](), depth: 350, color: "24", zustand: "G", base: "FU", sides: "BL", top: "BL",
+const state = { fields: TEMPLATES["Sideboard"](), depth: 350, color: "24", zustand: "G", base: "FU", sides: "BL", top: "BL", doppel: false, extra: [],
   buyNew: {}, sel: 1, multi: new Set([1]), multiMode: false, price: null, rabatt: 0, ertragsteuer: 30, neupreis: "", view: "intern", tab: "bom", ordered: false, flash: null,
   paint: { part: "all", scope: "sel" } };
 const undoStack = [];
@@ -187,8 +195,8 @@ function estPrice(typ, mass) {
   const a = area(mass);
   if (typ === "HW") return HW[mass][1];
   return ({ KU: 4, CO: 1.2, RO: 3 + Number(mass) / 125, FU: 1.5, RN: 9, KS: 5,
-    BL: 6 + 75 * a, BP: 8 + 85 * a, BPF: 10 + 90 * a, BAK: 20 + 120 * a, BV: 6 + 75 * a, BSZ: 10 + 80 * a, GL: 20 + 90 * a, GA: 20 + 90 * a,
-    ZT: 10 + 80 * a, ZG: 15 + 90 * a, AT: 40 + 100 * a, ST: 20 + 90 * a, ER: 25 + 60 * a, KL: 50 + 130 * a, KLP: 60 + 150 * a, AZ: 50 + 130 * a, EI: 70 + 140 * a, GT: 60 + 140 * a })[typ] ?? 10;
+    BL: 6 + 75 * a, BK: 10 + 80 * a, HR: 30 + 60 * a, BP: 8 + 85 * a, BPF: 10 + 90 * a, BAK: 20 + 120 * a, BV: 6 + 75 * a, BSZ: 10 + 80 * a, GL: 20 + 90 * a, GA: 20 + 90 * a,
+    ZT: 10 + 80 * a, ZG: 15 + 90 * a, AT: 40 + 100 * a, ST: 20 + 90 * a, ER: 25 + 60 * a, KL: 50 + 130 * a, KLP: 60 + 150 * a, EIP: 80 + 160 * a, AZP: 60 + 150 * a, AZ: 50 + 130 * a, EI: 70 + 140 * a, GT: 60 + 140 * a })[typ] ?? 10;
 }
 function stockOf(e) {
   const t = dbTyp(e), anyMass = ["HW", "KS", "KU", "CO", "FU"].includes(e.typ);
@@ -306,10 +314,12 @@ function weight(typ, mass) {
   if (typ === "HW") return HW[mass][2];
   const a = area(mass);
   return ({ KU: 0.07, CO: 0.01, RO: KG_ROHR_M * Number(mass) / 1000, FU: 0.03, RN: String(mass) === "100" ? 0.45 : 0.15, KS: 0.1,
-    BL: KG_M2 * a, BP: KG_M2 * a * 0.8, BPF: KG_M2 * a * 0.85, BAK: KG_M2 * a * 1.1, BV: KG_M2 * a * 0.93, BSZ: KG_M2 * a, GL: KG_GLAS_M2 * a, GA: KG_GLAS_M2 * a,
-    ZT: KG_M2 * a, ZG: KG_GLAS_M2 * a * 0.85, AT: KG_M2 * a + 0.5, ST: KG_M2 * a + 0.3, ER: 1.2 + 3 * a, KL: KG_M2 * a * 1.2, KLP: KG_M2 * a * 1.1, AZ: KG_M2 * a * 1.2, EI: KG_M2 * a * 1.2, GT: KG_GLAS_M2 * a })[typ] ?? 0;
+    BL: KG_M2 * a, BK: KG_M2 * a * 0.95, HR: 1.5 + 2 * a, BP: KG_M2 * a * 0.8, BPF: KG_M2 * a * 0.85, BAK: KG_M2 * a * 1.1, BV: KG_M2 * a * 0.93, BSZ: KG_M2 * a, GL: KG_GLAS_M2 * a, GA: KG_GLAS_M2 * a,
+    ZT: KG_M2 * a, ZG: KG_GLAS_M2 * a * 0.85, AT: KG_M2 * a + 0.5, ST: KG_M2 * a + 0.3, ER: 1.2 + 3 * a, KL: KG_M2 * a * 1.2, KLP: KG_M2 * a * 1.1, EIP: KG_M2 * a * 1.1, AZP: KG_M2 * a * 1.1, AZ: KG_M2 * a * 1.2, EI: KG_M2 * a * 1.2, GT: KG_GLAS_M2 * a })[typ] ?? 0;
 }
 const GLASS = ["GL", "GA", "GT", "ZG"];
+const tablarWeg = p => !!(p.owner && (p.ownerKey === "boden" ? p.owner.noBoden : p.owner.noDeckel));
+const seitenTyp = p => (p.owner && (p.leftSide ? p.owner.bpL : p.owner.bpR)) ? "BP" : state.sides;
 function bom(geo) {
   const map = new Map(), d = state.depth;
   function add(typ, mass, farbe, qty, wo, gen = "N") {
@@ -325,25 +335,31 @@ function bom(geo) {
     e.qty += qty; if (wo) e.wo.add(wo); map.set(code, e);
   }
   const hw = (k, n, wo) => add("HW", k, null, n, wo);
-  add("KU", "", null, geo.nodes.length * 2);
-  add("CO", "", null, geo.tubes * 2);
-  geo.hP.forEach(p => add("RO", p.len, null, 2));
-  geo.vP.forEach(p => add("RO", p.len, null, 2));
-  add("RO", d, null, geo.nodes.length);
+  const P = state.doppel ? 3 : 2, M = state.doppel ? 2 : 1;
+  const rahmen = geo.hP.length + geo.vP.length;
+  add("KU", "", null, geo.nodes.length * P);
+  add("CO", "", null, (rahmen * P + geo.nodes.length * (P - 1)) * 2);
+  geo.hP.forEach(p => add("RO", p.len, null, P));
+  geo.vP.forEach(p => add("RO", p.len, null, P));
+  add("RO", d, null, geo.nodes.length * (P - 1));
   const special = new Map();
   state.fields.forEach(f => { if (f.front === "AZ" || f.inside === "AT") special.set(`${f.x},${f.y}`, "BV"); if (f.front === "EI") special.set(`${f.x},${f.y}`, "BSZ"); });
-  geo.hP.forEach(p => {
+  geo.hP.filter(p => !tablarWeg(p)).forEach(p => {
     const sp = special.get(`${p.x1},${p.y}`);
     const typ = sp || (p.top && state.top === "GA" ? "GA" : "BL");
-    add(typ, `${p.len}x${d}`, tablarColor(p), 1, typ === "BV" ? "Boden unter Auszug" : typ === "BSZ" ? "Boden Einschubtür" : p.top ? "Deckel" : "Boden");
-    if (typ === "GA") hw("GH", 4, "Glastablar");
-    if (p.len === 750 && typ !== "GA") hw("BS", 2, "750er Boden");
+    add(typ, `${p.len}x${d}`, tablarColor(p), M, typ === "BV" ? "Boden unter Auszug" : typ === "BSZ" ? "Boden Einschubtür" : p.top ? "Deckel" : "Boden");
+    if (typ === "GA") hw("GH", 4 * M, "Glastablar");
+    if (p.len === 750 && typ !== "GA") hw("BS", 2 * M, "750er Boden");
   });
   if (state.sides) geo.vP.filter(p => p.outer && !p.open).forEach(p => {
-    add(state.sides, `${d}x${p.len}`, colOf(p.owner, "seiten"), 1, "Seite");
-    if (state.sides === "GL") hw("GH", 4, "Glasseite");
+    const st = seitenTyp(p);
+    add(st, `${d}x${p.len}`, colOf(p.owner, "seiten"), M, "Seite");
+    if (st === "GL") hw("GH", 4 * M, "Glasseite");
   });
+  const add1 = add, hw1 = hw;
   state.fields.forEach(f => {
+    const add = (t, m, c, q, w, g) => add1(t, m, c, t === f.back && w === "Rückwand" ? q : q * M, w, g);
+    const hw = (k, n, w) => hw1(k, n * M, w);
     const old = f.gen === "A";
     const lockHw = { U: "GRS", S: "SL", D: "DG", SA: "SLALT" }[f.lock] || (old ? "DG" : "GRS");
     const erH = [350, 250, 175].find(x => x <= f.h);
@@ -358,7 +374,7 @@ function bom(geo) {
     }
     if (!f.front) return;
     const oldFront = old && (f.front === "KL" || f.front === "KLP" || f.front === "AZ");
-    add(f.front, `${f.w}x${f.h}`, colOf(f, "front"), 1, oldFront ? "Front alte Generation" : "Front", oldFront ? "A" : "N");
+    add(f.front + (f.perf && ["KL", "AZ", "EI"].includes(f.front) ? "P" : ""), `${f.w}x${f.h}`, colOf(f, "front"), 1, oldFront ? "Front alte Generation" : f.perf ? "Front perforiert" : "Front", oldFront ? "A" : "N");
     const n = NAMES[f.front];
     if (f.front === "KL" || f.front === "KLP") {
       if (old) { hw("SCALT", 2, n); hw("BSALT", 4, n); }
@@ -374,9 +390,10 @@ function bom(geo) {
     if (f.front === "GT") hw("GS", 2, n);
     hw(lockHw, 1, n);
   });
-  const feet = geo.nodes.filter(n => n[1] === 0).length * 2;
+  (state.extra || []).forEach(e => add(e.typ, e.mass || "", e.farbe || state.color, Number(e.qty) || 0, e.wo || "Zusatz"));
+  const feet = geo.nodes.filter(n => n[1] === 0).length * P;
   if (state.base === "FU") add("FU", "", null, feet); else add("RN", state.base === "RN100" ? "100" : "50", null, feet);
-  const order = ["KU", "CO", "RO", "FU", "RN", "BL", "BV", "BSZ", "BP", "BPF", "BAK", "GL", "GA", "ZT", "ZG", "AT", "ST", "ER", "KL", "KLP", "AZ", "EI", "GT", "KS", "HW"];
+  const order = ["KU", "CO", "RO", "FU", "RN", "BL", "BK", "BV", "BSZ", "BP", "BPF", "BAK", "GL", "GA", "ZT", "ZG", "AT", "ST", "HR", "ER", "KL", "KLP", "AZ", "AZP", "EI", "EIP", "GT", "KS", "HW"];
   return [...map.values()].map(e => {
     const s = stockOf(e), kg = weight(e.typ, e.mass);
     if (state.buyNew[e.code] == null && s.nurNeu != null && s.qty < e.qty) state.buyNew[e.code] = s.nurNeu;
@@ -386,7 +403,7 @@ function bom(geo) {
   }).sort((a, b) => order.indexOf(a.typ) - order.indexOf(b.typ) || a.mass.localeCompare(b.mass, "de", { numeric: true }) || a.farbe.localeCompare(b.farbe));
 }
 const partName = r => r.typ === "HW" ? HW[r.mass][0] : r.typ === "RN" ? `Lenkrolle Ø ${r.mass}` : `${NAMES[r.typ]}${r.mass ? " " + r.mass.replace("x", " × ") : ""}`;
-const FARBIG = ["BL", "BP", "BPF", "BAK", "BV", "BSZ", "ZT", "AT", "ST", "KL", "KLP", "AZ", "EI", "KS"];
+const FARBIG = ["BL", "BK", "BP", "BPF", "BAK", "BV", "BSZ", "ZT", "AT", "ST", "KL", "KLP", "AZ", "AZP", "EI", "EIP", "KS"];
 
 /* ---------- Format ---------- */
 const pct = n => (n * 100).toLocaleString("de-DE", { maximumFractionDigits: 1 }) + " %";
@@ -396,7 +413,7 @@ const colorName = c => (COLORS.find(x => x[0] === c) || [c, c])[1];
 const isDark = hex => { const n = parseInt(hex.slice(1), 16); return ((n >> 16) * 299 + ((n >> 8) & 255) * 587 + (n & 255) * 114) / 1000 < 128; };
 function outer() {
   const maxX = Math.max(...state.fields.map(f => f.x + f.w)), maxY = Math.max(...state.fields.map(f => f.y + f.h));
-  return { w: maxX + 23, d: state.depth + 23, h: maxY + (state.base === "FU" ? 40 : 80), rollen: state.base !== "FU" };
+  return { w: maxX + 23, d: (state.doppel ? 2 * state.depth : state.depth) + 23, h: maxY + (state.base === "FU" ? 40 : 80), rollen: state.base !== "FU" };
 }
 const paid = () => Math.round((Number(state.price) || 0) * (1 - state.rabatt / 100) * 100) / 100;
 function calcNumbers(ek, p) {
@@ -435,7 +452,7 @@ function drawing(geo) {
     const cBack = colorHex(colOf(f, "back")), cFront = colorHex(colOf(f, "front")), cIn = colorHex(colOf(f, "einbau")), cK = colorHex(colOf(f, "kupplung"));
     const darkF = isDark(cFront), darkB = isDark(cBack), inkB = darkB ? "#ffffff80" : "#00000050";
     let inner = "";
-    if (["BL", "BP", "BPF", "BAK"].includes(f.back)) inner += `<rect x="${x0}" y="${yt}" width="${w}" height="${h}" fill="${cBack}" opacity="${darkB ? .8 : .6}"/>`;
+    if (["BL", "BP", "BPF", "BAK", "BK"].includes(f.back)) inner += `<rect x="${x0}" y="${yt}" width="${w}" height="${h}" fill="${cBack}" opacity="${darkB ? .8 : .6}"/>`;
     if (f.back === "BPF" || f.back === "BAK") inner += `<rect x="${x0}" y="${yt}" width="${w}" height="${h}" fill="url(#perf)"/>`;
     if (f.back === "BP") inner += `<rect x="${x0}" y="${yt}" width="${w}" height="${h}" fill="url(#holes)"/>`;
     if (f.back === "GL") inner += `<rect x="${x0}" y="${yt}" width="${w}" height="${h}" fill="#bfe0ea" opacity=".35"/>`;
@@ -457,13 +474,13 @@ function drawing(geo) {
     };
     if (["KL", "KLP", "AZ", "EI"].includes(f.front)) {
       inner += `<rect x="${x0 + 2}" y="${yt + 2}" width="${w - 4}" height="${h - 4}" fill="${cFront}" stroke="#00000026" stroke-width="1"/>`;
-      if (f.front === "KLP") inner += `<rect x="${x0 + 2}" y="${yt + 2}" width="${w - 4}" height="${h - 4}" fill="url(#perf)"/>`;
+      if (f.perf || f.front === "KLP") inner += `<rect x="${x0 + 2}" y="${yt + 2}" width="${w - 4}" height="${h - 4}" fill="url(#perf)"/>`;
       if (f.front === "AZ") inner += `<rect x="${x0 + 10}" y="${yb - 7}" width="${w - 20}" height="3.5" fill="${cIn}" stroke="#00000040" stroke-width=".5"><title>Wanne: ${colorName(colOf(f, "einbau"))}</title></rect>`;
       if (f.front === "AZ" && f.gen !== "A" || f.front === "EI") [x0 + 5, x1 - 8].forEach(kx => inner += `<rect x="${kx}" y="${yt + 7}" width="3" height="${Math.max(8, h - 18)}" fill="${cK}" stroke="#00000040" stroke-width=".5"><title>Kupplungssteg: ${colorName(colOf(f, "kupplung"))}</title></rect>`);
       inner += lockSym(cxm, yt + 11);
     }
     if (f.front === "GT") inner += `<rect x="${x0 + 2}" y="${yt + 2}" width="${w - 4}" height="${h - 4}" fill="#a9d4e2" opacity=".5" stroke="#7fb3c4"/>` + lockSym(x1 - 12, cym);
-    const label = f.front ? NAMES[f.front] : ({ "": "offen", ZT: "Zwischentablar", ZG: "Glas-Zwischentablar", AT: "Ausziehtablar", ST: "Schrägtablar" }[f.inside || ""]);
+    const label = f.front ? NAMES[f.front] + (f.perf ? " perforiert" : "") : ({ "": "offen", ZT: "Zwischentablar", ZG: "Glas-Zwischentablar", AT: "Ausziehtablar", ST: "Schrägtablar" }[f.inside || ""]);
     const sub = f.front ? ({ U: "Universalverschluss", S: "Schloss", D: "Drehgriff", SA: "Schloss" }[f.lock] + (f.gen === "A" ? " · alt" : "") + (f.rahmen && (f.front === "AZ") ? " · Rahmen" : "")) : "";
     const lc = f.front && f.front !== "GT" ? (darkF ? "#e9ecf1" : "#3f464f") : (darkB && f.back && f.back !== "GL" ? "#e9ecf1" : "var(--muted)");
     const fsz = Math.max(6.5, Math.min(12, (w - 10) * 1.75 / label.length, h / 3.6));
@@ -475,13 +492,13 @@ function drawing(geo) {
   });
   // Seitenwände außen, in ihrer Farbe
   if (state.sides) geo.vP.filter(p => p.outer && !p.open).forEach(p => {
-    const sx = p.leftSide ? X(p.x) - 7.5 : X(p.x) + 2.5, fill = state.sides === "GL" ? "#a9d4e2" : colorHex(colOf(p.owner, "seiten"));
+    const sx = p.leftSide ? X(p.x) - 7.5 : X(p.x) + 2.5, fill = state.sides === "GL" ? "#a9d4e2" : colorHex(colOf(p.owner, "seiten")), gl = seitenTyp(p) === "BP";
     g += `<rect x="${sx}" y="${Y(p.y2)}" width="5" height="${(p.y2 - p.y1) * S}" fill="${fill}" stroke="#00000033" stroke-width=".6"><title>Seite: ${state.sides === "GL" ? "Glas" : colorName(colOf(p.owner, "seiten"))}</title></rect>`;
   });
   // Tablare (Boden, Deckel) als Kante in ihrer Farbe, Rohr davor
   geo.hP.forEach(p => {
     const glas = p.top && state.top === "GA", tc = tablarColor(p);
-    g += `<rect x="${X(p.x1) + 4}" y="${Y(p.y) - 4.5}" width="${(p.x2 - p.x1) * S - 8}" height="9" fill="${glas ? "#a9d4e2" : colorHex(tc)}" stroke="#00000033" stroke-width=".6"><title>${p.top ? "Deckel" : "Boden"}: ${glas ? "Glas" : colorName(tc)}</title></rect>`;
+    if (!tablarWeg(p)) g += `<rect x="${X(p.x1) + 4}" y="${Y(p.y) - 4.5}" width="${(p.x2 - p.x1) * S - 8}" height="9" fill="${glas ? "#a9d4e2" : colorHex(tc)}" stroke="#00000033" stroke-width=".6"><title>${p.top ? "Deckel" : "Boden"}: ${glas ? "Glas" : colorName(tc)}</title></rect>`;
     g += `<rect x="${X(p.x1)}" y="${Y(p.y) - 1.6}" width="${(p.x2 - p.x1) * S}" height="3.2" fill="url(#tubeH)" ${TUBES.includes(p.len) ? "" : 'stroke="var(--bad)" stroke-width="1.5"'}/>`;
   });
   geo.vP.filter(p => p.outer && (p.open || !state.sides)).forEach(p => g += `<line x1="${X(p.x) + (p.leftSide ? 6 : -6)}" x2="${X(p.x) + (p.leftSide ? 6 : -6)}" y1="${Y(p.y2) + 6}" y2="${Y(p.y1) - 6}" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 3"><title>Seite offen</title></line>`);
@@ -491,7 +508,7 @@ function drawing(geo) {
     if (state.base === "FU") g += `<rect x="${X(x) - 4}" y="${Y(0) + 5}" width="8" height="${17 * S}" rx="1" fill="var(--fg)" opacity=".8"/>`;
     else { const r = state.base === "RN100" ? 9 : 6; g += `<circle cx="${X(x)}" cy="${Y(0) + 6 + r}" r="${r}" fill="var(--fg)" opacity=".8"/><circle cx="${X(x)}" cy="${Y(0) + 6 + r}" r="${r / 3}" fill="var(--chrome-mid)"/>`; }
   });
-  g += `<text x="${X(0)}" y="${Y(0) + footH + 18}" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)">${state.base === "FU" ? "Nivellierfüße" : state.base === "RN100" ? "Lenkrollen Ø 100" : "Lenkrollen Ø 50"} · Tiefe ${state.depth} · ${colorName(state.color)}${hasOverrides() ? " mit Einzelfarben" : ""}</text>`;
+  g += `<text x="${X(0)}" y="${Y(0) + footH + 18}" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)">${state.base === "FU" ? "Nivellierfüße" : state.base === "RN100" ? "Lenkrollen Ø 100" : "Lenkrollen Ø 50"} · Tiefe ${state.doppel ? `2 × ${state.depth}` : state.depth} · ${colorName(state.color)}${hasOverrides() ? " mit Einzelfarben" : ""}</text>${state.doppel ? `<text x="${X(0)}" y="${Y(0) + footH + 32}" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)">Doppelseitig: Rückseite baugleich</text>` : ""}${(state.extra || []).length ? `<text x="${X(0)}" y="${Y(0) + footH + (state.doppel ? 46 : 32)}" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)">Zusatz: ${state.extra.map(e => `${e.qty} × ${esc(NAMES[e.typ] || e.typ)} ${e.mass || ""}${e.wo ? " (" + esc(e.wo) + ")" : ""}`).join(", ")}</text>` : ""}`;
   const f = intern && state.multi.size === 1 && state.fields.find(q => q.id === state.sel);
   if (f) {
     const cy = (Y(f.y) + Y(f.y + f.h)) / 2, cx = (X(f.x) + X(f.x + f.w)) / 2;
@@ -515,7 +532,9 @@ function messages(geo) {
   if (state.depth === 250 && fs.some(f => ["AZ", "EI"].includes(f.front) || f.inside === "AT" || f.rahmen)) m("bad", "Tiefe 250: keine Schublade, Einschubtür, Ausziehtablar oder Einlegerahmen. Klapptür geht.");
   const glas = fs.some(f => f.back === "GL" || f.front === "GT" || f.inside === "ZG") || state.sides === "GL" || state.top === "GA";
   if (rollen && glas) m("bad", "USM: Möbel mit Glaselementen oder Glastüren nie auf Rollen.");
-  if (rollen && fs.some(f => f.front === "AZ" || f.front === "EI" || f.inside === "AT")) m("warn", "Rollen mit Auszügen: Gegengewicht nötig, sonst kippt das Möbel beim Ausziehen.");
+  const rollcontainer = rollen && state.depth === 500 && fs.every(f => f.x === 0 && (f.w === 395 || f.w === 500));
+  if (rollcontainer) m("info", "Rollcontainer: Schubladen nur einzeln ausziehen, schwere Hängeregistratur nach unten. Schlüssel mit Nummer notieren.");
+  else if (rollen && fs.some(f => f.front === "AZ" || f.front === "EI" || f.inside === "AT")) m("warn", "Rollen mit Auszügen: Gegengewicht nötig, sonst kippt das Möbel beim Ausziehen.");
   else if (rollen && fs.some(f => f.front === "KL" || f.front === "KLP")) m("info", "Rollen mit Klappen: Gegengewicht für die Kippsicherheit einplanen.");
   if (state.sides === "GL" && fs.some(f => f.inside === "ZG")) m("bad", "Glas-Zwischentablar nur mit Metall-Seiten.");
   const fl = fs.filter(f => f._float).length;
@@ -544,10 +563,13 @@ function renderEditor() {
       <label class="f" for="e-h">Höhe<select id="e-h">${opt(TUBES, same("h") ? f.h : null)}</select></label>
     </div>
     <div class="group"><span>Front</span><div class="chips">${chips(FRONTS, "front", "front")}</div></div>
+    ${list.every(q => ["KL", "AZ", "EI"].includes(q.front)) ? `<div class="group"><span>Ausführung</span><div class="chips"><button class="chip" data-perf="0" aria-pressed="${list.every(q => !q.perf)}">Normal</button><button class="chip" data-perf="1" aria-pressed="${list.every(q => q.perf)}">Perforiert</button></div></div>` : ""}
     ${list.every(q => q.front === "KL" || q.front === "KLP" || q.front === "AZ") ? `<div class="group"><span>Generation</span><div class="chips">${chips(GENS, "gen", "gen")}</div></div>` : ""}
     ${list.every(q => q.front) ? `<div class="group"><span>Verschluss</span><div class="chips">${chips(LOCKS[list.every(q => q.gen === "A" && (q.front === "KL" || q.front === "KLP" || q.front === "AZ")) ? "A" : "N"], "lock", "lock")}</div></div>` : ""}
     ${list.every(q => q.front === "AZ" || q.inside === "AT") ? `<div class="group"><span>Einlegerahmen</span><div class="chips"><button class="chip" data-rahmen="0" aria-pressed="${list.every(q => !q.rahmen)}">Ohne</button><button class="chip" data-rahmen="1" aria-pressed="${list.every(q => q.rahmen)}">Mit Einlegerahmen</button></div></div>` : ""}
     <div class="group"><span>Seiten</span><div class="chips"><button class="chip" data-open="L" aria-pressed="${list.every(q => q.openL)}">Links offen</button><button class="chip" data-open="R" aria-pressed="${list.every(q => q.openR)}">Rechts offen</button></div></div>
+    <div class="group"><span>Seitenelement</span><div class="chips"><button class="chip" data-flag="bpL" aria-pressed="${list.every(q => q.bpL)}">Links gelocht</button><button class="chip" data-flag="bpR" aria-pressed="${list.every(q => q.bpR)}">Rechts gelocht</button></div></div>
+    <div class="group"><span>Tablare</span><div class="chips"><button class="chip" data-flag="noBoden" aria-pressed="${list.every(q => q.noBoden)}">Ohne Boden</button><button class="chip" data-flag="noDeckel" aria-pressed="${list.every(q => q.noDeckel)}">Ohne Deckel</button></div></div>
     <div class="group"><span>Rückwand</span><div class="chips">${chips(BACKS, "back", "back")}</div></div>
     <div class="group"><span>Einbau</span><div class="chips">${chips(INSIDES, "inside", "inside")}</div></div>`;
   pbox.innerHTML = `<div class="editor"><div class="editor-head"><h3>Farben</h3><span class="note">Standard: ganzes Möbel in der Grundfarbe</span></div>
@@ -562,6 +584,7 @@ function renderGlobals() {
   document.getElementById("g-zustand").value = state.zustand;
   document.getElementById("g-base").value = state.base;
   document.getElementById("g-sides").value = state.sides;
+  document.getElementById("g-doppel").value = state.doppel ? "1" : "0";
   document.getElementById("g-top").value = state.top;
   const sel = document.getElementById("tplsel");
   if (!sel.dataset.ok && (LIVE.std.length || LIVE.ins.length)) {
@@ -689,7 +712,7 @@ function render() {
   normalize();
   const geo = geometry(), rows = bom(geo), intern = state.view === "intern", o = outer();
   document.getElementById("stage").innerHTML = drawing(geo);
-  document.getElementById("dims").innerHTML = `<span>Außen <b>${o.w} × ${o.d} × ${o.h}</b> mm</span><span>${state.fields.length} Fächer · ${geo.nodes.length * 2} Kugeln · ${geo.tubes} Rohre · ${geo.tubes * 2} Connectoren</span>`;
+  document.getElementById("dims").innerHTML = `<span>Außen <b>${o.w} × ${o.d} × ${o.h}</b> mm</span><span>${state.doppel ? "doppelseitig · " : ""}${state.fields.length * (state.doppel ? 2 : 1)} Fächer · ${geo.nodes.length * (state.doppel ? 3 : 2)} Kugeln · ${(geo.hP.length + geo.vP.length) * (state.doppel ? 3 : 2) + geo.nodes.length * (state.doppel ? 2 : 1)} Rohre · ${((geo.hP.length + geo.vP.length) * (state.doppel ? 3 : 2) + geo.nodes.length * (state.doppel ? 2 : 1)) * 2} Connectoren</span>`;
   const cu = colorsUsed(rows);
   document.getElementById("legend").innerHTML = cu.length > 1 ? cu.map(([c, q]) => `<span><i style="background:${colorHex(c)}"></i>${colorName(c)} ${q}</span>`).join("") + (intern ? ` <button class="btn" id="resetcol">Einzelfarben zurücksetzen</button>` : "") : "";
   ["toolbar", "editor", "paintcard", "globalscard", "msgs"].forEach(id => document.getElementById(id).hidden = !intern);
@@ -703,12 +726,13 @@ function render() {
 }
 
 /* ---------- Speichern, Laden, Live ---------- */
-const SAVE_KEYS = ["fields", "depth", "color", "zustand", "base", "sides", "top", "buyNew", "price", "rabatt", "ertragsteuer", "neupreis"];
+const SAVE_KEYS = ["fields", "depth", "color", "zustand", "base", "sides", "top", "doppel", "extra", "buyNew", "price", "rabatt", "ertragsteuer", "neupreis"];
 function snapshot() { const d = {}; SAVE_KEYS.forEach(k => d[k] = state[k]); d._geraet = DEVICE; d._version = 6; d._inserat = PLAN.inserat || null; return JSON.parse(JSON.stringify(d)); }
 function applyData(d) {
+  state.doppel = false; state.extra = [];
   SAVE_KEYS.forEach(k => { if (d[k] !== undefined) state[k] = JSON.parse(JSON.stringify(d[k])); });
   PLAN.inserat = d._inserat || PLAN.inserat || null;
-  state.fields.forEach(f => { if (!f.col) f.col = {}; });
+  state.fields.forEach(f => { if (!f.col) f.col = {}; if (f.front === "KLP") { f.front = "KL"; f.perf = true; } });
   uid = Math.max(0, ...state.fields.map(f => f.id)) + 1;
   selectOnly(state.fields[0].id); undoStack.length = 0;
 }
@@ -833,7 +857,7 @@ document.addEventListener("click", async e => {
   else if (t.id === "reload") { await loadPlan(PLAN.id); showBanner(""); }
   else if (t.id === "keep") { showBanner(""); markDirty(); }
   else if (t.id && t.id.startsWith("t-")) state.tab = t.id.slice(2);
-  else if (t.dataset.tpl) { tryChange(() => { state.fields = TEMPLATES[t.dataset.tpl](); }); selectOnly(state.fields[0].id); state.price = null; }
+  else if (t.dataset.tpl) { tryChange(() => { applyTpl(t.dataset.tpl); }); selectOnly(state.fields[0].id); state.price = null; }
   else if (t.dataset.depth) { state.depth = +t.dataset.depth; markDirty(); }
   else if (t.id === "undo" && undoStack.length) { const s = JSON.parse(undoStack.pop()); state.fields = s.fields; selectOnly(state.fields.some(q => q.id === s.sel) ? s.sel : state.fields[0].id); markDirty(); }
   else if (t.dataset.front != null && f) tryChange(() => { sels().forEach(q => { q.front = t.dataset.front; }); });
@@ -842,6 +866,8 @@ document.addEventListener("click", async e => {
   else if (t.dataset.inside != null && f) tryChange(() => { sels().forEach(q => q.inside = t.dataset.inside); });
   else if (t.dataset.gen != null && f) tryChange(() => { sels().forEach(q => { q.gen = t.dataset.gen; q.lock = q.gen === "A" ? "D" : "U"; }); });
   else if (t.dataset.open && f) { const k = "open" + t.dataset.open, v = !sels().every(q => q[k]); tryChange(() => { sels().forEach(q => q[k] = v); }); }
+  else if (t.dataset.perf != null && f) tryChange(() => { sels().forEach(q => q.perf = t.dataset.perf === "1"); });
+  else if (t.dataset.flag && f) { const k = t.dataset.flag, v = !sels().every(q => q[k]); tryChange(() => { sels().forEach(q => q[k] = v); }); }
   else if (t.dataset.rahmen != null && f) tryChange(() => { sels().forEach(q => q.rahmen = t.dataset.rahmen === "1"); });
   else if (t.dataset.part) state.paint.part = t.dataset.part;
   else if (t.dataset.scope) state.paint.scope = t.dataset.scope;
@@ -862,7 +888,7 @@ document.addEventListener("change", e => {
   else if (t.id === "tplsel" && t.value) {
     const [k, v] = [t.value.slice(0, 1), t.value.slice(2)];
     if (PLAN.moebel) { PLAN.moebel = null; LIVE.eigen = {}; }
-    if (k === "i") fromInserat(v); else if (k === "s") fromStandard(v); else { tryChange(() => { state.fields = TEMPLATES[v](); }); selectOnly(state.fields[0].id); state.price = null; PLAN.inserat = null; }
+    if (k === "i") fromInserat(v); else if (k === "s") fromStandard(v); else { tryChange(() => { applyTpl(v); }); selectOnly(state.fields[0].id); state.price = null; PLAN.inserat = null; }
     t.value = "";
   }
   else if (t.id === "e-w" && f && t.value) tryChange(() => { sels().forEach(q => q.w = +t.value); });
@@ -871,6 +897,7 @@ document.addEventListener("change", e => {
   else if (t.id === "g-zustand") { state.zustand = t.value; state.buyNew = {}; markDirty(); }
   else if (t.id === "g-base") { state.base = t.value; markDirty(); }
   else if (t.id === "g-sides") { state.sides = t.value; markDirty(); }
+  else if (t.id === "g-doppel") { state.doppel = t.value === "1"; markDirty(); }
   else if (t.id === "g-top") { state.top = t.value; markDirty(); }
   else if (t.dataset.buynew) { if (t.checked) { const r = bom(geometry()).find(x => x.code === t.dataset.buynew); state.buyNew[t.dataset.buynew] = Math.round((r ? r.price * 2.2 : 0) * 100) / 100; } else delete state.buyNew[t.dataset.buynew]; markDirty(); }
   else if (t.dataset.nkprice) { state.buyNew[t.dataset.nkprice] = Math.max(0, +t.value || 0); markDirty(); }
