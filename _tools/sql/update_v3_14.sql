@@ -1,4 +1,5 @@
 -- Update v3.14 (12.10.2026): Marktpreise je Teil (Kleinanzeigen, gebraucht, guter Zustand, brutto je Stück)
+-- Marge differenzbesteuert: (Marktpreis - Ø EK) / 1,19
 create table if not exists marktpreis (
   typ text not null references teiltyp(code),
   mass text not null default '*',
@@ -96,7 +97,7 @@ create or replace view lager_health as
     coalesce(v.verbaut, 0) as verbaut, v.verbaut_in,
     mp.vk as marktpreis,
     t.bestand::numeric * mp.vk as marktwert,
-    round(mp.vk / 1.19 - t.durchschnittspreis, 2) as marge_stueck
+    round(case when mp.vk > t.durchschnittspreis then (mp.vk - t.durchschnittspreis) / 1.19 else mp.vk - t.durchschnittspreis end, 2) as marge_stueck
    from teil t
      join teiltyp tt on tt.code = t.typ
      left join teil_verbaut v on v.teil = t.code
