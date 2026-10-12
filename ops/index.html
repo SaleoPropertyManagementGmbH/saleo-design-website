@@ -113,9 +113,9 @@ async function loadAll() {
     fetch("data/inserate.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : { inserate: [] }).catch(() => ({ inserate: [] }))
   ]);
   const opt = (t, s = "*", m) => fetchAll(t, s, m).catch(() => []);
-  const [moebel, mteile, ausw, verk, auf, zahl, verb, besch, beschK, einkaeufe] = await Promise.all([opt("moebel", "*", q => q.order("erstellt_am", { ascending: false })), opt("moebel_teil"), opt("auswertung_kategorie"), opt("marge_je_verkauf", "*", q => q.order("datum", { ascending: false })),
-    opt("auftrag_uebersicht", "*", q => q.order("erstellt_am", { ascending: false })), opt("zahlung", "*", q => q.eq("status", "neu").order("zeitpunkt", { ascending: false })), opt("verbindung", "*", q => q.order("reihenfolge")), opt("beschichtung_uebersicht", "*", q => q.order("erstellt_am", { ascending: false })), opt("beschichtung_kandidat"), opt("ka_einkauf", "*", q => q.order("geaendert_am", { ascending: false }))]);
-  Object.assign(D, { lager, typen, farben, plan, vorlagen, vpos, std, regeln, bew, ins: ins.inserate || [], insStand: ins.stand, moebel, mteile, ausw, verk, auf, zahl, verb, besch, beschK, einkaeufe });
+  const [moebel, mteile, ausw, verk, auf, zahl, verb, besch, beschK, einkaeufe, claude] = await Promise.all([opt("moebel", "*", q => q.order("erstellt_am", { ascending: false })), opt("moebel_teil"), opt("auswertung_kategorie"), opt("marge_je_verkauf", "*", q => q.order("datum", { ascending: false })),
+    opt("auftrag_uebersicht", "*", q => q.order("erstellt_am", { ascending: false })), opt("zahlung", "*", q => q.eq("status", "neu").order("zeitpunkt", { ascending: false })), opt("verbindung", "*", q => q.order("reihenfolge")), opt("beschichtung_uebersicht", "*", q => q.order("erstellt_am", { ascending: false })), opt("beschichtung_kandidat"), opt("ka_einkauf", "*", q => q.order("geaendert_am", { ascending: false })), opt("claude_auftrag", "*", q => q.order("erstellt_am", { ascending: false }))]);
+  Object.assign(D, { lager, typen, farben, plan, vorlagen, vpos, std, regeln, bew, ins: ins.inserate || [], insStand: ins.stand, moebel, mteile, ausw, verk, auf, zahl, verb, besch, beschK, einkaeufe, claude });
 }
 async function loadBuildable() {
   const jobs = [];
@@ -234,7 +234,7 @@ function vAuftraege() {
   const umsatzOffen = [...heiss, ...bez, ...arbeit].reduce((s, a) => s + Number(a.erloes || 0), 0);
   const sec = (t, list, leer, note = "") => `<section class="order-sec"><div class="card-head"><h2>${t} <span class="wo">${list.length}</span></h2>${note ? `<span class="note">${note}</span>` : ""}</div>${list.length ? list.map(auftragKarte).join("") : `<p class="empty">${leer}</p>`}</section>`;
   return head("Aufträge", "Vom Chat über Rechnung und Zahlungseingang bis zum gedruckten DPD-Label. Schreibt ihr im Chat „Wir kümmern uns um die Rechnung“, bereite ich die Rechnung vor. Ihr sendet sie und gebt das Label frei.") +
-    (UI.flash ? `<div class="banner"><span>${esc(UI.flash)}</span></div>` : "") +
+    (UI.flash ? `<div class="banner"><span>${esc(UI.flash)}</span></div>` : "") + vClaude() +
     `<div class="stats">${stat("Label freigeben", bez.length, bez.length ? "wartet auf euch" : "nichts offen", bez.length ? "neg" : "good")}${stat("Kurz vor Abschluss", heiss.length, "reserviert")}${stat("Label in Arbeit", arbeit.length)}${stat("Offener Umsatz", eur(umsatzOffen).replace(",00", ""))}</div>
     ${sec("Bezahlt: Label freigeben", bez, "Kein bezahlter Auftrag offen.", "Zahlung ist da und zugeordnet")}
     ${sec("Kurz vor Abschluss", heiss, "Gerade nichts kurz vor Abschluss.", "Rechnung vorbereitet oder gesendet, Zahlung steht aus")}
@@ -276,6 +276,14 @@ function vVerbindungen() {
   return `<details class="card verb"${weg.length ? " open" : ""}><summary class="card-head"><h2>Verbindungen</h2><span class="badge ${weg.length ? "warn" : "ok"}">${weg.length ? weg.length + " brauch" + (weg.length > 1 ? "en" : "t") + " Anmeldung" : "alles verbunden"}</span></summary>
     ${v.map(zeile).join("")}${weg.length ? `<p class="note" style="margin:8px 0 0">Anmelden bitte am Mac in der Claude-App, dort wo diese Seite offen ist. Dann bleibt die Anmeldung für mich nutzbar.</p>` : ""}</details>`;
 }
+const CST = { offen: ["warn", "offen"], in_arbeit: ["new", "in Arbeit"], rueckfrage: ["bad", "Rückfrage"], erledigt: ["ok", "erledigt"], abgelehnt: ["", "nicht gemacht"] };
+function vClaude() {
+  const list = (D.claude || []).slice(0, 8), offen = (D.claude || []).filter(c => ["offen", "in_arbeit", "rueckfrage"].includes(c.status)).length;
+  return `<section class="card claude-box"><div class="card-head"><h2>An Claude</h2><span class="note">${offen ? `${offen} offen · ` : ""}Ich schaue stündlich rein, zwischen 7 und 23 Uhr</span></div>
+    <div class="claude-form"><textarea id="ca-text" rows="2" placeholder="Was soll ich machen? Zum Beispiel: Rechnung für den Käufer vom grünen Konsolenregal schreiben und senden. Oder: Couchtisch ist verkauft, 180 € bar."></textarea><button class="btn primary" data-casend="1">Senden</button></div>
+    ${list.length ? `<div class="claude-list">${list.map(c => `<div class="claude-item"><div class="t"><span class="badge ${(CST[c.status] || [""])[0]}">${(CST[c.status] || ["", c.status])[1]}</span> <b>${esc(c.von || "")}</b> <span class="wo">${when(c.erstellt_am)}</span></div><div>${esc(c.text)}</div>${c.antwort ? `<div class="antwort">${esc(c.antwort)}</div>` : ""}</div>`).join("")}</div>` : ""}
+  </section>`;
+}
 function vStart() {
   const wert = D.lager.reduce((a, r) => a + Number(r.wert || 0), 0), teile = D.lager.reduce((a, r) => a + r.bestand, 0);
   const low = D.lager.filter(r => r.unter_minimum && r.mindestbestand);
@@ -287,7 +295,7 @@ function vStart() {
     `<div class="stats">${stat("Inserate online", aktiv.length, `zusammen ${eur(insWert).replace(",00", "")}`)}${stat("Aufträge offen", offeneAuftraege().length, offeneAuftraege().length ? "Label freigeben" : "nichts zu tun", offeneAuftraege().length ? "neg" : "")}${stat("Fertige Möbel", verfuegbareMoebel().length, "sofort verfügbar")}${stat("Offene Planungen", offen.length, `${D.plan.filter(p => p.status === "angebot").length} im Angebot`)}${stat("Lagerwert", eur(wert).replace(",00", ""), `${num(teile)} Teile`)}${stat("Unter Mindestbestand", low.length, low.length ? "nachkaufen prüfen" : "alles im grünen Bereich", low.length ? "neg" : "good")}</div>
     ${offeneAuftraege().length ? `<div class="banner"><span><b>${offeneAuftraege().length} bezahlte${offeneAuftraege().length > 1 ? "" : "r"} Auftrag${offeneAuftraege().length > 1 ? "e" : ""}</b> warte${offeneAuftraege().length > 1 ? "n" : "t"} auf die Label-Freigabe.</span><a class="btn primary small" href="#auftraege">Ansehen</a></div>` : ""}
     ${empty ? `<div class="banner info"><span>Das Lager ist noch leer. Inventur einfach per Plaud an Klaus diktieren, pro Regalfach: Anzahl, Teil, Maß, Farbe, Zustand, Preis. Ich buche ein, danach rechnen Planer und Übersicht mit echten Zahlen.</span></div>` : ""}
-    ${vEinkaeufe()}${vVerbindungen()}
+    ${vClaude()}${vEinkaeufe()}${vVerbindungen()}
     <div class="grid-2">
       ${verfuegbareMoebel().length ? `<section class="card"><div class="card-head"><h2>Fertige Möbel, sofort verfügbar</h2><a href="#moebel">Alle</a></div>
         ${verfuegbareMoebel().slice(0, 6).map(m => `<div class="list-row"><div class="grow"><div class="t"><a href="planer.html?moebel=${m.id}">${esc(m.name)}</a></div><div class="wo">${[m.masse ? m.masse + " cm" : "", m.lagerort ? "Lagerort " + m.lagerort : "", "Warenwert " + eur(moebelWert(m)).replace(",00", "")].filter(Boolean).join(" · ")}</div></div><span class="badge ${(MST[m.status] || [""])[0]}">${(MST[m.status] || ["", m.status])[1]}</span></div>`).join("")}</section>` : ""}
@@ -461,6 +469,14 @@ document.addEventListener("click", async e => {
     const { error } = await sb.rpc("auftrag_freigeben", { p_id: b.dataset.afrei, p_wer: me() });
     UI.flash = error ? "Freigabe ging nicht: " + error.message : null; liveReload();
   }
+  else if (b.dataset.casend) {
+    const ta = document.getElementById("ca-text"), t = (ta && ta.value || "").trim();
+    if (!t) return;
+    if (!me()) { UI.flash = "Bitte zuerst bei „Ich bin“ auswählen, wer schreibt."; render(); return; }
+    b.disabled = true; b.textContent = "wird gesendet…";
+    const { error } = await sb.rpc("claude_auftrag_neu", { p_text: t, p_von: me() });
+    UI.flash = error ? "Ging nicht: " + error.message : "Ist bei mir angekommen. Ich melde mich hier mit der Antwort."; liveReload();
+  }
   else if (b.dataset.abez) {
     if (!me()) { UI.flash = "Bitte zuerst bei „Ich bin“ auswählen, wer die Zahlung bestätigt."; render(); return; }
     if (b.dataset.sicher !== "1") { b.dataset.sicher = "1"; b.textContent = "Sicher? Dann ist es verkauft"; b.classList.add("primary"); return; }
@@ -509,6 +525,7 @@ async function start() {
     .on("postgres_changes", { event: "*", schema: "public", table: "verbindung" }, liveReload)
     .on("postgres_changes", { event: "*", schema: "public", table: "beschichtung" }, liveReload)
     .on("postgres_changes", { event: "*", schema: "public", table: "ka_einkauf" }, liveReload)
+    .on("postgres_changes", { event: "*", schema: "public", table: "claude_auftrag" }, liveReload)
     .subscribe(s => { const el = document.getElementById("live"); el.textContent = s === "SUBSCRIBED" ? "live verbunden" : "offline"; el.classList.toggle("on", s === "SUBSCRIBED"); });
 }
 start();

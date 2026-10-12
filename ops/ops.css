@@ -341,3 +341,12 @@ details.verbaut li b { font-variant-numeric: tabular-nums; }
 .kalk b { font-variant-numeric: tabular-nums; }
 @media (max-width: 640px) { .kalk { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 details.teile ul { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 2px; font-size: .86rem; }
+
+.claude-box { border-color: var(--accent); }
+.claude-form { display: flex; gap: 10px; align-items: flex-start; }
+.claude-form textarea { flex: 1; min-height: 52px; resize: vertical; font: inherit; padding: 10px 12px; border: 1px solid var(--line-strong, var(--line)); border-radius: 10px; background: var(--surface); color: var(--fg); }
+.claude-form textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.claude-list { display: grid; gap: 8px; margin-top: 12px; }
+.claude-item { padding: 10px 12px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); font-size: .9rem; display: grid; gap: 4px; }
+.claude-item .antwort { padding-left: 10px; border-left: 3px solid var(--accent); color: var(--fg-2, var(--fg)); white-space: pre-wrap; }
+@media (max-width: 640px) { .claude-form { flex-direction: column; } .claude-form .btn { width: 100%; } }
