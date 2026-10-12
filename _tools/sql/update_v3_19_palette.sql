@@ -129,3 +129,20 @@ end $$;
 revoke execute on function farbe_sonder_anlegen(text, text, text) from public, anon;
 grant execute on function farbe_sonder_anlegen(text, text, text) to authenticated;
 select (select wert from firma where schluessel = 'beschichter_email') mail, (select count(*) from beschichtung_uebersicht) v;
+
+-- v3.19c: Sonderfarben
+alter table farbe add column if not exists hex text;
+alter table farbe add column if not exists sonder boolean not null default false;
+update farbe set hex = '#c9ccd0' where code = 'CR' and hex is null;
+insert into farbe (code, name, hex, sonder, sortierung) select 'X1', 'Burgunder', '#6b1e2e', true, 101 where not exists (select 1 from farbe where code = 'X1');
+
+-- v3.19e: Teil aus der Kandidatenliste auf die Palette legen
+create or replace function palette_hinzufuegen(p_teil text) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if not ist_nutzer() then raise exception 'Kein Zugriff'; end if;
+  update teil set lagerort = case when coalesce(lagerort, '') = '' then 'Raum 3, Palette Beschichter' when lagerort like '%Palette Beschichter%' then lagerort else lagerort || ' · Raum 3, Palette Beschichter' end where code = p_teil and bestand > 0;
+  if not found then raise exception 'Teil % nicht im Lager', p_teil; end if;
+end $$;
+revoke execute on function palette_hinzufuegen(text) from public, anon;
+grant execute on function palette_hinzufuegen(text) to authenticated;

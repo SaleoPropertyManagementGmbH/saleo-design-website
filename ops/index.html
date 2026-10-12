@@ -324,7 +324,7 @@ function palModal(teile, pos) {
   const eimer = PAL_FARBEN().map(f => {
     const hier = pos.filter(p => p.zielfarbe === f.code), summe = hier.reduce((s, p) => s + p.menge, 0);
     return `<div class="pal-eimer${summe ? " voll" : ""}${UI.palPulse === f.code ? " pulse" : ""}${UI.palSel ? " ziel" : ""}" data-palfarbe="${f.code}" style="--c:${FARBHEX[f.code] || "#ccc"}">
-      <div class="kopf"><i class="dose${f.code === "CR" ? " chrom" : ""}"></i><span>${esc(f.name)}${f.sonder || f.code === "CR" ? ` <em class="sonder">Sonder</em>` : ""}</span>${summe ? `<b>${summe}</b>` : ""}</div>
+      <div class="kopf"><i class="dose${f.code === "CR" ? " chrom" : ""}"></i><span>${esc(f.name)}${f.sonder || f.code === "CR" ? ` <em class="sonder">Sonder</em>` : ""}<small class="ral">${esc(f.ral || "")}</small></span>${summe ? `<b>${summe}</b>` : ""}</div>
       ${hier.map(p => { const r = teile.find(t => t.code === p.teil) || {}; return `<div class="drin"><span>${p.menge} × ${katVon(p.teil) ? esc(katVon(p.teil).name) : esc(r.bezeichnung || p.teil)} ${esc((r.mass || "").replace("x", "×"))}${r.generation === "A" ? " <b class=\"gen alt\">alt</b>" : ""}${p.zweck === "auftrag" ? ` <em>für ${esc(p.kunde || "Auftrag")}</em>` : ""}</span><button data-palminus="${p.id || ""}" data-palteil="${esc(p.teil)}" data-palf="${f.code}" title="Eins zurück auf die Palette" aria-label="Eins zurück">−</button></div>`; }).join("")}</div>`;
   }).join("");
   const aOpt = `<option value="">fürs Lager</option>` + (D.auf || []).filter(a => !["storniert", "versendet", "abgeholt", "abgeschlossen"].includes(a.status)).slice(0, 40).map(a => `<option value="${a.id}"${UI.palAuftrag === a.id ? " selected" : ""}>${esc((a.kaeufer_name ? a.kaeufer_name + ": " : "") + (a.titel || "").slice(0, 40))}</option>`).join("");
@@ -336,7 +336,7 @@ function palModal(teile, pos) {
     <label class="pal-fuer">Gilt für <select id="pal-auftrag" aria-label="Kundenauftrag">${aOpt}</select></label>
     <div class="pal-mgrid"><div class="pal-stapel"><h3>Auf der Palette <span class="note">${nOffen} ohne Farbe</span></h3><div class="tiles">${tiles || `<p class="empty">Alles verteilt.</p>`}</div></div>
     <div class="pal-eimer-grid">${eimer}<div class="pal-eimer neu-farbe"><div class="kopf"><i class="dose plus">+</i><span>Sonderfarbe</span></div>
-      <div class="neu-form"><input id="sf-name" placeholder="Name, z. B. Burgunder" aria-label="Name der Sonderfarbe"><input id="sf-hex" type="color" value="#6b1e2e" aria-label="Farbton"><button class="btn small" data-sfneu="1">Anlegen</button></div></div></div></div></div>`;
+      <div class="neu-form"><input id="sf-name" placeholder="Name, z. B. Burgunder" aria-label="Name der Sonderfarbe"><input id="sf-ral" placeholder="RAL" aria-label="RAL-Nummer" class="ral"><input id="sf-hex" type="color" value="#6b1e2e" aria-label="Farbton"><button class="btn small" data-sfneu="1">Anlegen</button></div></div></div></div></div>`;
 }
 async function palZuordnen(code, farbe) {
   const r = (D.lager || []).find(x => x.code === code); if (!r) return;
@@ -699,9 +699,9 @@ document.addEventListener("click", async e => {
   else if (b.dataset.sfneu) {
     const name = (document.getElementById("sf-name")?.value || "").trim(), hex = document.getElementById("sf-hex")?.value || null;
     if (!name) { UI.flash = "Bitte einen Namen für die Sonderfarbe eingeben."; render(); return; }
-    b.disabled = true; const { data, error } = await sb.rpc("farbe_sonder_anlegen", { p_name: name, p_hex: hex });
+    b.disabled = true; const ral = (document.getElementById("sf-ral")?.value || "").trim(); const { data, error } = await sb.rpc("farbe_sonder_anlegen", { p_name: name, p_hex: hex, p_ral: ral || null });
     if (error) { UI.flash = "Ging nicht: " + error.message; render(); return; }
-    if (!D.farben.find(f => f.code === data)) D.farben.push({ code: data, name, hex, sonder: true, sortierung: 999 });
+    if (!D.farben.find(f => f.code === data)) D.farben.push({ code: data, name, hex, ral: ral ? (/^ral/i.test(ral) ? ral : "RAL " + ral) : null, sonder: true, sortierung: 999 });
     if (hex) FARBHEX[data] = hex; UI.palPulse = data; render(); setTimeout(() => { UI.palPulse = null; render(); }, 650);
   }
   else if (b.dataset.palauf) { b.disabled = true; const { error } = await sb.rpc("palette_hinzufuegen", { p_teil: b.dataset.palauf }); UI.flash = error ? "Ging nicht: " + error.message : "Liegt jetzt auf der Palette."; liveReload(); }
