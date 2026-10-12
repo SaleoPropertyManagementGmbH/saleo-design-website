@@ -1,8 +1,49 @@
 {
- "stand": "2026-10-11T15:06:04+00:00",
+ "stand": "2026-10-12T05:57:08+00:00",
  "quelle": "https://www.kleinanzeigen.de/pro/saleo-group",
  "sellerId": "151007875",
  "inserate": [
+  {
+   "id": "3407534310",
+   "titel": "USM Haller Befestigung Set Zwischen Tablar Boden Halterung",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-befestigung-set-zwischen-tablar-boden-halterung/3407534310-93-4900",
+   "bilder": [
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/38/38409d59-3b85-4385-ba26-a135700da33e?rule=$_57.AUTO"
+   ],
+   "preis": 25,
+   "preisTyp": "SPECIFIED_AMOUNT",
+   "vb": false,
+   "erstellt": "2026-10-11T17:06:04.000Z",
+   "status": "ACTIVE",
+   "art": "teil",
+   "farbe": null,
+   "zustand": "G",
+   "zustandText": "Sehr Gut",
+   "masse": null,
+   "klappen": 0,
+   "auszuege": 0,
+   "innenauszuege": 0,
+   "prospekt": 0,
+   "neupreis": null,
+   "beschreibung": "USM Haller Halter Set für die Befestigung von Zwischenböden. Sehr Gut erhalten - normale Gebrauchsspuren Versand ist möglich! Senden Sie uns auch gerne Ihre Wunschkonfiguration zu und wir erstellen Ihnen ein...",
+   "gekuerzt": true,
+   "planer": null,
+   "hinweis": null,
+   "zuerstGesehen": "2026-10-10T18:18:37+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-11",
+     147,
+     15,
+     1
+    ]
+   ],
+   "aufrufe": 147,
+   "gemerkt": 15,
+   "anfragen": 1
+  },
   {
    "id": "3407322020",
    "titel": "USM Haller Wanne Auszug 2. Generation 2x Verfügbar Weiß",
@@ -31,7 +72,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -78,7 +119,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -129,7 +170,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -212,7 +253,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -310,7 +351,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -409,7 +450,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -506,7 +547,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -605,7 +646,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -701,7 +742,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -746,7 +787,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -843,7 +884,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -941,7 +982,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1023,7 +1064,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1122,7 +1163,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1167,7 +1208,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1249,7 +1290,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1348,7 +1389,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1394,7 +1435,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1439,7 +1480,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1556,7 +1597,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1689,7 +1730,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1788,7 +1829,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1835,7 +1876,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1930,7 +1971,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1987,7 +2028,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2148,7 +2189,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2264,7 +2305,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2422,7 +2463,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2515,7 +2556,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2592,7 +2633,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2633,7 +2674,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2677,7 +2718,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2718,7 +2759,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2760,7 +2801,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2806,7 +2847,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2900,7 +2941,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3028,7 +3069,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3159,7 +3200,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3201,7 +3242,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3295,7 +3336,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3406,7 +3447,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3484,7 +3525,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3525,7 +3566,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3618,7 +3659,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3744,7 +3785,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
+   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3757,47 +3798,6 @@
    "aufrufe": 419,
    "gemerkt": 28,
    "anfragen": 5
-  },
-  {
-   "id": "3407534310",
-   "titel": "USM Haller Befestigung Set Zwischen Tablar Boden Halterung",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-befestigung-set-zwischen-tablar-boden-halterung/3407534310-93-4900",
-   "bilder": [
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/38/38409d59-3b85-4385-ba26-a135700da33e?rule=$_57.AUTO"
-   ],
-   "preis": 25,
-   "preisTyp": "SPECIFIED_AMOUNT",
-   "vb": false,
-   "erstellt": "2026-09-11T17:06:33.000Z",
-   "status": "ACTIVE",
-   "art": "teil",
-   "farbe": null,
-   "zustand": "G",
-   "zustandText": "Sehr Gut",
-   "masse": null,
-   "klappen": 0,
-   "auszuege": 0,
-   "innenauszuege": 0,
-   "prospekt": 0,
-   "neupreis": null,
-   "beschreibung": "USM Haller Halter Set für die Befestigung von Zwischenböden. Sehr Gut erhalten - normale Gebrauchsspuren Versand ist möglich! Senden Sie uns auch gerne Ihre Wunschkonfiguration zu und wir erstellen Ihnen ein...",
-   "gekuerzt": true,
-   "planer": null,
-   "hinweis": null,
-   "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-11T15:06:04+00:00",
-   "aktiv": true,
-   "aufrufeVerlauf": [
-    [
-     "2026-10-11",
-     147,
-     15,
-     1
-    ]
-   ],
-   "aufrufe": 147,
-   "gemerkt": 15,
-   "anfragen": 1
   }
  ]
 }
