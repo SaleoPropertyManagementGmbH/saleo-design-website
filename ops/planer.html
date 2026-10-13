@@ -505,7 +505,7 @@ function drawing(geo) {
     <linearGradient id="tubeH" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--chrome-hi)"/><stop offset=".55" stop-color="var(--chrome-mid)"/><stop offset="1" stop-color="var(--chrome-lo)"/></linearGradient>
     <radialGradient id="ball" cx=".35" cy=".35" r=".7"><stop offset="0" stop-color="var(--chrome-hi)"/><stop offset=".55" stop-color="var(--chrome-mid)"/><stop offset="1" stop-color="var(--chrome-lo)"/></radialGradient>
     <pattern id="perf" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r=".7" fill="#00000050"/></pattern>
-    <pattern id="holes" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="4.5" cy="4.5" r="1.4" fill="#00000050"/></pattern>
+    <pattern id="akustik" width="2.6" height="2.6" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r=".45" fill="#00000066"/></pattern>
   </defs>`;
   g += `<line x1="0" x2="${vw}" y1="${Y(0) + footH}" y2="${Y(0) + footH}" stroke="var(--line)" stroke-width="1"/>`;
   state.fields.forEach(f => {
@@ -514,8 +514,17 @@ function drawing(geo) {
     const darkF = isDark(cFront), darkB = isDark(cBack), inkB = darkB ? "#ffffff80" : "#00000050";
     let inner = "";
     if (["BL", "BP", "BPF", "BAK", "BK"].includes(f.back)) inner += `<rect x="${x0}" y="${yt}" width="${w}" height="${h}" fill="${cBack}" opacity="${darkB ? .8 : .6}"/>`;
-    if (f.back === "BPF" || f.back === "BAK") inner += `<rect x="${x0}" y="${yt}" width="${w}" height="${h}" fill="url(#perf)"/>`;
-    if (f.back === "BP") inner += `<rect x="${x0}" y="${yt}" width="${w}" height="${h}" fill="url(#holes)"/>`;
+    // Perforiert: gleichmäßige Lochung über die ganze Fläche; Akustik: feine Mikrolochung mit dunklem Vlies dahinter
+    if (f.back === "BPF") inner += `<rect x="${x0}" y="${yt}" width="${w}" height="${h}" fill="url(#perf)"/>`;
+    if (f.back === "BAK") inner += `<rect x="${x0 + 5}" y="${yt + 5}" width="${Math.max(0, w - 10)}" height="${Math.max(0, h - 10)}" fill="#2a2a2a" opacity=".22"/><rect x="${x0 + 5}" y="${yt + 5}" width="${Math.max(0, w - 10)}" height="${Math.max(0, h - 10)}" fill="url(#akustik)"/>`;
+    // Gelocht (Innentablar-Blech): nur eine Lochreihe am äußeren Rand
+    if (f.back === "BP") {
+      const r = 1.4, m = 4.5, st = 7;
+      for (let x = x0 + m; x <= x0 + w - m + .1; x += st) inner += `<circle cx="${x}" cy="${yt + m}" r="${r}" fill="${inkB}"/><circle cx="${x}" cy="${yt + h - m}" r="${r}" fill="${inkB}"/>`;
+      for (let y = yt + m + st; y < yt + h - m - .1; y += st) inner += `<circle cx="${x0 + m}" cy="${y}" r="${r}" fill="${inkB}"/><circle cx="${x0 + w - m}" cy="${y}" r="${r}" fill="${inkB}"/>`;
+    }
+    // Kabeldurchlass: Ausschnitt unten mittig (63 × 48 mm)
+    if (f.back === "BK") { const kw = 63 * S, kh = 48 * S; inner += `<rect x="${x0 + w / 2 - kw / 2}" y="${yt + h - kh - 6}" width="${kw}" height="${kh}" rx="${Math.min(4, kh / 3)}" fill="var(--wall)" stroke="#00000055" stroke-width=".8"/>`; }
     if (f.back === "GL") inner += `<rect x="${x0}" y="${yt}" width="${w}" height="${h}" fill="#bfe0ea" opacity=".35"/>`;
     if (!f.back) inner += `<rect x="${x0}" y="${yt}" width="${w}" height="${h}" fill="var(--wall)"/>`;
     if (!f.front) {
