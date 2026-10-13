@@ -467,7 +467,7 @@ function outer() {
   const maxX = Math.max(...state.fields.map(f => f.x + f.w)), maxY = Math.max(...state.fields.map(f => f.y + f.h));
   return { w: maxX + 23, d: (state.doppel ? 2 * state.depth : state.depth) + 23, h: maxY + (state.base === "FU" ? 40 : 80), rollen: state.base !== "FU" };
 }
-const paid = () => Math.round((Number(state.price) || 0) * (1 - state.rabatt / 100) * 100) / 100;
+const paid = () => state.zahlt != null && state.zahlt !== "" ? Number(state.zahlt) : Math.round((Number(state.price) || 0) * (1 - state.rabatt / 100) * 100) / 100;
 function calcNumbers(ek, p) {
   const ustD = Math.max(0, p - ek) * VAT / (1 + VAT), gewD = p - ek - ustD;
   const netR = p * (1 + REGEL_AUFSCHLAG), ustR = netR * VAT, bruttoR = netR + ustR, gewR = netR - ek;
@@ -695,7 +695,7 @@ function tabCalc(rows) {
   return `<div class="pricein">
       <label class="f" for="in-price">Inseratspreis VB (€)<input id="in-price" type="number" min="0" step="10" value="${list}"></label>
       <label class="f" for="in-rabatt">Rabatt (%)<input id="in-rabatt" type="number" min="0" max="50" step="1" value="${state.rabatt}"></label>
-      <label class="f" for="in-paid">Kunde zahlt (€)<input id="in-paid" type="number" min="0" step="5" value="${p}"></label>
+      <label class="f" for="in-paid">Kunde zahlt (€)<input id="in-paid" type="number" min="0" step="0.01" inputmode="decimal" value="${p}"></label>
     </div>
     <div class="chips" role="group" aria-label="Rabatt">${[0, 3, 5, 7, 10].map(r => `<button class="chip" data-rabatt="${r}" aria-pressed="${state.rabatt === r}">${r ? "−" + r + " %" : "kein Rabatt"}</button>`).join("")}</div>
     <div class="pricein">
@@ -787,10 +787,10 @@ function render() {
 }
 
 /* ---------- Speichern, Laden, Live ---------- */
-const SAVE_KEYS = ["fields", "depth", "color", "zustand", "base", "sides", "top", "doppel", "extra", "buyNew", "besch", "price", "rabatt", "ertragsteuer", "neupreis"];
+const SAVE_KEYS = ["fields", "depth", "color", "zustand", "base", "sides", "top", "doppel", "extra", "buyNew", "besch", "price", "zahlt", "rabatt", "ertragsteuer", "neupreis"];
 function snapshot() { const d = {}; SAVE_KEYS.forEach(k => d[k] = state[k]); d._geraet = DEVICE; d._version = 6; d._inserat = PLAN.inserat || null; d._vorlage = !!(PLAN.vorlage && PLAN.inserat); return JSON.parse(JSON.stringify(d)); }
 function applyData(d) {
-  state.doppel = false; state.extra = [];
+  state.doppel = false; state.extra = []; state.zahlt = null;
   SAVE_KEYS.forEach(k => { if (d[k] !== undefined) state[k] = JSON.parse(JSON.stringify(d[k])); });
   PLAN.inserat = d._inserat || PLAN.inserat || null;
   PLAN.vorlage = !!d._vorlage;
@@ -972,7 +972,7 @@ document.addEventListener("click", async e => {
   else if (t.id === "multimode") state.multiMode = !state.multiMode;
   else if (t.id === "selsame" && f) state.multi = new Set(state.fields.filter(q => q.front === f.front && q.w === f.w && q.h === f.h).map(q => q.id));
   else if (t.id === "del" && f && state.fields.length > state.multi.size) { tryChange(() => { state.fields = state.fields.filter(q => !state.multi.has(q.id)); }); selectOnly(state.fields[0].id); }
-  else if (t.dataset.rabatt != null) { state.rabatt = +t.dataset.rabatt; markDirty(); }
+  else if (t.dataset.rabatt != null) { state.rabatt = +t.dataset.rabatt; state.zahlt = null; markDirty(); }
   else if (t.id === "order") { state.ordered = true; PLAN.status = "angebot"; await save(); return; }
   else return;
   render();
@@ -999,16 +999,16 @@ document.addEventListener("change", e => {
   else if (t.id === "g-top") { state.top = t.value; markDirty(); }
   else if (t.dataset.buynew) { if (t.checked) { const r = bom(geometry()).find(x => x.code === t.dataset.buynew); state.buyNew[t.dataset.buynew] = Math.round((r ? r.price * 2.2 : 0) * 100) / 100; } else delete state.buyNew[t.dataset.buynew]; markDirty(); }
   else if (t.dataset.nkprice) { state.buyNew[t.dataset.nkprice] = Math.max(0, +t.value || 0); markDirty(); }
-  else if (t.id === "in-price") { state.price = Math.max(0, +t.value || 0); markDirty(); }
+  else if (t.id === "in-price") { state.price = Math.max(0, +t.value || 0); state.zahlt = null; markDirty(); }
   else if (t.id === "in-neu") { state.neupreis = t.value; markDirty(); }
-  else if (t.id === "in-rabatt") { state.rabatt = Math.max(0, Math.min(50, +t.value || 0)); markDirty(); }
-  else if (t.id === "in-paid") { const list = Number(state.price) || 0; state.rabatt = list ? Math.round((1 - (+t.value || 0) / list) * 1000) / 10 : 0; markDirty(); }
+  else if (t.id === "in-rabatt") { state.rabatt = Math.max(0, Math.min(50, +t.value || 0)); state.zahlt = null; markDirty(); }
+  else if (t.id === "in-paid") { const list = Number(state.price) || 0, v = Math.max(0, +t.value || 0); state.zahlt = v; state.rabatt = list ? Math.round((1 - v / list) * 1000) / 10 : 0; markDirty(); }
   else if (t.id === "in-st") state.ertragsteuer = Math.max(0, +t.value || 0);
   else if (t.id === "in-target" && t.value) {
     const ek = bom(geometry()).reduce((a, r) => a + r.cost, 0), m = +t.value / 100, k = 1 - state.rabatt / 100;
     let p = Math.ceil(ek / (1 - m) / 10) * 10;
     for (let i = 0; i < 400 && calcNumbers(ek, p * k).gewD / (p * k) < m; i++) p += 10;
-    state.price = p; markDirty();
+    state.price = p; state.zahlt = null; markDirty();
   } else return;
   render();
 });
@@ -1050,9 +1050,11 @@ function kalkulationAusPlan() {
 // Nach dem Speichern: Kalkulation im verknüpften Auftrag (nur Aufträge ohne Lagerteile) an die Planung anpassen
 async function kalkulationNachziehen() {
   if (!PLAN.id) return false;
-  const { data } = await sb.from("auftrag").select("id").eq("planung_id", PLAN.id).limit(1);
+  const { data } = await sb.from("auftrag").select("id,preis").eq("planung_id", PLAN.id).limit(1);
   if (!data || !data[0]) return false;
   const { data: r } = await sb.rpc("auftrag_planung_setzen", { p_auftrag: data[0].id, p_planung: PLAN.id, p_kalkulation: kalkulationAusPlan(), p_ueberschreiben: true });
+  // Was der Kunde zahlt, wird zum Auftragspreis (ein Rechnungsentwurf zieht mit, gesendete Rechnungen bleiben unberührt)
+  const kz = paid(); if (kz > 0 && Number(data[0].preis) !== kz) { try { await sb.rpc("auftrag_aendern", { p_id: data[0].id, p: { preis: String(kz) } }); } catch (_) {} }
   return !!(r && r.kalkulation);
 }
 function gespeichertAnimation(zusatz) {
