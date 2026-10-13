@@ -64,3 +64,6 @@ begin
   return jsonb_build_object('ok', true, 'rechnung', hinweis, 'neu', neu);
 end $function$;
 grant execute on function public.auftrag_aendern(uuid, jsonb) to authenticated;
+
+-- Nachtrag 13.10.2026: Versandart 'lieferung' (Lieferung durch uns); Rechnungsposition heißt dann „Lieferung“ statt „Versandkosten“.
+-- alter table auftrag drop constraint auftrag_versandart_check; alter table auftrag add constraint auftrag_versandart_check check (versandart = any (array['dpd','abholung','spedition','lieferung']));
