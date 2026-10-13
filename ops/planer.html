@@ -938,6 +938,32 @@ document.addEventListener("keydown", e => {
 });
 window.addEventListener("beforeunload", e => { if (PLAN.dirty) { e.preventDefault(); e.returnValue = ""; } });
 
+
+/* Auftrag verknüpfen: Planung anlegen, Auftrag verlinken, Kalkulation (nur wenn leer) zu Lagerpreisen eintragen. Bucht nichts aus. */
+async function auftragVerknuepfen(aid, still) {
+  const sel = "id,titel,preis,planung_id,kalkulation,teile";
+  const { data } = aid ? await sb.from("auftrag").select(sel).eq("id", aid).limit(1) : PLAN.id ? await sb.from("auftrag").select(sel).eq("planung_id", PLAN.id).limit(1) : { data: null };
+  const a = data && data[0]; if (!a) return;
+  if (!PLAN.id) {
+    if (a.preis != null) state.price = Number(a.preis);
+    normalize();
+    const row = { name: PLAN.name || a.titel, daten: snapshot(), status: "reserviert", geaendert_am: new Date().toISOString(), geaendert_von: me() || "Automatik" };
+    const { data: p, error } = await sb.from("planung").insert(row).select().single();
+    if (error) return;
+    PLAN.id = p.id; PLAN.status = p.status; PLAN.stamp = p.geaendert_am; PLAN.by = p.geaendert_von; PLAN.dirty = false;
+    if (!still) history.replaceState(null, "", "planer.html?id=" + p.id);
+  }
+  const upd = {};
+  if (a.planung_id !== PLAN.id && !a.planung_id) upd.planung_id = PLAN.id;
+  if (!(a.kalkulation || []).length && !(a.teile || []).length) {
+    normalize();
+    const FB = r => r.farbe && FARBIG.includes(r.typ) ? ", " + colorName(r.farbe) : "";
+    upd.kalkulation = bom(geometry()).filter(r => r.qty > 0).map(r => ({ text: partName(r) + FB(r), teil: r.code, menge: r.qty, preis: Math.round(r.cost / r.qty * 100) / 100 }));
+  }
+  if (Object.keys(upd).length) await sb.from("auftrag").update(upd).eq("id", a.id);
+  if (!still && upd.kalkulation) state.flash = `Zum Auftrag „${a.titel}“ verknüpft. Kalkulation zu Lagerpreisen eingetragen, nichts ausgebucht.`;
+}
+
 (async () => {
   if (!(await requireSession())) return;
   try { await loadLive(); } catch (err) { state.flash = "Lagerdaten nicht geladen: " + err.message; }
@@ -946,6 +972,8 @@ window.addEventListener("beforeunload", e => { if (PLAN.dirty) { e.preventDefaul
   else if (qs.get("std")) { fromStandard(qs.get("std")); PLAN.dirty = false; }
   else if (qs.get("inserat")) { fromInserat(qs.get("inserat")); PLAN.dirty = false; }
   else if (qs.get("moebel")) { await fromMoebel(qs.get("moebel")); PLAN.dirty = false; }
+  if (qs.get("auftrag") || (PLAN.id && !qs.get("still"))) { try { await auftragVerknuepfen(qs.get("auftrag"), !!qs.get("still")); } catch (_) {} }
+  if (qs.get("still")) return;
   render();
   subscribe();
 })();
