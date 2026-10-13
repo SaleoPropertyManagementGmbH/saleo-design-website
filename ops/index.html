@@ -96,8 +96,32 @@ document.getElementById("l-mode").onclick = () => {
   document.getElementById("l-go").textContent = signup ? "Zugang einrichten" : "Anmelden";
   document.getElementById("l-mode").textContent = signup ? "Zugang schon eingerichtet? Anmelden" : "Erstes Mal hier? Zugang einrichten";
 };
+const EINL = (() => { const q = new URLSearchParams(location.search); return q.get("einladung") ? { token: q.get("einladung"), typ: q.get("typ") === "recovery" ? "recovery" : "invite", mail: q.get("mail") || "" } : null; })();
+function einladungZeigen() {
+  document.getElementById("login").hidden = false; document.getElementById("app").hidden = true;
+  const m = document.getElementById("l-mail"); m.value = EINL.mail; m.readOnly = true;
+  document.getElementById("l-pw").autocomplete = "new-password";
+  document.getElementById("l-pw2-box").hidden = false;
+  document.getElementById("l-go").textContent = "Passwort festlegen und starten";
+  document.getElementById("l-mode").hidden = true;
+  document.querySelector(".login-titel").textContent = "Ops · Social Media";
+  document.querySelector(".login-card .note").textContent = "Willkommen! Leg einmal dein eigenes Passwort fest. Danach meldest du dich immer mit dieser E-Mail und deinem Passwort an.";
+}
 document.getElementById("lf").onsubmit = async e => {
   e.preventDefault();
+  if (EINL) {
+    const pw = document.getElementById("l-pw").value, msg = document.getElementById("l-msg");
+    msg.innerHTML = "";
+    if (pw.length < 8) { msg.innerHTML = `<p class="err">Bitte mindestens 8 Zeichen.</p>`; return; }
+    if (pw !== document.getElementById("l-pw2").value) { msg.innerHTML = `<p class="err">Die Passwörter sind nicht gleich.</p>`; return; }
+    await sb.auth.signOut().catch(() => {});
+    const v = await sb.auth.verifyOtp({ token_hash: EINL.token, type: EINL.typ });
+    if (v.error) { msg.innerHTML = `<p class="err">Der Einladungslink ist nicht mehr gültig. Bitte kurz bei Samuel oder Leon melden, dann kommt ein neuer.</p>`; return; }
+    const u = await sb.auth.updateUser({ password: pw });
+    if (u.error) { msg.innerHTML = `<p class="err">${esc(u.error.message)}</p>`; return; }
+    history.replaceState(null, "", location.pathname);
+    location.reload(); return;
+  }
   const email = document.getElementById("l-mail").value.trim(), password = document.getElementById("l-pw").value, msg = document.getElementById("l-msg");
   msg.innerHTML = "";
   if (signup && password !== document.getElementById("l-pw2").value) { msg.innerHTML = `<p class="err">Die Passwörter sind nicht gleich.</p>`; return; }
@@ -1010,6 +1034,7 @@ function liveReload() { clearTimeout(reloadTimer); reloadTimer = setTimeout(asyn
 
 /* ---------- Start ---------- */
 async function start() {
+  if (EINL) { einladungZeigen(); return; }
   const { data } = await sb.auth.getSession();
   if (!data.session) { document.getElementById("login").hidden = false; document.getElementById("app").hidden = true; return; }
   const next = new URLSearchParams(location.search).get("next");
