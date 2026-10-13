@@ -182,7 +182,8 @@ const sels = () => state.fields.filter(f => state.multi.has(f.id));
 function selectOnly(id) { state.sel = id; state.multi = new Set([id]); }
 
 /* ---------- Live-Daten ---------- */
-const LIVE = { teil: [], tt: {}, std: [], ins: [], verb: {}, eigen: {}, ok: false, beschPreis: 16, palVersand: 225 };
+const LIVE = { teil: [], tt: {}, std: [], ins: [], verb: {}, eigen: {}, ok: false, beschPreis: 16, palVersand: 225,
+  dpd: { tarif: [[3, 3.40], [5, 3.80], [10, 4.40], [15, 4.90], [20, 5.10], [25, 5.40], [31.5, 5.70]], dpd_maut: 0.35, dpd_sicherheit: 0.15, dpd_nc: 7, dpd_insel: 15, dpd_uebergroesse: 43, versand_faktor: 2 } };
 const PLAN = { id: null, name: "Neue Planung", status: "entwurf", dirty: false, stamp: null, by: "", inserat: null, moebel: null, vorlage: false };
 const kurzTitel = t => String(t || "").replace(/^USM Haller\s+/i, "");
 async function loadLive() {
@@ -194,6 +195,8 @@ async function loadLive() {
   ]);
   LIVE.verb = Object.fromEntries(verb.map(v => [v.teil, v]));
   LIVE.beschPreis = 16; LIVE.palVersand = 225; try { const { data: fb } = await sb.from("firma").select("schluessel,wert").in("schluessel", ["beschichtung_preis_blech", "beschichtung_palette_versand"]); (fb || []).forEach(x => { if (x.schluessel === "beschichtung_preis_blech") LIVE.beschPreis = Number(x.wert) || 16; else LIVE.palVersand = Number(x.wert) || 225; }); } catch (_) {}
+  try { const [{ data: dt }, { data: df }] = await Promise.all([sb.from("dpd_tarif").select("bis_kg,preis").order("bis_kg"), sb.from("firma").select("schluessel,wert").in("schluessel", ["dpd_maut", "dpd_sicherheit", "dpd_nc", "dpd_insel", "dpd_uebergroesse", "versand_faktor"])]);
+    if (dt && dt.length) LIVE.dpd.tarif = dt.map(x => [Number(x.bis_kg), Number(x.preis)]); (df || []).forEach(x => LIVE.dpd[x.schluessel] = Number(x.wert)); } catch (_) {}
   LIVE.teil = teil; LIVE.tt = Object.fromEntries(tt.map(t => [t.code, t])); LIVE.std = std; LIVE.ok = true;
   if (!LIVE.ins.length) LIVE.ins = await fetch("data/inserate.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : { inserate: [] }).then(d => d.inserate || []).catch(() => []);
   // Von Hand korrigierte Planungen zu einem Inserat gelten künftig als Vorlage für dieses Inserat
@@ -491,6 +494,46 @@ function shipping(rows) {
   const longest = Math.max(o.w, o.d, o.h);
   return { net, parcels: Math.max(1, Math.ceil(net * 1.12 / 28)), dpdZerlegt: rows.every(r => r.kg <= 25), dpdMontiert: net * 1.12 <= DPD_MAX && longest <= 1750, palette: net + PALETTE_KG + 3 };
 }
+/* DPD-Pakete zerlegt schätzen: Teile nach Gewicht in Pakete bis 28 kg netto (mit 12 % Verpackung unter 31,5 kg), flach gestapelt */
+const DPD_NETTO_MAX = 28, DPD_STAPEL_MAX = 50;
+function teilMasse(r) {
+  const m = String(r.mass || "").split("x").map(Number);
+  if (r.typ === "RO") return { l: Number(r.mass) / 10 || 75, b: 8, t: 0.9 }; // Rohre im Bündel nebeneinander
+  if (m.length === 2 && m[0] && m[1]) { const l = Math.max(m[0], m[1]) / 10, b = Math.min(m[0], m[1]) / 10;
+    const t = GLASS.includes(r.typ) ? 1 : ["KL", "KLP", "AZ", "AZP", "EI", "EIP", "GT"].includes(r.typ) ? 3 : ["ER", "HR", "AT", "ST", "SLR"].includes(r.typ) ? 6 : 2; return { l, b, t }; }
+  return null; // Kleinteile
+}
+function dpdPakete(rows) {
+  const items = [], klein = { kg: 0 };
+  rows.forEach(r => { const d = teilMasse(r); if (!d) { klein.kg += r.kgSum; return; } for (let i = 0; i < r.qty; i++) items.push({ kg: r.kg, ...d }); });
+  if (klein.kg > 0) items.push({ kg: klein.kg, l: 30, b: 20, t: 10 });
+  items.sort((a, b) => b.kg - a.kg);
+  const pk = [];
+  items.forEach(it => {
+    // unter 150 Liter bleiben, sonst wird es bei DPD Sperrgut
+    const passt = x => x.netto + it.kg <= DPD_NETTO_MAX && x.t + it.t <= DPD_STAPEL_MAX && (Math.max(x.l, it.l) + 6) * (Math.max(x.b, it.b) + 6) * (x.t + it.t + 6) <= 148000;
+    let p = pk.find(passt);
+    if (!p) { p = { netto: 0, l: 0, b: 0, t: 0, n: 0 }; pk.push(p); }
+    p.netto += it.kg; p.l = Math.max(p.l, it.l); p.b = Math.max(p.b, it.b); p.t += it.t; p.n++;
+  });
+  return pk.map(p => ({ kg: Math.round(p.netto * 1.12 * 10) / 10, l: Math.ceil(p.l + 6), b: Math.ceil(p.b + 6), h: Math.ceil(p.t + 6), teile: p.n }));
+}
+const INSEL_PLZ = /^(18565|27498|27499|83256|2584[67]|25849|25859|25863|25869|2592[9]|2593[0-3]|2593[89]|2594[0-2]|2594[6-9]|2595[2-5]|2596[1-9]|25970|25980|2598[5689]|25990|2599[2-4]|2599[6-9]|26465|26474|26486|26548|26571|26579|26757)$/;
+function dpdPreis(pakete, plz) {
+  const T = LIVE.dpd, insel = INSEL_PLZ.test(String(plz || "").trim());
+  const liste = pakete.map(p => {
+    const [l, b, h] = [p.l, p.b, p.h].sort((x, y) => y - x), band = T.tarif.find(t => t[0] >= p.kg);
+    const ueber = !band || l > 175 || l + 2 * b + 2 * h > 300, nc = !ueber && (l > 120 || b > 60 || h > 60 || l * b * h / 1000 > 150);
+    const preis = (band || T.tarif[T.tarif.length - 1])[1] + T.dpd_maut + T.dpd_sicherheit + (nc ? T.dpd_nc : 0) + (ueber ? T.dpd_uebergroesse : 0) + (insel ? T.dpd_insel : 0);
+    return { ...p, l, b, h, bis: band ? band[0] : null, nc, ueber, netto: Math.round(preis * 100) / 100 };
+  });
+  const dpd = Math.round(liste.reduce((a, p) => a + p.netto, 0) * 100) / 100, kn = Math.round(dpd * T.versand_faktor * 100) / 100;
+  return { liste, insel, dpd, kundeNetto: kn, kundeBrutto: Math.round(kn * (1 + VAT) * 100) / 100 };
+}
+function dpdMontiert(rows) {
+  const s = shipping(rows), o = outer();
+  return { kg: Math.round(s.net * 1.12 * 10) / 10, l: Math.ceil(o.w / 10 + 8), b: Math.ceil(o.d / 10 + 8), h: Math.ceil(o.h / 10 + 8), teile: 1 };
+}
 function colorsUsed(rows) {
   const m = {}; rows.filter(r => FARBIG.includes(r.typ)).forEach(r => m[r.farbe] = (m[r.farbe] || 0) + r.qty);
   return Object.entries(m).sort((a, b) => b[1] - a[1]);
@@ -752,8 +795,21 @@ function tabCalc(rows) {
     <p class="note">Wareneinsatz zu Durchschnittspreisen inklusive umgelegter Abholkosten. Ertragsteuer als Näherung für Körperschaft- und Gewerbesteuer, mit dem Steuerberater abstimmen.</p>`;
 }
 function tabShip(rows) {
-  const s = shipping(rows), o = outer();
-  return `<div class="cards"><div class="card"><h3>Versand</h3><div class="sub">Gewichte geschätzt, an einer USM-Angabe geeicht</div>
+  const s = shipping(rows), o = outer(), plz = PLAN.auftragPlz || "";
+  const z = dpdPreis(dpdPakete(rows), plz), mo = dpdPreis([dpdMontiert(rows)], plz), mOk = s.dpdMontiert && !mo.liste[0].ueber;
+  const pRow = p => `<tr><td>${p.l} × ${p.b} × ${p.h} cm</td><td class="num">${String(p.kg).replace(".", ",")} kg</td><td class="num">${p.bis ? "bis " + String(p.bis).replace(".", ",") + " kg" : "zu schwer"}${p.nc ? ", Sperrgut" : ""}${p.ueber ? ", Übergröße" : ""}</td><td class="num">${eur(p.netto)}</td></tr>`;
+  const dpdKarte = `<div class="card"><h3>DPD Versandpreis</h3><div class="sub">Preisliste myDPD national, ${state.view === "intern" ? "DPD netto mal " + String(LIVE.dpd.versand_faktor).replace(".", ",") + " für Arbeit und Material" : "Kosten für Verpackung und Versand"}</div>
+    ${state.view === "intern" ? `<div class="tblwrap"><table class="bom"><thead><tr><th>Paket zerlegt</th><th class="num">Gewicht</th><th class="num">Tarif</th><th class="num">DPD netto</th></tr></thead><tbody>${z.liste.map(pRow).join("")}</tbody></table></div>
+    <div class="row"><span>DPD kostet uns (netto)</span><span>${eur(z.dpd)}</span></div><div class="row"><span>Versand Kunde netto</span><span>${eur(z.kundeNetto)}</span></div>` : ""}
+    <div class="row total"><span>Versand Kunde${z.liste.length > 1 ? " (" + z.liste.length + " Pakete)" : ""}</span><span>${eur(z.kundeBrutto)}</span></div>
+    ${state.view === "intern" ? `<div class="row"><span>Montiert als 1 Paket</span><span>${mOk ? eur(mo.kundeBrutto) + (mo.liste[0].nc ? " (Sperrgut)" : "") : "nicht möglich"}</span></div>
+    ${z.insel ? `<p class="note">Inselzuschlag für PLZ ${esc(plz)} ist enthalten.</p>` : ""}
+    ${PLAN.auftrag ? `<button class="btn" id="dpd-uebernehmen">Als DPD-Versand in den Auftrag (${eur(z.kundeBrutto)})</button>` : ""}
+    <p class="note">Versand Kunde ist der Bruttobetrag (inkl. 19 % USt), so steht er als Position „Versandkosten“ auf der Rechnung. Pakete sind eine Schätzung aus der Stückliste: Teile nach Gewicht verteilt, max. 31,5 kg je Paket inkl. 12 % Verpackung, flach gestapelt. Maut und Sicherheitsgebühr sind drin, Energiezuschlag und Fuel Surcharge von DPD (variabel) nicht. Bei einem Auftrag mit Versand DPD wird der Preis beim Speichern automatisch übernommen.</p>` : ""}</div>`;
+  return `<div class="cards">${dpdKarte}</div>` + tabShipAlt(rows, s, o);
+}
+function tabShipAlt(rows, s, o) {
+  return `<div class="cards"><div class="card"><h3>Gewicht und Maße</h3><div class="sub">Gewichte geschätzt, an einer USM-Angabe geeicht</div>
     <div class="row"><span>Außenmaße (B × T × H)</span><span>${o.w} × ${o.d} × ${o.h} mm</span></div>
     <div class="row"><span>Möbel</span><span>${kgf(s.net)}</span></div>
     <div class="row"><span>DPD zerlegt</span><span>${s.dpdZerlegt ? "ca. " + s.parcels + " Paket" + (s.parcels > 1 ? "e" : "") : "nicht möglich"}</span></div>
@@ -960,6 +1016,12 @@ document.addEventListener("click", async e => {
     else { const r = bom(geometry()).find(x => x.code === code); const rest = r ? r.qty : 0; state.weg[code] = (Number(state.weg[code]) || 0) + (t.dataset.wegall ? rest : Math.min(1, rest)); }
     markDirty();
   }
+  else if (t.id === "dpd-uebernehmen") {
+    t.disabled = true;
+    try { const { data } = await sb.from("auftrag").select("adresse").eq("id", PLAN.auftrag).limit(1); const z = await dpdInAuftrag(PLAN.auftrag, data && data[0] && data[0].adresse, null, true); showBanner(`Versand DPD mit ${eur(z.kundeBrutto)} im Auftrag eingetragen, ein Rechnungsentwurf zieht mit.`); }
+    catch (err) { showBanner("Ging nicht: " + (err.message || err)); }
+    t.disabled = false; return;
+  }
   else if (t.id === "mkauftrag") {
     if (PLAN.auftrag) { location.href = "index.html#auftraege"; return; }
     t.disabled = true;
@@ -1058,10 +1120,10 @@ window.addEventListener("beforeunload", e => { if (PLAN.dirty) { e.preventDefaul
 
 /* Auftrag verknüpfen: Planung anlegen, Auftrag verlinken, Kalkulation (nur wenn leer) zu Lagerpreisen eintragen. Bucht nichts aus. */
 async function auftragVerknuepfen(aid, still) {
-  const sel = "id,titel,preis,planung_id,kalkulation,teile";
+  const sel = "id,titel,preis,planung_id,kalkulation,teile,versandart,adresse";
   const { data } = aid ? await sb.from("auftrag").select(sel).eq("id", aid).limit(1) : PLAN.id ? await sb.from("auftrag").select(sel).eq("planung_id", PLAN.id).limit(1) : { data: null };
   const a = data && data[0]; if (!a) { if (!aid) PLAN.auftrag = null; return; }
-  PLAN.auftrag = a.id;
+  PLAN.auftrag = a.id; PLAN.auftragVersand = a.versandart; PLAN.auftragPlz = (a.adresse && a.adresse.plz) || "";
   if (!PLAN.id) {
     if (a.preis != null) state.price = Number(a.preis);
     normalize();
@@ -1082,12 +1144,22 @@ function kalkulationAusPlan() {
 // Nach dem Speichern: Kalkulation im verknüpften Auftrag (nur Aufträge ohne Lagerteile) an die Planung anpassen
 async function kalkulationNachziehen() {
   if (!PLAN.id) return false;
-  const { data } = await sb.from("auftrag").select("id,preis").eq("planung_id", PLAN.id).limit(1);
+  const { data } = await sb.from("auftrag").select("id,preis,versandart,versand_kunde,adresse").eq("planung_id", PLAN.id).limit(1);
   if (!data || !data[0]) return false;
   const { data: r } = await sb.rpc("auftrag_planung_setzen", { p_auftrag: data[0].id, p_planung: PLAN.id, p_kalkulation: kalkulationAusPlan(), p_ueberschreiben: true });
   // Was der Kunde zahlt, wird zum Auftragspreis (ein Rechnungsentwurf zieht mit, gesendete Rechnungen bleiben unberührt)
   const kz = paid(); if (kz > 0 && Number(data[0].preis) !== kz) { try { await sb.rpc("auftrag_aendern", { p_id: data[0].id, p: { preis: String(kz) } }); } catch (_) {} }
+  // DPD-Versand: Versandpreis Kunde (doppelter DPD-Preis, brutto) automatisch in den Auftrag, Rechnungsentwurf zieht mit
+  if (data[0].versandart === "dpd") { try { await dpdInAuftrag(data[0].id, data[0].adresse, Number(data[0].versand_kunde), false); } catch (_) {} }
   return !!(r && r.kalkulation);
+}
+async function dpdInAuftrag(aid, adresse, alt, setzeArt) {
+  const rows = bom(geometry()), pk = dpdPakete(rows), z = dpdPreis(pk, adresse && adresse.plz);
+  if (!setzeArt && Math.abs((alt || 0) - z.kundeBrutto) < 0.005) return z;
+  const paket = { kg: Math.round(pk.reduce((a, p) => a + p.kg, 0) * 10) / 10, anzahl: pk.length, masse: pk.length === 1 ? `${pk[0].l}x${pk[0].b}x${pk[0].h}` : "", pakete: pk, quelle: "planer", dpd_netto: z.dpd };
+  const p = { versand_kunde: String(z.kundeBrutto), versand_eigen: String(z.dpd), paket }; if (setzeArt) p.versandart = "dpd";
+  const { error } = await sb.rpc("auftrag_aendern", { p_id: aid, p }); if (error) throw error;
+  PLAN.auftragVersand = "dpd"; return z;
 }
 function gespeichertAnimation(zusatz) {
   let el = document.getElementById("saved-toast");
