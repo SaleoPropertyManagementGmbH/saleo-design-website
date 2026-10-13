@@ -25,6 +25,7 @@
     <span id="whobox"></span>
     <select id="p-status" aria-label="Status"><option value="entwurf">Entwurf</option><option value="angebot">Angebot</option><option value="reserviert">Reserviert</option><option value="verkauft">Verkauft</option><option value="archiv">Archiv</option></select>
     <div class="seg" role="group" aria-label="Ansicht"><button id="v-intern" aria-pressed="true">Planer</button><button id="v-kunde" aria-pressed="false">Kundenansicht</button></div>
+    <button class="btn" id="savecopy" hidden title="Speichert eine neue, eigene Planung. Die bisherige bleibt unverändert.">Als neue Planung</button>
     <button class="btn primary" id="save">Speichern</button>
   </div>
 </div></header>
@@ -179,7 +180,7 @@ function selectOnly(id) { state.sel = id; state.multi = new Set([id]); }
 
 /* ---------- Live-Daten ---------- */
 const LIVE = { teil: [], tt: {}, std: [], ins: [], verb: {}, eigen: {}, ok: false };
-const PLAN = { id: null, name: "Neue Planung", status: "entwurf", dirty: false, stamp: null, by: "", inserat: null, moebel: null };
+const PLAN = { id: null, name: "Neue Planung", status: "entwurf", dirty: false, stamp: null, by: "", inserat: null, moebel: null, vorlage: false };
 const kurzTitel = t => String(t || "").replace(/^USM Haller\s+/i, "");
 async function loadLive() {
   const [teil, tt, std, verb] = await Promise.all([
@@ -193,7 +194,7 @@ async function loadLive() {
   if (!LIVE.ins.length) LIVE.ins = await fetch("data/inserate.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : { inserate: [] }).then(d => d.inserate || []).catch(() => []);
   // Von Hand korrigierte Planungen zu einem Inserat gelten künftig als Vorlage für dieses Inserat
   let korr = []; try { korr = (await sb.from("planung").select("daten,geaendert_am").not("daten->>_inserat", "is", null).order("geaendert_am", { ascending: false }).limit(500)).data || []; } catch (_) {}
-  LIVE.korr = {}; korr.forEach(p => { const k = p.daten && p.daten._inserat; if (k && !LIVE.korr[k]) LIVE.korr[k] = p.daten; });
+  LIVE.korr = {}; korr.forEach(p => { const k = p.daten && p.daten._vorlage && p.daten._inserat; if (k && !LIVE.korr[k]) LIVE.korr[k] = p.daten; });
 }
 const dbTyp = e => e.typ === "HW" ? "HW-" + e.mass : e.typ === "KS" ? "HW-KS" : e.typ;
 function estPrice(typ, mass) {
@@ -736,6 +737,7 @@ function renderHead() {
   document.getElementById("p-status").value = PLAN.status;
   document.getElementById("p-meta").textContent = PLAN.id ? (PLAN.dirty ? "nicht gespeichert" : `gespeichert ${when(PLAN.stamp)}${PLAN.by ? " von " + PLAN.by : ""}`) : (PLAN.dirty ? "noch nicht gespeichert" : "");
   const n = document.getElementById("p-name"); if (document.activeElement !== n) n.value = PLAN.name;
+  const sc = document.getElementById("savecopy"); if (sc) sc.hidden = !PLAN.id;
 }
 function render() {
   ["v-intern", "v-kunde"].forEach(id => document.getElementById(id).setAttribute("aria-pressed", id === "v-" + state.view));
@@ -757,11 +759,12 @@ function render() {
 
 /* ---------- Speichern, Laden, Live ---------- */
 const SAVE_KEYS = ["fields", "depth", "color", "zustand", "base", "sides", "top", "doppel", "extra", "buyNew", "price", "rabatt", "ertragsteuer", "neupreis"];
-function snapshot() { const d = {}; SAVE_KEYS.forEach(k => d[k] = state[k]); d._geraet = DEVICE; d._version = 6; d._inserat = PLAN.inserat || null; return JSON.parse(JSON.stringify(d)); }
+function snapshot() { const d = {}; SAVE_KEYS.forEach(k => d[k] = state[k]); d._geraet = DEVICE; d._version = 6; d._inserat = PLAN.inserat || null; d._vorlage = !!(PLAN.vorlage && PLAN.inserat); return JSON.parse(JSON.stringify(d)); }
 function applyData(d) {
   state.doppel = false; state.extra = [];
   SAVE_KEYS.forEach(k => { if (d[k] !== undefined) state[k] = JSON.parse(JSON.stringify(d[k])); });
   PLAN.inserat = d._inserat || PLAN.inserat || null;
+  PLAN.vorlage = !!d._vorlage;
   state.fields.forEach(f => { if (!f.col) f.col = {}; if (f.front === "KLP") { f.front = "KL"; f.perf = true; } });
   uid = Math.max(0, ...state.fields.map(f => f.id)) + 1;
   selectOnly(state.fields[0].id); undoStack.length = 0;
@@ -770,6 +773,7 @@ function markDirty() { PLAN.dirty = true; }
 async function save() {
   if (!me()) { state.flash = "Bitte oben auswählen, wer du bist. Dann weiß der andere, wer zuletzt geändert hat."; render(); return; }
   const row = { name: PLAN.name || "Ohne Namen", daten: snapshot(), status: PLAN.status, geaendert_am: new Date().toISOString(), geaendert_von: me() };
+  const warNeu = !PLAN.id;
   const q = PLAN.id ? sb.from("planung").update(row).eq("id", PLAN.id).select().single() : sb.from("planung").insert(row).select().single();
   const btn = document.getElementById("save"); if (btn) { btn.disabled = true; btn.textContent = "Speichert…"; }
   const { data, error } = await q;
@@ -780,7 +784,7 @@ async function save() {
   document.getElementById("banner").innerHTML = "";
   render();
   let kalk = false; try { kalk = await kalkulationNachziehen(); } catch (_) {}
-  gespeichertAnimation(kalk ? "Kalkulation im Auftrag aktualisiert" : "");
+  gespeichertAnimation(kalk ? "Kalkulation im Auftrag aktualisiert" : warNeu ? "Als neue Planung angelegt" : "");
 }
 async function loadPlan(id) {
   const { data, error } = await sb.from("planung").select("*").eq("id", id).single();
@@ -813,6 +817,7 @@ function fromInserat(id) {
   if (!e || !(e.planer || korr)) { state.flash = "Zu diesem Inserat gibt es keine Planer-Vorlage."; return; }
   const keep = PLAN.id;
   applyData(korr || e.planer);
+  PLAN.vorlage = false;
   PLAN.inserat = e.id;
   if (!keep) PLAN.name = kurzTitel(e.titel);
   state.tab = "calc"; state.view = "intern";
@@ -834,14 +839,16 @@ function renderSource() {
     const st = { aufgebaut: ["ok", "aufgebaut, sofort verfügbar"], reserviert: ["warn", "reserviert"], verkauft: ["", "verkauft"], zerlegt: ["", "zerlegt"] }[m.status] || ["", m.status];
     box.innerHTML = `<div class="card source">${e && e.bilder && e.bilder[0] ? `<div class="thumbs"><img src="${esc(e.bilder[0].replace("$_57", "$_35"))}" alt=""></div>` : ""}
       <div><b>Fertigmöbel: ${esc(m.name)}</b> <span class="badge ${st[0]}">${st[1]}</span><div class="wo">${[m.masse ? m.masse + " cm" : "", m.lagerort ? "Lagerort " + m.lagerort : "", "eingekauft " + new Date(m.erstellt_am).toLocaleDateString("de-DE")].filter(Boolean).join(" · ")}</div>
-      <div class="note" style="margin-top:4px">Die Teile dieses Möbels zählen im Lager mit, sind aber als verbaut markiert. Hier im Planer gelten sie als vorhanden.</div></div>
+      <div class="note" style="margin-top:4px">Die Teile dieses Möbels zählen im Lager mit, sind aber als verbaut markiert. Hier im Planer gelten sie als vorhanden.${!PLAN.id ? " Beim Speichern entsteht eine neue, eigene Planung, das Fertigmöbel selbst bleibt unverändert." : ""}</div></div>
       ${e ? `<a class="btn" href="${esc(e.url)}" target="_blank" rel="noopener">Anzeige öffnen</a>` : ""}</div>`;
     return;
   }
   if (!e) { box.innerHTML = ""; return; }
   box.innerHTML = `<div class="card source"><div class="thumbs">${(e.bilder || []).slice(0, 3).map(u => `<a href="${esc(e.url)}" target="_blank" rel="noopener"><img src="${esc(u.replace("$_57", "$_35"))}" alt=""></a>`).join("")}</div>
     <div><b>${esc(kurzTitel(e.titel))}</b><div class="wo">Inserat ${e.preis ? eur(e.preis).replace(",00", "") : "Preis auf Anfrage"}${e.masse && e.masse.b ? ` · ${e.masse.b} × ${e.masse.h} × ${e.masse.t || "?"} cm` : ""}${e.neupreis ? ` · Neupreis ${eur(e.neupreis).replace(",00", "")}` : ""}${e.aktiv ? "" : " · nicht mehr online"}</div>${e.hinweis ? `<div class="note" style="margin-top:4px">${esc(e.hinweis)}</div>` : ""}</div>
-    <a class="btn" href="${esc(e.url)}" target="_blank" rel="noopener">Anzeige öffnen</a></div>`;
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><a class="btn" href="${esc(e.url)}" target="_blank" rel="noopener">Anzeige öffnen</a>
+    <label class="note" style="display:inline-flex;gap:6px;align-items:center" title="Dieser Aufbau wird beim nächsten Öffnen des Inserats und bei neuen Aufträgen dazu als Ausgangspunkt genommen"><input type="checkbox" id="p-vorlage"${PLAN.vorlage ? " checked" : ""}> Als Vorlage für dieses Inserat</label></div>
+    ${!PLAN.id ? `<p class="note" style="margin:6px 0 0">Beim Speichern entsteht eine neue, eigene Planung. Das Inserat und andere Planungen bleiben unverändert. Oben den Namen eintragen, z. B. den Kunden.</p>` : ""}</div>`;
 }
 function showBanner(html) { document.getElementById("banner").innerHTML = html ? `<div class="banner">${html}</div>` : ""; }
 function subscribe() {
@@ -888,6 +895,13 @@ document.addEventListener("click", async e => {
   const f = state.fields.find(q => q.id === state.sel);
   if (t.id === "v-intern" || t.id === "v-kunde") { state.view = t.id.slice(2); state.ordered = false; }
   else if (t.id === "save") { await save(); return; }
+  else if (t.id === "savecopy") {
+    PLAN.id = null; PLAN.stamp = null; PLAN.status = "entwurf"; PLAN.vorlage = false; PLAN.moebel = null; LIVE.eigen = {};
+    if (!/kopie|kunde/i.test(PLAN.name)) PLAN.name = PLAN.name + " (Kunde)";
+    await save();
+    const n = document.getElementById("p-name"); if (n) { n.focus(); n.select(); }
+    return;
+  }
   else if (t.id === "reload") { await loadPlan(PLAN.id); showBanner(""); }
   else if (t.id === "keep") { showBanner(""); markDirty(); }
   else if (t.id && t.id.startsWith("t-")) state.tab = t.id.slice(2);
@@ -920,7 +934,8 @@ document.addEventListener("click", async e => {
 document.addEventListener("change", e => {
   const t = e.target, f = state.fields.find(q => q.id === state.sel);
   if (t.id === "who") { render(); return; }
-  if (t.id === "p-status") { PLAN.status = t.value; markDirty(); }
+  if (t.id === "p-vorlage") { PLAN.vorlage = t.checked; markDirty(); }
+  else if (t.id === "p-status") { PLAN.status = t.value; markDirty(); }
   else if (t.id === "tplsel" && t.value) {
     const [k, v] = [t.value.slice(0, 1), t.value.slice(2)];
     if (PLAN.moebel) { PLAN.moebel = null; LIVE.eigen = {}; }
