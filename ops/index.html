@@ -141,7 +141,8 @@ function planerLink(a) {
   if (a.planung_id) return `planer.html?id=${a.planung_id}`;
   if (insPlaner(a)) return `planer.html?inserat=${a.inserat}&auftrag=${a.id}`;
   if (a.moebel_id) return `planer.html?moebel=${a.moebel_id}`;
-  return `planer.html?auftrag=${a.id}`;
+  // Nur Aufträge ohne Kleinanzeigen-Inserat (privat/direkt) bekommen einen leeren Planer; Einzelteil-Verkäufe aus Inseraten nicht
+  return a.inserat ? "" : `planer.html?auftrag=${a.id}`;
 }
 const AUTO_KALK = new Set();
 function autoKalkulation() {

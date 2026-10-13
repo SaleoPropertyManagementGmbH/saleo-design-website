@@ -897,6 +897,7 @@ async function save() {
   history.replaceState(null, "", "planer.html?id=" + data.id);
   document.getElementById("banner").innerHTML = "";
   render();
+  if (PLAN.auftragOffen && PLAN.auftrag) { try { await sb.rpc("auftrag_planung_setzen", { p_auftrag: PLAN.auftrag, p_planung: PLAN.id, p_kalkulation: null, p_ueberschreiben: false }); PLAN.auftragOffen = false; } catch (_) {} }
   let kalk = false; try { kalk = await kalkulationNachziehen(); } catch (_) {}
   gespeichertAnimation(kalk ? "Kalkulation im Auftrag aktualisiert" : warNeu ? "Als neue Planung angelegt" : "");
 }
@@ -931,7 +932,7 @@ function fromInserat(id) {
   if (!e || !(e.planer || korr)) { state.flash = "Zu diesem Inserat gibt es keine Planer-Vorlage."; return; }
   const keep = PLAN.id;
   applyData(korr || e.planer);
-  PLAN.vorlage = false;
+  PLAN.quelle = true; PLAN.vorlage = false;
   PLAN.inserat = e.id;
   if (!keep) PLAN.name = kurzTitel(e.titel);
   state.tab = "calc"; state.view = "intern";
@@ -942,7 +943,7 @@ async function fromMoebel(id) {
   if (!m) { state.flash = "Fertigmöbel nicht gefunden."; return; }
   PLAN.moebel = m;
   LIVE.eigen = ["aufgebaut", "reserviert"].includes(m.status) ? Object.fromEntries((teile || []).map(t => [t.teil, t.menge])) : {};
-  if (m.daten && m.daten.fields) { applyData(m.daten); }
+  if (m.daten && m.daten.fields) { applyData(m.daten); PLAN.quelle = true; }
   else state.flash = "Zu diesem Möbel ist kein Aufbau hinterlegt.";
   if (m.inserat) PLAN.inserat = m.inserat;
   PLAN.name = m.name; state.tab = "calc"; state.view = "intern";
@@ -1124,6 +1125,14 @@ async function auftragVerknuepfen(aid, still) {
   const { data } = aid ? await sb.from("auftrag").select(sel).eq("id", aid).limit(1) : PLAN.id ? await sb.from("auftrag").select(sel).eq("planung_id", PLAN.id).limit(1) : { data: null };
   const a = data && data[0]; if (!a) { if (!aid) PLAN.auftrag = null; return; }
   PLAN.auftrag = a.id; PLAN.auftragVersand = a.versandart; PLAN.auftragPlz = (a.adresse && a.adresse.plz) || "";
+  if (!PLAN.id && !still && !PLAN.quelle) {
+    // Leerer Planer zu einem Auftrag: erst beim Speichern verknüpfen, sonst landet ein Standard-Möbel in Aufträgen ohne Möbel (z. B. Einzelteile)
+    if (a.preis != null) state.price = Number(a.preis);
+    if (!PLAN.name || PLAN.name === "Neue Planung") PLAN.name = a.titel || PLAN.name;
+    PLAN.auftragOffen = true;
+    showBanner(`Für den Auftrag „${esc(a.titel || "")}“ ist noch kein Möbel geplant. Erst Möbel aufbauen, dann Speichern: dann wird es mit dem Auftrag verknüpft. Bei Einzelteilen den Planer einfach wieder schließen.`);
+    return;
+  }
   if (!PLAN.id) {
     if (a.preis != null) state.price = Number(a.preis);
     normalize();
