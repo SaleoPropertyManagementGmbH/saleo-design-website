@@ -140,7 +140,7 @@ function planerLink(a) {
   if (a.planung_id) return `planer.html?id=${a.planung_id}`;
   if (insPlaner(a)) return `planer.html?inserat=${a.inserat}&auftrag=${a.id}`;
   if (a.moebel_id) return `planer.html?moebel=${a.moebel_id}`;
-  return "";
+  return `planer.html?auftrag=${a.id}`;
 }
 const AUTO_KALK = new Set();
 function autoKalkulation() {
@@ -362,7 +362,7 @@ function vHandAuftrag() {
       <label>Preis (€) <span class="wo">kann auch später</span><input id="h-preis" type="number" step="0.01" inputmode="decimal" value="${HF("h-preis")}"></label>
       <label>Versand<select id="h-versand">${HSEL("h-versand", [["abholung", "Abholung"], ["dpd", "DPD"], ["spedition", "Spedition"]], "abholung")}</select></label>
       <label>Versandkosten Kunde (€)<input id="h-vk" type="number" step="0.01" inputmode="decimal" value="${HF("h-vk", "0")}"></label>
-      <label>Kanal<select id="h-kanal">${HSEL("h-kanal", [["kleinanzeigen", "Kleinanzeigen"], ["ebay", "eBay"], ["direkt", "Direkt"]], "kleinanzeigen")}</select></label>
+      <label>Kanal<select id="h-kanal">${HSEL("h-kanal", [["kleinanzeigen", "Kleinanzeigen"], ["ebay", "eBay"], ["direkt", "Privat / direkt"]], "kleinanzeigen")}</select></label>
       <label>Inseratnummer <span class="wo">optional</span><input id="h-inserat" type="text" inputmode="numeric" value="${HF("h-inserat")}"></label>
       <label>Name Käufer<input id="h-name" type="text" autocomplete="off" value="${HF("h-name")}"></label>
       <label>E-Mail<input id="h-mail" type="email" autocomplete="off" value="${HF("h-mail")}"></label>
@@ -381,7 +381,7 @@ function vAuftragEdit(a) {
       <label>Preis (€)<input id="ae-preis" type="number" step="0.01" inputmode="decimal" value="${v("preis")}"></label>
       <label>Versand<select id="ae-versandart">${sel("versandart", [["abholung", "Abholung"], ["dpd", "DPD"], ["spedition", "Spedition"]])}</select></label>
       <label>Versandkosten Kunde (€)<input id="ae-versand_kunde" type="number" step="0.01" inputmode="decimal" value="${v("versand_kunde")}"></label>
-      <label>Kanal<select id="ae-kanal">${sel("kanal", [["kleinanzeigen", "Kleinanzeigen"], ["ebay", "eBay"], ["direkt", "Direkt"]])}</select></label>
+      <label>Kanal<select id="ae-kanal">${sel("kanal", [["kleinanzeigen", "Kleinanzeigen"], ["ebay", "eBay"], ["direkt", "Privat / direkt"]])}</select></label>
       <label>Inseratnummer<input id="ae-inserat" type="text" inputmode="numeric" value="${v("inserat")}"></label>
       <label>Name Käufer<input id="ae-kunde_name" type="text" autocomplete="off" value="${v("kunde_name")}"></label>
       <label>E-Mail oder Kontakt<input id="ae-email" type="text" autocomplete="off" value="${v("email")}"></label>

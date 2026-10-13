@@ -25,6 +25,7 @@
     <span id="whobox"></span>
     <select id="p-status" aria-label="Status"><option value="entwurf">Entwurf</option><option value="angebot">Angebot</option><option value="reserviert">Reserviert</option><option value="verkauft">Verkauft</option><option value="archiv">Archiv</option></select>
     <div class="seg" role="group" aria-label="Ansicht"><button id="v-intern" aria-pressed="true">Planer</button><button id="v-kunde" aria-pressed="false">Kundenansicht</button></div>
+    <button class="btn" id="mkauftrag" hidden title="Legt aus dieser Planung einen Auftrag an, z. B. für Kunden, die privat kaufen statt über Kleinanzeigen.">Als Auftrag anlegen</button>
     <button class="btn" id="savecopy" hidden title="Speichert eine neue, eigene Planung. Die bisherige bleibt unverändert.">Als neue Planung</button>
     <button class="btn primary" id="save">Speichern</button>
   </div>
@@ -765,6 +766,7 @@ function renderHead() {
   document.getElementById("p-meta").textContent = PLAN.id ? (PLAN.dirty ? "nicht gespeichert" : `gespeichert ${when(PLAN.stamp)}${PLAN.by ? " von " + PLAN.by : ""}`) : (PLAN.dirty ? "noch nicht gespeichert" : "");
   const n = document.getElementById("p-name"); if (document.activeElement !== n) n.value = PLAN.name;
   const sc = document.getElementById("savecopy"); if (sc) sc.hidden = !PLAN.id;
+  const ma = document.getElementById("mkauftrag"); if (ma) { ma.hidden = !PLAN.id; ma.textContent = PLAN.auftrag ? "Zum Auftrag" : "Als Auftrag anlegen"; }
 }
 function render() {
   ["v-intern", "v-kunde"].forEach(id => document.getElementById(id).setAttribute("aria-pressed", id === "v-" + state.view));
@@ -926,8 +928,21 @@ document.addEventListener("click", async e => {
   const f = state.fields.find(q => q.id === state.sel);
   if (t.id === "v-intern" || t.id === "v-kunde") { state.view = t.id.slice(2); state.ordered = false; }
   else if (t.id === "save") { await save(); return; }
+  else if (t.id === "mkauftrag") {
+    if (PLAN.auftrag) { location.href = "index.html#auftraege"; return; }
+    t.disabled = true;
+    try {
+      if (!PLAN.id || PLAN.dirty) await save();
+      if (!PLAN.id) return;
+      const { data: aid, error } = await sb.rpc("auftrag_von_hand", { p: { titel: PLAN.name || "Planung", preis: Number(state.price) > 0 ? String(state.price) : "", kanal: "direkt", versandart: "abholung", wer: me() || "" } });
+      if (error) { showBanner("Auftrag ging nicht: " + error.message); return; }
+      await auftragVerknuepfen(aid, true);
+      gespeichertAnimation("Auftrag angelegt. Name, Adresse und Preis im Auftrag ergänzen");
+    } finally { t.disabled = false; render(); }
+    return;
+  }
   else if (t.id === "savecopy") {
-    PLAN.id = null; PLAN.stamp = null; PLAN.status = "entwurf"; PLAN.vorlage = false; PLAN.moebel = null; LIVE.eigen = {};
+    PLAN.id = null; PLAN.stamp = null; PLAN.status = "entwurf"; PLAN.vorlage = false; PLAN.moebel = null; PLAN.auftrag = null; LIVE.eigen = {};
     if (!/kopie|kunde/i.test(PLAN.name)) PLAN.name = PLAN.name + " (Kunde)";
     await save();
     const n = document.getElementById("p-name"); if (n) { n.focus(); n.select(); }
@@ -1013,7 +1028,8 @@ window.addEventListener("beforeunload", e => { if (PLAN.dirty) { e.preventDefaul
 async function auftragVerknuepfen(aid, still) {
   const sel = "id,titel,preis,planung_id,kalkulation,teile";
   const { data } = aid ? await sb.from("auftrag").select(sel).eq("id", aid).limit(1) : PLAN.id ? await sb.from("auftrag").select(sel).eq("planung_id", PLAN.id).limit(1) : { data: null };
-  const a = data && data[0]; if (!a) return;
+  const a = data && data[0]; if (!a) { if (!aid) PLAN.auftrag = null; return; }
+  PLAN.auftrag = a.id;
   if (!PLAN.id) {
     if (a.preis != null) state.price = Number(a.preis);
     normalize();
