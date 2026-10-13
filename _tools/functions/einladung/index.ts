@@ -24,9 +24,10 @@ Deno.serve(async (req) => {
     const name = String(body.name || "").trim() || null;
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return antwort({ error: "E-Mail ungültig" }, 400);
 
-    const { data: vorh } = await sb.from("app_nutzer").select("email").ilike("email", email).maybeSingle();
-    if (vorh) await sb.from("app_nutzer").update({ rolle, name }).ilike("email", email);
-    else await sb.from("app_nutzer").insert({ email, rolle, name });
+    const { data: vorh, error: e1 } = await sb.from("app_nutzer").select("email").ilike("email", email).maybeSingle();
+    if (e1) return antwort({ error: "Nutzerliste nicht lesbar: " + e1.message }, 500);
+    const { error: e2 } = vorh ? await sb.from("app_nutzer").update({ rolle, ...(name ? { name } : {}) }).ilike("email", email) : await sb.from("app_nutzer").insert({ email, rolle, name: name || email.split("@")[0] });
+    if (e2) return antwort({ error: "Freischaltung fehlgeschlagen: " + e2.message }, 500);
 
     let typ = "invite";
     let { data: l, error } = await sb.auth.admin.generateLink({ type: "invite", email });
