@@ -179,7 +179,7 @@ const sels = () => state.fields.filter(f => state.multi.has(f.id));
 function selectOnly(id) { state.sel = id; state.multi = new Set([id]); }
 
 /* ---------- Live-Daten ---------- */
-const LIVE = { teil: [], tt: {}, std: [], ins: [], verb: {}, eigen: {}, ok: false };
+const LIVE = { teil: [], tt: {}, std: [], ins: [], verb: {}, eigen: {}, ok: false, beschPreis: 16, palVersand: 225 };
 const PLAN = { id: null, name: "Neue Planung", status: "entwurf", dirty: false, stamp: null, by: "", inserat: null, moebel: null, vorlage: false };
 const kurzTitel = t => String(t || "").replace(/^USM Haller\s+/i, "");
 async function loadLive() {
@@ -190,7 +190,7 @@ async function loadLive() {
     fetchAll("teil_verbaut", "*").catch(() => [])
   ]);
   LIVE.verb = Object.fromEntries(verb.map(v => [v.teil, v]));
-  LIVE.beschPreis = 16; try { const { data: fb } = await sb.from("firma").select("wert").eq("schluessel", "beschichtung_preis_blech").maybeSingle(); if (fb && fb.wert) LIVE.beschPreis = Number(fb.wert) || 16; } catch (_) {}
+  LIVE.beschPreis = 16; LIVE.palVersand = 225; try { const { data: fb } = await sb.from("firma").select("schluessel,wert").in("schluessel", ["beschichtung_preis_blech", "beschichtung_palette_versand"]); (fb || []).forEach(x => { if (x.schluessel === "beschichtung_preis_blech") LIVE.beschPreis = Number(x.wert) || 16; else LIVE.palVersand = Number(x.wert) || 225; }); } catch (_) {}
   LIVE.teil = teil; LIVE.tt = Object.fromEntries(tt.map(t => [t.code, t])); LIVE.std = std; LIVE.ok = true;
   if (!LIVE.ins.length) LIVE.ins = await fetch("data/inserate.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : { inserate: [] }).then(d => d.inserate || []).catch(() => []);
   // Von Hand korrigierte Planungen zu einem Inserat gelten künftig als Vorlage für dieses Inserat
@@ -205,12 +205,15 @@ function estPrice(typ, mass) {
     BL: 6 + 75 * a, BK: 10 + 80 * a, HR: 30 + 60 * a, BP: 8 + 85 * a, BPF: 10 + 90 * a, BAK: 20 + 120 * a, BV: 6 + 75 * a, BSZ: 10 + 80 * a, GL: 20 + 90 * a, GA: 20 + 90 * a,
     ZT: 10 + 80 * a, ZG: 15 + 90 * a, AT: 40 + 100 * a, ST: 20 + 90 * a, ER: 25 + 60 * a, KL: 50 + 130 * a, KLP: 60 + 150 * a, EIP: 80 + 160 * a, AZP: 60 + 150 * a, AZ: 50 + 130 * a, EI: 70 + 140 * a, GT: 60 + 140 * a })[typ] ?? 10;
 }
+const PAL_ORT = "Palette Beschichter";
+const palBleche = () => (LIVE.teil || []).filter(r => (r.lagerort || "").includes(PAL_ORT)).reduce((a, r) => a + Math.max(0, r.bestand), 0);
 function stockOf(e) {
   const t = dbTyp(e), anyMass = ["HW", "KS", "KU", "CO", "FU"].includes(e.typ), zs = state.zustand;
   if (e.besch) {
     // Beschichten (je Zeile wählbar): Ø-Preis des Teils, wie es auf den Paletten liegt (beliebige Farbe, gebraucht oder schlecht); liegt keins da, Ø-Lagerpreis des Teils; dazu Beschichtung je Blech netto
     const alle = LIVE.teil.filter(r => r.typ === t && (r.mass || "") === e.mass && (r.generation || "N") === (e.gen || "N"));
-    const src = alle.filter(r => ["S", "G"].includes(r.zustand));
+    const aufPal = alle.filter(r => (r.lagerort || "").includes(PAL_ORT) && r.bestand > 0);
+    const src = aufPal.length ? aufPal : alle.filter(r => ["S", "G"].includes(r.zustand));
     const frei = r => Math.max(0, r.bestand - r.reserviert - ((LIVE.verb[r.code] || {}).verbaut || 0) + (LIVE.eigen[r.code] || 0));
     const qty = src.reduce((a, r) => a + frei(r), 0), stueck = src.reduce((a, r) => a + r.bestand, 0);
     const mitPreis = alle.filter(r => Number(r.durchschnittspreis) > 0);
@@ -218,7 +221,7 @@ function stockOf(e) {
       : mitPreis.length ? mitPreis.reduce((a, r) => a + Number(r.durchschnittspreis), 0) / mitPreis.length
       : (LIVE.tt[t] && LIVE.tt[t].richtwert != null ? Number(LIVE.tt[t].richtwert) : estPrice(e.typ, e.mass));
     const lager = [...new Set(src.filter(r => frei(r) > 0).map(r => `${colorName(r.farbe)}${r.lagerort ? " (" + r.lagerort + ")" : ""}`))].slice(0, 4).join(", ");
-    return { qty, verbaut: 0, price: Math.round((basis + LIVE.beschPreis) * 100) / 100, src: "Ø + Beschichtung", lager: lager ? "zum Beschichten: " + lager : "", nurNeu: null };
+    return { qty, verbaut: 0, price: Math.round((basis + LIVE.beschPreis) * 100) / 100, basis: Math.round(basis * 100) / 100, aufPal: aufPal.reduce((a, r) => a + frei(r), 0), src: aufPal.length ? "Ø Palette + Beschichtung" : "Ø Lager + Beschichtung", lager: lager ? "zum Beschichten: " + lager : "", nurNeu: null };
   }
   const rows = LIVE.teil.filter(r => r.typ === t && (anyMass || (r.mass || "") === e.mass) && r.farbe === e.farbe && r.zustand === zs && (r.generation || "N") === (e.gen || "N"));
   // Teile in aufgebauten Fertigmöbeln sind nicht frei, außer es ist genau das Möbel, das gerade geöffnet ist
@@ -439,7 +442,13 @@ function bom(geo) {
     if (state.buyNew[e.code] == null && s.nurNeu != null && s.qty < e.qty) state.buyNew[e.code] = s.nurNeu;
     const missing = e.besch ? 0 : Math.max(0, e.qty - s.qty), nk = e.besch ? null : state.buyNew[e.code];
     const cost = nk != null ? (e.qty - missing) * s.price + missing * nk : e.qty * s.price;
-    return { ...e, stock: s.qty, price: s.price, src: s.src, lager: s.lager, cost, missing, neu: nk != null, nk, kg, kgSum: kg * e.qty };
+    return { ...e, stock: s.qty, price: s.price, src: s.src, lager: s.lager, cost, missing, neu: nk != null, nk, kg, kgSum: kg * e.qty, aufPal: s.aufPal || 0 };
+  }).map((r, _, all) => {
+    if (!r.besch) return r;
+    // Palettenversand zum Beschichter: pauschal je Palette, gleichmäßig auf jedes Blech der Palette umgelegt (Bleche schon auf der Palette plus die zusätzlich für diese Planung)
+    const drauf = palBleche(), dazu = all.filter(x => x.besch).reduce((a, x) => a + Math.max(0, x.qty - x.aufPal), 0);
+    const anteil = LIVE.palVersand / Math.max(1, drauf + dazu), price = Math.round((r.price + anteil) * 100) / 100;
+    return { ...r, price, cost: r.qty * price, src: r.src + ` + Palette ${eur(anteil)}`, palAnteil: anteil };
   }).sort((a, b) => order.indexOf(a.typ) - order.indexOf(b.typ) || a.mass.localeCompare(b.mass, "de", { numeric: true }) || a.farbe.localeCompare(b.farbe));
 }
 const partName = r => r.typ === "HW" ? HW[r.mass][0] : r.typ === "RN" ? `Lenkrolle Ø ${r.mass}` : `${NAMES[r.typ]}${r.mass ? " " + r.mass.replace("x", " × ") : ""}`;
@@ -674,7 +683,7 @@ function tabBom(rows) {
   });
   return `<div class="tablewrap"><table><thead><tr><th>Teil</th><th class="num">Menge</th><th class="num">Lager</th><th>Fach</th><th class="num">kg/Stk</th><th class="num">Preis</th><th class="num">Summe</th></tr></thead><tbody>${body}
     <tr class="grp"><td>Gesamt</td><td class="num">${rows.reduce((a, r) => a + r.qty, 0)}</td><td></td><td></td><td class="num">${kgf(rows.reduce((a, r) => a + r.kgSum, 0))}</td><td></td><td class="num">${eur(rows.reduce((a, r) => a + r.cost, 0))}</td></tr></tbody></table></div>
-    <p class="note">Bestand und Durchschnittspreis kommen live aus dem Lager. Preisquelle unter dem Preis: Ø = gleitender Durchschnitt aus dem Lager, Richtwert = am Teiltyp hinterlegt, Schätzung = Näherung, solange das Teil noch nicht erfasst ist. Jede Farbe ist eine eigene Zeile, so stimmt die Entnahme. Tablar, Seiten- und Rückwand sind dasselbe Metallelement und teilen sich den Bestand. Unter Schubladen und Ausziehtablaren liegt ein verkürztes Element, unter Einschubtüren eines mit Schlitzen. „Neu kaufen" gilt für die fehlende Menge. „Beschichten" gilt für die ganze Zeile: Ø-Preis des Teils auf den Paletten (jede Farbe), sonst Ø-Lagerpreis, plus Beschichtung je Blech netto; diese Teile landen unter Beschichtung in der Ops-App. Beides wird mit der Planung gespeichert.</p>`;
+    <p class="note">Bestand und Durchschnittspreis kommen live aus dem Lager. Preisquelle unter dem Preis: Ø = gleitender Durchschnitt aus dem Lager, Richtwert = am Teiltyp hinterlegt, Schätzung = Näherung, solange das Teil noch nicht erfasst ist. Jede Farbe ist eine eigene Zeile, so stimmt die Entnahme. Tablar, Seiten- und Rückwand sind dasselbe Metallelement und teilen sich den Bestand. Unter Schubladen und Ausziehtablaren liegt ein verkürztes Element, unter Einschubtüren eines mit Schlitzen. „Neu kaufen" gilt für die fehlende Menge. „Beschichten" gilt für die ganze Zeile: Ø-Preis des Teils auf der Beschichter-Palette (jede Farbe), sonst Ø-Lagerpreis, plus Beschichtung je Blech netto, plus Anteil Palettenversand (pauschal je Palette, gleich verteilt auf alle Bleche der Palette, wird also günstiger, je voller sie ist); diese Teile landen unter Beschichtung in der Ops-App. Beides wird mit der Planung gespeichert.</p>`;
 }
 function tabCalc(rows) {
   const ek = rows.reduce((a, r) => a + r.cost, 0), list = Number(state.price) || 0, p = paid(), n = calcNumbers(ek, p), st = state.ertragsteuer / 100;
