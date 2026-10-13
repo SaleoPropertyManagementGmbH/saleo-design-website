@@ -54,6 +54,7 @@
 
 <script>
 const ICON = {
+  x: '<path d="M6 6l12 12M18 6L6 18"/>',
   start: '<path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/>',
   produkte: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 12h18M12 4v16"/>',
   planungen: '<path d="M4 20h16"/><path d="M6 16V8l6-4 6 4v8"/><path d="M10 16v-4h4v4"/>',
@@ -962,7 +963,7 @@ function render() {
   const inMehr = !["start", "auftraege", "produkte"].includes(UI.view);
   document.getElementById("tabbar").innerHTML = tab.map(([k, n]) => k === "neu" ? `<a href="planer.html">${svg("plus")}${n}</a>` : k === "mehr" ? `<button id="more"${inMehr ? ' aria-current="page"' : ""}>${svg("mehr")}${n}</button>` : `<a href="#${k}"${UI.view === k ? ' aria-current="page"' : ""}>${svg(k)}${n}</a>`).join("");
   document.getElementById("sheet").hidden = !UI.sheet;
-  document.getElementById("sheet").innerHTML = UI.sheet ? `<div class="sheet-bg" id="sheet-bg"></div><div class="sheet"><nav class="nav">${navHtml()}</nav><div style="display:flex;justify-content:space-between;align-items:center;padding:12px 6px 0"><span class="live${document.getElementById("live").classList.contains("on") ? " on" : ""}">${document.getElementById("live").textContent}</span><button class="btn small" id="logout2">Abmelden</button></div></div>` : "";
+  document.getElementById("sheet").innerHTML = UI.sheet ? `<div class="sheet-bg" id="sheet-bg"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="Menü"><div class="sheet-kopf"><b>Menü</b><button class="sheet-zu" id="sheet-zu" aria-label="Menü schließen">${svg("x")}<span>Schließen</span></button></div><nav class="nav">${navHtml()}</nav><div style="display:flex;justify-content:space-between;align-items:center;padding:12px 6px 0"><span class="live${document.getElementById("live").classList.contains("on") ? " on" : ""}">${document.getElementById("live").textContent}</span><button class="btn small" id="logout2">Abmelden</button></div></div>` : "";
   const wb = ROLLE.rolle === "social" ? `<span class="who">${esc(ROLLE.name || "")}</span>` : whoPicker();
   document.getElementById("whobox").innerHTML = wb;
   document.getElementById("whobox-m").innerHTML = wb.replace('id="who"', 'id="who-m"');
@@ -1017,7 +1018,7 @@ document.addEventListener("change", async e => {
 document.addEventListener("click", async e => {
   const b = e.target.closest("button"); if (!b) return;
   if (b.id === "more") { UI.sheet = true; render(); }
-  else if (b.id === "sheet-bg" || e.target.id === "sheet-bg") { UI.sheet = false; render(); }
+  else if (b.id === "sheet-bg" || e.target.id === "sheet-bg" || b.id === "sheet-zu") { UI.sheet = false; render(); }
   else if (b.id === "logout2") { await sb.auth.signOut(); location.reload(); }
   else if (b.dataset.part) { UI.p.art = b.dataset.part; render(); }
   else if (b.dataset.pf != null) { UI.pf = b.dataset.pf; render(); }
@@ -1123,7 +1124,12 @@ document.addEventListener("click", async e => {
     await sb.from("planung").delete().eq("id", b.dataset.pdel); UI.del = null;
   }
 });
-document.addEventListener("click", e => { if (e.target.id === "sheet-bg") { UI.sheet = false; render(); } });
+document.addEventListener("click", e => {
+  if (e.target.id === "sheet-bg" || e.target.closest("#sheet-zu")) { UI.sheet = false; render(); return; }
+  // Tipp auf die Seite, auf der man schon ist: Menü trotzdem schließen (hashchange feuert dann nicht)
+  const a = e.target.closest(".sheet .nav a"); if (a && a.getAttribute("href") === location.hash) { UI.sheet = false; render(); }
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && UI.sheet) { UI.sheet = false; render(); } });
 document.addEventListener("click", async e => {
   const t = e.target.closest && e.target.closest("[data-ssort],[data-szeit],[data-sneu],[data-sspeichern],[data-sstatus],[data-pneu],[data-pedit],[data-pspeichern]"); if (!t) return;
   const wer = ROLLE.rolle === "social" ? (ROLLE.name || "Social") : (me() || "App");

@@ -82,8 +82,12 @@ button, input, select { font: inherit; color: inherit; }
   .tabbar [aria-current="page"] { color: var(--accent); font-weight: 600; }
 }
 .sheet-bg { position: fixed; inset: 0; background: rgba(0, 0, 0, .3); z-index: 40; }
-.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 41; background: var(--surface); border-radius: 18px 18px 0 0; padding: 14px 14px calc(18px + env(safe-area-inset-bottom)); }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 41; max-height: 88vh; overflow-y: auto; background: var(--surface); border-radius: 18px 18px 0 0; padding: 14px 14px calc(18px + env(safe-area-inset-bottom)); }
 .sheet .nav a { padding: 12px; font-size: 1rem; }
+.sheet-kopf { display: flex; justify-content: space-between; align-items: center; padding: 2px 4px 10px; position: sticky; top: -14px; background: var(--surface); z-index: 1; }
+.sheet-kopf b { font-size: 1.05rem; }
+.sheet-zu { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--text, inherit); border-radius: 999px; padding: 8px 14px; font: inherit; font-size: .9rem; cursor: pointer; }
+.sheet-zu svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
 
 /* Karten und Bausteine */
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px 20px; min-width: 0; }
