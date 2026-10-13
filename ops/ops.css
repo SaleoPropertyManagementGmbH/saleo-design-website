@@ -505,3 +505,13 @@ details.hand summary::-webkit-details-marker { display: none; }
 #right > .card { display: flex; flex-direction: column; max-height: calc(100vh - 92px); }
 #right > .card > #tabbody { flex: 1 1 auto; min-height: 0; overflow: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 @media (max-width: 1020px) { #right > .card { max-height: none; } #right > .card > #tabbody { max-height: 72vh; } }
+.funnel { display: grid; gap: 8px; }
+.funnel .fz { display: grid; grid-template-columns: minmax(120px, 34%) 1fr auto; gap: 10px; align-items: center; }
+.funnel .fn { font-size: .85rem; display: flex; flex-direction: column; }
+.funnel .fn small { color: var(--muted); font-size: .72rem; }
+.funnel .fb { height: 12px; background: var(--line); border-radius: 6px; overflow: hidden; }
+.funnel .fb i { display: block; height: 100%; background: var(--accent, #1e3a5f); border-radius: 6px; }
+.funnel .fz:last-child .fb i { background: #2f8a4c; }
+.plan-ab { border-top: 1px solid var(--line); padding: 12px 0; display: grid; gap: 6px; }
+.plan-ab h3 { font-size: 1rem; margin: 0; }
+.plan-ab input, .plan-ab textarea { width: 100%; }

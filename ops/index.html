@@ -161,12 +161,17 @@ function autoKalkulation() {
 /* ---------- Social Media ---------- */
 async function loadSocial() {
   const opt = (t, m) => fetchAll(t, "*", m).catch(() => []);
+  const von = new Date(Date.now() - (UI.szeit || 30) * 864e5).toISOString().slice(0, 10), bis = new Date().toISOString().slice(0, 10);
+  const [plan, ins, funnel] = await Promise.all([opt("social_plan", q => q.order("reihenfolge")),
+    fetch("data/inserate.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : { inserate: [] }).catch(() => ({ inserate: [] })),
+    sb.rpc("social_funnel", { p_von: von, p_bis: bis }).then(r => r.data || {}, () => ({}))]);
+  Object.assign(SOC, { plan, ins: (ins.inserate || []), insStand: ins.stand, sellerId: ins.sellerId, funnel, funnelZeit: UI.szeit || 30 });
   const [konten, tage, beitraege, ideen] = await Promise.all([opt("social_konto", q => q.order("plattform")), opt("social_tag", q => q.gte("datum", new Date(Date.now() - 120 * 864e5).toISOString().slice(0, 10)).order("datum")),
     opt("social_beitrag", q => q.order("veroeffentlicht_am", { ascending: false })), opt("social_idee", q => q.neq("status", "archiv").order("erstellt_am", { ascending: false }))]);
   Object.assign(SOC, { konten, tage, beitraege, ideen });
   if (ROLLE.rolle === "social") D.claude = await opt("claude_auftrag", q => q.order("erstellt_am", { ascending: false }));
 }
-const PLATT = { instagram: ["Instagram", "#c13584"], tiktok: ["TikTok", "#111"], youtube: ["YouTube", "#e00"], facebook: ["Facebook", "#1877f2"], pinterest: ["Pinterest", "#e60023"], linkedin: ["LinkedIn", "#0a66c2"] };
+const PLATT = { website: ["Website", "#2b6cb0"], kleinanzeigen: ["Kleinanzeigen", "#86b817"], instagram: ["Instagram", "#c13584"], tiktok: ["TikTok", "#111"], youtube: ["YouTube", "#e00"], facebook: ["Facebook", "#1877f2"], pinterest: ["Pinterest", "#e60023"], linkedin: ["LinkedIn", "#0a66c2"] };
 const zahl = n => n == null ? "–" : Number(n) >= 10000 ? (Number(n) / 1000).toLocaleString("de-DE", { maximumFractionDigits: 1 }) + " Tsd." : Number(n).toLocaleString("de-DE");
 const IDEE_ST = [["idee", "Idee"], ["geplant", "Geplant"], ["gedreht", "Gedreht"], ["online", "Online"]];
 function sparkline(werte, farbe) {
@@ -188,6 +193,50 @@ function kontoKarte(k) {
     ${tage.length > 1 ? `<div class="soc-trend"><span class="wo">Follower, letzte ${tage.length} Tage</span>${sparkline(tage.map(t => t.follower), pf)}</div>` : ""}
     <p class="note">${k.stand ? "Stand " + when(k.stand) : "Noch keine Zahlen abgerufen."}</p></section>`;
 }
+/* Social: vom Follower zum Kunden, Website, Kleinanzeigen, Strategie */
+function kaZahlen(tage) {
+  const ab = new Date(Date.now() - tage * 864e5).toISOString().slice(0, 10), akt = (SOC.ins || []).filter(e => e.aktiv);
+  let neu = 0, mitVerlauf = 0;
+  akt.forEach(e => { const v = e.aufrufeVerlauf || []; if (!v.length) return; const alt = v.filter(x => x[0] < ab).slice(-1)[0]; const jetzt = v[v.length - 1]; neu += jetzt[1] - (alt ? alt[1] : 0); mitVerlauf++; });
+  return { akt, aufrufe: akt.reduce((a, e) => a + (e.aufrufe || 0), 0), gemerkt: akt.reduce((a, e) => a + (e.gemerkt || 0), 0), anfragen: akt.reduce((a, e) => a + (e.anfragen || 0), 0), neu: mitVerlauf ? neu : null };
+}
+function vFunnel() {
+  const t = UI.szeit || 30, ab = new Date(Date.now() - t * 864e5);
+  const summe = (pl, f) => SOC.tage.filter(x => new Date(x.datum) >= ab && (SOC.konten.find(k => k.id === x.konto_id) || {}).plattform === pl).reduce((a, x) => a + (Number(x[f]) || 0), 0);
+  const social = summe("instagram", "reichweite") + summe("tiktok", "aufrufe"), web = summe("website", "reichweite"), ka = kaZahlen(t), f = SOC.funnel || {};
+  const stufen = [["Reichweite Social", social || null, "Instagram und TikTok"], ["Website-Besucher", web || null, "saleo-design.de"], ["Kleinanzeigen-Aufrufe", ka.neu ?? ka.aufrufe, ka.neu != null ? "im Zeitraum" : "gesamt, aktive Inserate"], ["Gemerkt", ka.gemerkt, "Kleinanzeigen-Merkliste"], ["Anfragen", f.anfragen ?? ka.anfragen, "Chats mit Interessenten"], ["Kunden", f.verkaeufe ?? null, "bezahlte Aufträge"]];
+  const max = Math.max(1, ...stufen.map(x => Number(x[1]) || 0));
+  return `<section class="card"><div class="card-head"><h2>Vom Follower zum Kunden</h2><span class="note">letzte ${t > 400 ? "Zeit" : t + " Tage"} · Zeitraum unten bei Beiträgen wählbar</span></div>
+    <div class="funnel">${stufen.map(([n, v, h]) => `<div class="fz"><span class="fn">${n}<small>${h}</small></span><span class="fb"><i style="width:${v ? Math.max(3, Math.round(Number(v) / max * 100)) : 0}%"></i></span><b>${v == null ? "–" : zahl(v)}</b></div>`).join("")}</div>
+    <p class="note">Ziel ist nicht die Reichweite, sondern die unterste Zeile: Kunden. Alles darüber zeigt, wo Interessenten verloren gehen.</p></section>`;
+}
+function webKarte(k) {
+  const tage = SOC.tage.filter(t => t.konto_id === k.id), w = n => tage.filter(t => new Date(t.datum) >= new Date(Date.now() - n * 864e5));
+  const s = (arr, f) => arr.reduce((a, t) => a + (Number(t[f]) || 0), 0), d = k.details || {};
+  const liste = (arr, kn, kv) => (arr || []).slice(0, 6).map(x => `<div class="list-row"><div class="grow wo">${esc(String(x[kn] || "").replace(/^https?:\/\/(www\.)?saleo-design\.de/, "") || "/")}</div><b>${zahl(x[kv])}</b></div>`).join("");
+  return `<section class="card soc-konto"><div class="card-head"><h2><i class="dot" style="background:#2b6cb0"></i> Website <span class="wo">${esc(k.handle)}</span></h2><a href="${esc(k.url || "https://saleo-design.de")}" target="_blank" rel="noopener">öffnen</a></div>
+    <div class="stats">${stat("Besucher 7 Tage", zahl(w(7).length ? s(w(7), "reichweite") : null))}${stat("Seitenaufrufe 7 Tage", zahl(w(7).length ? s(w(7), "aufrufe") : null))}${stat("Besucher 30 Tage", zahl(w(30).length ? s(w(30), "reichweite") : null))}</div>
+    ${tage.length > 1 ? `<div class="soc-trend"><span class="wo">Besucher pro Tag</span>${sparkline(tage.map(t => t.reichweite), "#2b6cb0")}</div>` : ""}
+    ${(d.seiten || []).length ? `<h3 style="font-size:.9rem;margin:10px 0 4px">Meistbesuchte Seiten</h3>${liste(d.seiten, "seite", "aufrufe")}` : ""}
+    ${(d.quellen || []).length ? `<h3 style="font-size:.9rem;margin:10px 0 4px">Woher die Besucher kommen</h3>${liste(d.quellen, "quelle", "besuche")}` : ""}
+    <p class="note">${k.stand ? "Stand " + when(k.stand) : "Website ist mit Metricool verbunden (cookielos). Die ersten Zahlen holt die Automatik mit dem nächsten stündlichen Abgleich."}</p></section>`;
+}
+function kaKarte() {
+  const ka = kaZahlen(UI.szeit || 30), top = ka.akt.slice().sort((a, b) => (b.aufrufe || 0) - (a.aufrufe || 0)).slice(0, 6);
+  return `<section class="card soc-konto"><div class="card-head"><h2><i class="dot" style="background:#86b817"></i> Kleinanzeigen <span class="wo">${ka.akt.length} aktive Inserate</span></h2>${SOC.sellerId ? `<a href="https://www.kleinanzeigen.de/s-bestandsliste.html?userId=${esc(SOC.sellerId)}" target="_blank" rel="noopener">öffnen</a>` : ""}</div>
+    <div class="stats">${stat("Aufrufe", zahl(ka.aufrufe), ka.neu != null ? `+${zahl(ka.neu)} im Zeitraum` : "alle aktiven Inserate")}${stat("Gemerkt", zahl(ka.gemerkt))}${stat("Anfragen", zahl(ka.anfragen))}</div>
+    <h3 style="font-size:.9rem;margin:10px 0 4px">Meistgesehene Inserate</h3>
+    ${top.map(e => `<div class="list-row"><div class="grow"><a href="${esc(e.url)}" target="_blank" rel="noopener">${esc(kurz(e.titel).slice(0, 60))}</a><div class="wo">${e.gemerkt ?? 0} gemerkt · ${e.anfragen ?? 0} Anfragen</div></div><b>${zahl(e.aufrufe)}</b></div>`).join("") || `<p class="wo">keine Daten</p>`}
+    <p class="note">Kleinanzeigen lässt kein eigenes Tracking zu. Die Zahlen kommen direkt aus eurem Kleinanzeigen-Konto${SOC.insStand ? ", Stand " + when(SOC.insStand) : ""}.</p></section>`;
+}
+function vPlan() {
+  const pl = SOC.plan || [];
+  return `<section class="card"><div class="card-head"><h2>Strategie und Plan</h2><button class="btn small primary" data-pneu="1">+ Abschnitt</button></div>
+    <p class="note" style="margin:0 0 10px">Hier steht der gemeinsame Plan: Ziel, Zielgruppe, Influencer-System, Content und Messgrößen. Alle können ändern, jede Änderung zeigt, wer sie gemacht hat.</p>
+    ${pl.map(x => UI.pedit === x.id ? `<div class="plan-ab"><input id="pl-titel" value="${esc(x.titel)}"><textarea id="pl-inhalt" rows="8">${esc(x.inhalt || "")}</textarea><div style="display:flex;gap:8px"><button class="btn primary small" data-pspeichern="${x.id}">Speichern</button><button class="btn small" data-pedit="">Abbrechen</button></div></div>`
+      : `<div class="plan-ab"><div class="card-head" style="margin:0"><h3>${esc(x.titel)}</h3><button class="btn small" data-pedit="${x.id}">Bearbeiten</button></div><div style="white-space:pre-wrap">${esc(x.inhalt || "")}</div><div class="wo">${x.geaendert_von ? esc(x.geaendert_von) + " · " : ""}${when(x.geaendert_am)}</div></div>`).join("")}
+  </section>`;
+}
 function vSocial() {
   const ab = new Date(Date.now() - UI.szeit * 864e5), q = UI.sq.trim().toLowerCase();
   const kName = id => { const k = SOC.konten.find(x => x.id === id); return k ? k.plattform : ""; };
@@ -200,7 +249,9 @@ function vSocial() {
   const ideen = SOC.ideen;
   return head("Social Media", "Instagram und TikTok: Reichweite, Reels, was gut läuft, und der Content-Plan.") + (ROLLE.rolle === "social" ? vClaude() : "") +
     (leer ? `<div class="banner info"><span>Noch keine Zahlen da. Sobald Metricool verbunden ist, holt die Automatik die Zahlen von Instagram und TikTok jede Stunde automatisch ab.</span></div>` : "") +
-    `<div class="grid-2">${SOC.konten.filter(k => k.aktiv).map(kontoKarte).join("")}</div>
+    vFunnel() +
+    `<div class="grid-2">${SOC.konten.filter(k => k.aktiv && k.plattform !== "website").map(kontoKarte).join("")}</div>
+    <div class="grid-2">${SOC.konten.filter(k => k.aktiv && k.plattform === "website").map(webKarte).join("")}${kaKarte()}</div>
     <section class="card"><div class="card-head"><h2>Beiträge</h2><span class="note">${bs.length} in ${UI.szeit} Tagen</span></div>
       <div class="soc-filter"><input id="sq" type="search" placeholder="Beitrag suchen" value="${esc(UI.sq)}"><div class="chips">${zeitBtn(7, "7 Tage")}${zeitBtn(30, "30 Tage")}${zeitBtn(90, "90 Tage")}${zeitBtn(3650, "alle")}</div>
       <div class="chips">Sortieren: ${sortBtn("aufrufe", "Aufrufe")}${sortBtn("likes", "Likes")}${sortBtn("shares", "Geteilt")}${sortBtn("saves", "Gespeichert")}${sortBtn("rate", "Interaktionsrate")}${sortBtn("neu", "Neueste")}</div></div>
@@ -214,7 +265,7 @@ function vSocial() {
         <div style="display:flex;gap:8px"><button class="btn primary small" data-sspeichern="1">Speichern</button><button class="btn small" data-sneu="0">Abbrechen</button></div></div>` : ""}
       <div class="soc-board">${IDEE_ST.map(([st, n]) => { const l = ideen.filter(i => i.status === st); return `<div class="soc-spalte"><h3>${n} <span class="wo">${l.length}</span></h3>${l.map(i => `<div class="soc-idee"><b>${esc(i.titel)}</b>${i.notiz ? `<div class="wo" style="white-space:pre-wrap">${esc(i.notiz)}</div>` : ""}<div class="wo">${(i.plattformen || []).map(x => (PLATT[x] || [x])[0]).join(", ")}${i.geplant_am ? " · " + new Date(i.geplant_am).toLocaleDateString("de-DE") : ""}${i.wer ? " · " + esc(i.wer) : ""}</div>
           <div class="soc-akt">${IDEE_ST.filter(([s2]) => s2 !== st).map(([s2, n2]) => `<button class="chip" data-sstatus="${s2}" data-sid="${i.id}">${n2}</button>`).join("")}<button class="chip" data-sstatus="archiv" data-sid="${i.id}" title="Ins Archiv">Archiv</button></div></div>`).join("") || `<p class="wo">leer</p>`}</div>`; }).join("")}</div>
-    </section>`;
+    </section>` + vPlan();
 }
 async function ideeSpeichern() {
   const titel = (document.getElementById("si-titel").value || "").trim(); if (!titel) return;
@@ -1069,9 +1120,13 @@ document.addEventListener("click", async e => {
 });
 document.addEventListener("click", e => { if (e.target.id === "sheet-bg") { UI.sheet = false; render(); } });
 document.addEventListener("click", async e => {
-  const t = e.target.closest && e.target.closest("[data-ssort],[data-szeit],[data-sneu],[data-sspeichern],[data-sstatus]"); if (!t) return;
+  const t = e.target.closest && e.target.closest("[data-ssort],[data-szeit],[data-sneu],[data-sspeichern],[data-sstatus],[data-pneu],[data-pedit],[data-pspeichern]"); if (!t) return;
+  const wer = ROLLE.rolle === "social" ? (ROLLE.name || "Social") : (me() || "App");
+  if (t.dataset.pneu) { const { data } = await sb.from("social_plan").insert({ titel: "Neuer Abschnitt", inhalt: "", reihenfolge: ((SOC.plan || []).slice(-1)[0]?.reihenfolge || 0) + 10, geaendert_von: wer }).select().single(); await loadSocial(); UI.pedit = data ? data.id : null; render(); return; }
+  if (t.dataset.pedit != null && t.dataset.pedit !== undefined && t.hasAttribute("data-pedit")) { UI.pedit = t.dataset.pedit || null; render(); return; }
+  if (t.dataset.pspeichern) { await sb.from("social_plan").update({ titel: (document.getElementById("pl-titel").value || "").trim() || "Abschnitt", inhalt: document.getElementById("pl-inhalt").value, geaendert_von: wer, geaendert_am: new Date().toISOString() }).eq("id", t.dataset.pspeichern); UI.pedit = null; await loadSocial(); render(); return; }
   if (t.dataset.ssort) { UI.ssort = t.dataset.ssort; render(); }
-  else if (t.dataset.szeit) { UI.szeit = Number(t.dataset.szeit); render(); }
+  else if (t.dataset.szeit) { UI.szeit = Number(t.dataset.szeit); render(); await loadSocial(); render(); }
   else if (t.dataset.sneu) { UI.sneu = t.dataset.sneu === "1"; render(); if (UI.sneu) document.getElementById("si-titel")?.focus(); }
   else if (t.dataset.sspeichern) ideeSpeichern();
   else if (t.dataset.sstatus) { await sb.from("social_idee").update({ status: t.dataset.sstatus, geaendert_am: new Date().toISOString() }).eq("id", t.dataset.sid); await loadSocial(); render(); }
