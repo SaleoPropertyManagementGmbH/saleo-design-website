@@ -474,3 +474,18 @@ details.hand summary::-webkit-details-marker { display: none; }
 .kat.beschlag { background: #efe9f6; color: #5a3f80; } .kat.tisch { background: #f3ece4; color: #6b4a2a; } .kat.elek { background: #fbf3d9; color: #7a5b00; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .kat, :root:not([data-theme="light"]) .gen, :root:not([data-theme="light"]) .e-props .prop.schlecht { filter: brightness(.85) saturate(1.1); } }
 .pal-tile .prop { font-size: .7rem; font-weight: 500; padding: 0 6px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); }
+
+/* Social Media */
+.soc-konto .stats { margin-top: 4px; }
+.soc-trend { display: flex; align-items: center; gap: 12px; margin-top: 10px; } .soc-trend .spark { width: 160px; height: 36px; flex: 0 0 auto; }
+.soc-filter { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; } .soc-filter input { max-width: 360px; }
+.soc-b { display: flex; gap: 10px; align-items: center; min-width: 220px; } .soc-b img { width: 44px; height: 56px; object-fit: cover; border-radius: 6px; flex: 0 0 auto; background: var(--line); }
+.soc-neu { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; padding: 12px; border: 1px dashed var(--line-strong); border-radius: 10px; } .soc-neu label { display: inline-flex; gap: 6px; align-items: center; font-size: .9rem; margin-right: 12px; }
+.soc-board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.soc-spalte { background: var(--bg, #f6f5f2); border-radius: 10px; padding: 10px; min-height: 80px; } .soc-spalte h3 { margin: 0 0 8px; font-size: .95rem; }
+.soc-idee { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 4px; }
+.soc-akt { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; } .soc-akt .chip { font-size: .75rem; padding: 3px 8px; }
+@media (max-width: 900px) { .soc-board { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px) { .soc-board { grid-template-columns: 1fr; } }
+.soc-konto .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 520px) { .soc-konto .stat { padding: 10px; } .soc-konto .stat b { font-size: 1.15rem; } .soc-konto .stat span, .soc-konto .stat small { font-size: .72rem; } }

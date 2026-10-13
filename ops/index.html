@@ -67,12 +67,15 @@ const ICON = {
   moebel: '<rect x="3" y="5" width="18" height="12" rx="1.5"/><path d="M12 5v12M3 11h18M6 17v2M18 17v2"/>',
   auswertung: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   beschichtung: '<path d="M4 14h10v6H4z"/><path d="M14 16h3a3 3 0 0 0 3-3V5"/><path d="M17 3h6v4h-6z"/>',
+  social: '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/>',
   mehr: '<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>'
 };
 const svg = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICON[k]}</svg>`;
-const VIEWS = [["start", "Übersicht"], ["auftraege", "Aufträge"], ["produkte", "Produkte"], ["moebel", "Fertige Möbel"], ["beschichtung", "Beschichtung"], ["planungen", "Planungen"], ["lager", "Lager"], ["auswertung", "Auswertung"], ["vorlagen", "Vorlagen"], ["katalog", "Teilekatalog"], ["regeln", "USM-Regeln"], ["protokoll", "Protokoll"]];
+const VIEWS = [["start", "Übersicht"], ["auftraege", "Aufträge"], ["produkte", "Produkte"], ["social", "Social Media"], ["moebel", "Fertige Möbel"], ["beschichtung", "Beschichtung"], ["planungen", "Planungen"], ["lager", "Lager"], ["auswertung", "Auswertung"], ["vorlagen", "Vorlagen"], ["katalog", "Teilekatalog"], ["regeln", "USM-Regeln"], ["protokoll", "Protokoll"]];
 const D = { lager: [], typen: [], farben: [], plan: [], vorlagen: [], vpos: [], std: [], regeln: [], bew: [], build: null, ins: [], insStand: null, moebel: [], mteile: [], ausw: [], verk: [], auf: [], zahl: [] };
-const UI = { view: "start", f: { q: "", gruppe: "", farbe: "", zustand: "", nur: "voll" }, p: { art: "moebel", farbe: "", q: "", sort: "neu" }, kq: "", fv: null, fvFarbe: "24", fvZustand: "G", fvRows: null, del: null, pf: "", sheet: false };
+let ROLLE = { rolle: "voll", name: "" };
+const SOC = { konten: [], tage: [], beitraege: [], ideen: [] };
+const UI = { sq: "", ssort: "aufrufe", szeit: 30, sneu: false, view: "start", f: { q: "", gruppe: "", farbe: "", zustand: "", nur: "voll" }, p: { art: "moebel", farbe: "", q: "", sort: "neu" }, kq: "", fv: null, fvFarbe: "24", fvZustand: "G", fvRows: null, del: null, pf: "", sheet: false };
 const STATUS = { entwurf: "Entwurf", angebot: "Angebot", reserviert: "Reserviert", verkauft: "Verkauft", archiv: "Archiv" };
 const FARBHEX = { "24": "#efeee9", "29": "#c6c8c5", "35": "#a9abae", "32": "#7f8386", "33": "#3b4146", "30": "#232425", "34": "#24344d", "27": "#1a4f8b", "28": "#2f6a46", "36": "#43472f", "25": "#d99c1c", "26": "#e2561d", "23": "#8b1f2a", "22": "#5b3b2a", "31": "#cdbb98", "CR": "#c9ced4", "SW": "#222", "GL": "#cfe6ee" };
 const farbName = c => (D.farben.find(f => f.code === c) || { name: c || "" }).name;
@@ -103,6 +106,73 @@ document.getElementById("lf").onsubmit = async e => {
   start();
 };
 document.getElementById("logout").onclick = async () => { await sb.auth.signOut(); location.reload(); };
+
+
+/* ---------- Social Media ---------- */
+async function loadSocial() {
+  const opt = (t, m) => fetchAll(t, "*", m).catch(() => []);
+  const [konten, tage, beitraege, ideen] = await Promise.all([opt("social_konto", q => q.order("plattform")), opt("social_tag", q => q.gte("datum", new Date(Date.now() - 120 * 864e5).toISOString().slice(0, 10)).order("datum")),
+    opt("social_beitrag", q => q.order("veroeffentlicht_am", { ascending: false })), opt("social_idee", q => q.neq("status", "archiv").order("erstellt_am", { ascending: false }))]);
+  Object.assign(SOC, { konten, tage, beitraege, ideen });
+}
+const PLATT = { instagram: ["Instagram", "#c13584"], tiktok: ["TikTok", "#111"], youtube: ["YouTube", "#e00"], facebook: ["Facebook", "#1877f2"], pinterest: ["Pinterest", "#e60023"], linkedin: ["LinkedIn", "#0a66c2"] };
+const zahl = n => n == null ? "–" : Number(n) >= 10000 ? (Number(n) / 1000).toLocaleString("de-DE", { maximumFractionDigits: 1 }) + " Tsd." : Number(n).toLocaleString("de-DE");
+const IDEE_ST = [["idee", "Idee"], ["geplant", "Geplant"], ["gedreht", "Gedreht"], ["online", "Online"]];
+function sparkline(werte, farbe) {
+  const v = werte.filter(x => x != null); if (v.length < 2) return "";
+  const min = Math.min(...v), max = Math.max(...v), w = 160, h = 36, d = max - min || 1;
+  const pts = werte.map((x, i) => x == null ? null : `${(i / (werte.length - 1) * w).toFixed(1)},${(h - 3 - (x - min) / d * (h - 6)).toFixed(1)}`).filter(Boolean).join(" ");
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="${farbe}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+}
+function kontoKarte(k) {
+  const tage = SOC.tage.filter(t => t.konto_id === k.id), heute = tage[tage.length - 1] || {};
+  const seit = n => tage.filter(t => new Date(t.datum) >= new Date(Date.now() - n * 864e5));
+  const summe = (arr, f) => arr.reduce((a, t) => a + (Number(t[f]) || 0), 0);
+  const w7 = seit(7), vor = tage.find(t => new Date(t.datum) >= new Date(Date.now() - 8 * 864e5));
+  const fNeu = heute.follower != null && vor && vor.follower != null ? heute.follower - vor.follower : null;
+  const auf7 = summe(w7, "aufrufe"), inter7 = summe(w7, "likes") + summe(w7, "kommentare") + summe(w7, "shares") + summe(w7, "saves");
+  const [pn, pf] = PLATT[k.plattform] || [k.plattform, "#444"];
+  return `<section class="card soc-konto"><div class="card-head"><h2><i class="dot" style="background:${pf}"></i> ${esc(pn)} <span class="wo">@${esc(k.handle)}</span></h2>${k.url ? `<a href="${esc(k.url)}" target="_blank" rel="noopener">öffnen</a>` : ""}</div>
+    <div class="stats">${stat("Follower", zahl(heute.follower), fNeu != null ? `${fNeu >= 0 ? "+" : ""}${zahl(fNeu)} in 7 Tagen` : "")}${stat("Aufrufe 7 Tage", zahl(w7.length ? auf7 : null))}${stat("Interaktionen 7 Tage", zahl(w7.length ? inter7 : null), auf7 ? (inter7 / auf7 * 100).toLocaleString("de-DE", { maximumFractionDigits: 1 }) + " % der Aufrufe" : "")}</div>
+    ${tage.length > 1 ? `<div class="soc-trend"><span class="wo">Follower, letzte ${tage.length} Tage</span>${sparkline(tage.map(t => t.follower), pf)}</div>` : ""}
+    <p class="note">${k.stand ? "Stand " + when(k.stand) : "Noch keine Zahlen abgerufen."}</p></section>`;
+}
+function vSocial() {
+  const ab = new Date(Date.now() - UI.szeit * 864e5), q = UI.sq.trim().toLowerCase();
+  const kName = id => { const k = SOC.konten.find(x => x.id === id); return k ? k.plattform : ""; };
+  let bs = SOC.beitraege.filter(b => !b.veroeffentlicht_am || new Date(b.veroeffentlicht_am) >= ab).filter(b => !q || [b.titel, b.notiz, b.inserat].join(" ").toLowerCase().includes(q));
+  const rate = b => b.aufrufe ? ((b.likes || 0) + (b.kommentare || 0) + (b.shares || 0) + (b.saves || 0)) / b.aufrufe : 0;
+  bs = bs.slice().sort((a, b) => UI.ssort === "neu" ? new Date(b.veroeffentlicht_am || 0) - new Date(a.veroeffentlicht_am || 0) : UI.ssort === "rate" ? rate(b) - rate(a) : (Number(b[UI.ssort]) || 0) - (Number(a[UI.ssort]) || 0));
+  const leer = !SOC.tage.length && !SOC.beitraege.length;
+  const sortBtn = (k, n) => `<button class="chip" aria-pressed="${UI.ssort === k}" data-ssort="${k}">${n}</button>`;
+  const zeitBtn = (n, l) => `<button class="chip" aria-pressed="${UI.szeit === n}" data-szeit="${n}">${l}</button>`;
+  const ideen = SOC.ideen;
+  return head("Social Media", "Instagram und TikTok: Reichweite, Reels, was gut läuft, und der Content-Plan.") +
+    (leer ? `<div class="banner info"><span>Noch keine Zahlen da. Sobald Metricool verbunden ist, holt die Automatik die Zahlen von Instagram und TikTok jede Stunde automatisch ab.</span></div>` : "") +
+    `<div class="grid-2">${SOC.konten.filter(k => k.aktiv).map(kontoKarte).join("")}</div>
+    <section class="card"><div class="card-head"><h2>Beiträge</h2><span class="note">${bs.length} in ${UI.szeit} Tagen</span></div>
+      <div class="soc-filter"><input id="sq" type="search" placeholder="Beitrag suchen" value="${esc(UI.sq)}"><div class="chips">${zeitBtn(7, "7 Tage")}${zeitBtn(30, "30 Tage")}${zeitBtn(90, "90 Tage")}${zeitBtn(3650, "alle")}</div>
+      <div class="chips">Sortieren: ${sortBtn("aufrufe", "Aufrufe")}${sortBtn("likes", "Likes")}${sortBtn("shares", "Geteilt")}${sortBtn("saves", "Gespeichert")}${sortBtn("rate", "Interaktionsrate")}${sortBtn("neu", "Neueste")}</div></div>
+      ${bs.length ? `<div class="tablewrap"><table><thead><tr><th>Beitrag</th><th class="num">Aufrufe</th><th class="num">Likes</th><th class="num">Komm.</th><th class="num">Geteilt</th><th class="num">Gesp.</th><th class="num">Rate</th></tr></thead><tbody>
+        ${bs.slice(0, 200).map(b => { const [pn, pf] = PLATT[kName(b.konto_id)] || ["", "#888"]; return `<tr><td><div class="soc-b">${b.bild_url ? `<img src="${esc(b.bild_url)}" alt="" loading="lazy">` : ""}<div><b>${b.link ? `<a href="${esc(b.link)}" target="_blank" rel="noopener">${esc((b.titel || "ohne Titel").slice(0, 90))}</a>` : esc((b.titel || "ohne Titel").slice(0, 90))}</b><div class="wo"><i class="dot" style="background:${pf}"></i> ${esc(pn)}${b.typ ? " · " + esc(b.typ) : ""}${b.veroeffentlicht_am ? " · " + new Date(b.veroeffentlicht_am).toLocaleDateString("de-DE") : ""}</div></div></div></td>
+          <td class="num"><b>${zahl(b.aufrufe)}</b></td><td class="num">${zahl(b.likes)}</td><td class="num">${zahl(b.kommentare)}</td><td class="num">${zahl(b.shares)}</td><td class="num">${zahl(b.saves)}</td><td class="num">${b.aufrufe ? (rate(b) * 100).toLocaleString("de-DE", { maximumFractionDigits: 1 }) + " %" : "–"}</td></tr>`; }).join("")}
+      </tbody></table></div>` : `<p class="empty">${q ? "Nichts gefunden." : "Noch keine Beiträge erfasst."}</p>`}</section>
+    <section class="card"><div class="card-head"><h2>Content-Plan</h2><button class="btn small primary" data-sneu="1">+ Idee</button></div>
+      ${UI.sneu ? `<div class="soc-neu"><input id="si-titel" placeholder="Idee, z. B. Reel: Sideboard in Schwarz aufbauen im Zeitraffer"><textarea id="si-notiz" rows="2" placeholder="Notiz (optional): Hook, Musik, welches Möbel"></textarea>
+        <div class="chips"><label><input type="checkbox" id="si-ig" checked> Instagram</label><label><input type="checkbox" id="si-tt" checked> TikTok</label><label>geplant am <input type="date" id="si-datum"></label></div>
+        <div style="display:flex;gap:8px"><button class="btn primary small" data-sspeichern="1">Speichern</button><button class="btn small" data-sneu="0">Abbrechen</button></div></div>` : ""}
+      <div class="soc-board">${IDEE_ST.map(([st, n]) => { const l = ideen.filter(i => i.status === st); return `<div class="soc-spalte"><h3>${n} <span class="wo">${l.length}</span></h3>${l.map(i => `<div class="soc-idee"><b>${esc(i.titel)}</b>${i.notiz ? `<div class="wo" style="white-space:pre-wrap">${esc(i.notiz)}</div>` : ""}<div class="wo">${(i.plattformen || []).map(x => (PLATT[x] || [x])[0]).join(", ")}${i.geplant_am ? " · " + new Date(i.geplant_am).toLocaleDateString("de-DE") : ""}${i.wer ? " · " + esc(i.wer) : ""}</div>
+          <div class="soc-akt">${IDEE_ST.filter(([s2]) => s2 !== st).map(([s2, n2]) => `<button class="chip" data-sstatus="${s2}" data-sid="${i.id}">${n2}</button>`).join("")}<button class="chip" data-sstatus="archiv" data-sid="${i.id}" title="Ins Archiv">Archiv</button></div></div>`).join("") || `<p class="wo">leer</p>`}</div>`; }).join("")}</div>
+    </section>`;
+}
+async function ideeSpeichern() {
+  const titel = (document.getElementById("si-titel").value || "").trim(); if (!titel) return;
+  const pl = [document.getElementById("si-ig").checked ? "instagram" : "", document.getElementById("si-tt").checked ? "tiktok" : ""].filter(Boolean);
+  const datum = document.getElementById("si-datum").value || null;
+  const { error } = await sb.from("social_idee").insert({ titel, notiz: (document.getElementById("si-notiz").value || "").trim() || null, plattformen: pl, geplant_am: datum, status: datum ? "geplant" : "idee", wer: me() || ROLLE.name || null });
+  if (error) { alert("Ging nicht: " + error.message); return; }
+  UI.sneu = false; await loadSocial(); render();
+}
 
 /* ---------- Daten ---------- */
 async function loadAll() {
@@ -678,18 +748,19 @@ function navHtml() {
 }
 function render() {
   document.getElementById("nav").innerHTML = navHtml();
-  const tab = [["start", "Übersicht"], ["auftraege", "Aufträge"], ["neu", "Planen"], ["produkte", "Produkte"], ["mehr", "Mehr"]];
+  const tab = ROLLE.rolle === "social" ? [["social", "Social Media"]] : [["start", "Übersicht"], ["auftraege", "Aufträge"], ["neu", "Planen"], ["produkte", "Produkte"], ["mehr", "Mehr"]];
   const inMehr = !["start", "auftraege", "produkte"].includes(UI.view);
   document.getElementById("tabbar").innerHTML = tab.map(([k, n]) => k === "neu" ? `<a href="planer.html">${svg("plus")}${n}</a>` : k === "mehr" ? `<button id="more"${inMehr ? ' aria-current="page"' : ""}>${svg("mehr")}${n}</button>` : `<a href="#${k}"${UI.view === k ? ' aria-current="page"' : ""}>${svg(k)}${n}</a>`).join("");
   document.getElementById("sheet").hidden = !UI.sheet;
   document.getElementById("sheet").innerHTML = UI.sheet ? `<div class="sheet-bg" id="sheet-bg"></div><div class="sheet"><nav class="nav">${navHtml()}</nav><div style="display:flex;justify-content:space-between;align-items:center;padding:12px 6px 0"><span class="live${document.getElementById("live").classList.contains("on") ? " on" : ""}">${document.getElementById("live").textContent}</span><button class="btn small" id="logout2">Abmelden</button></div></div>` : "";
-  document.getElementById("whobox").innerHTML = whoPicker();
-  document.getElementById("whobox-m").innerHTML = whoPicker().replace('id="who"', 'id="who-m"');
+  const wb = ROLLE.rolle === "social" ? `<span class="who">${esc(ROLLE.name || "")}</span>` : whoPicker();
+  document.getElementById("whobox").innerHTML = wb;
+  document.getElementById("whobox-m").innerHTML = wb.replace('id="who"', 'id="who-m"');
   document.getElementById("mtitle").textContent = (VIEWS.find(v => v[0] === UI.view) || VIEWS[0])[1];
-  const fn = { start: vStart, auftraege: vAuftraege, produkte: vProdukte, moebel: vMoebel, beschichtung: vBeschichtung, auswertung: vAuswertung, lager: vLager, planungen: vPlanungen, vorlagen: vVorlagen, katalog: vKatalog, regeln: vRegeln, protokoll: vProtokoll }[UI.view] || vStart;
+  const fn = { start: vStart, auftraege: vAuftraege, produkte: vProdukte, moebel: vMoebel, beschichtung: vBeschichtung, auswertung: vAuswertung, lager: vLager, planungen: vPlanungen, vorlagen: vVorlagen, katalog: vKatalog, regeln: vRegeln, protokoll: vProtokoll, social: vSocial }[UI.view] || (ROLLE.rolle === "social" ? vSocial : vStart);
   const active = document.activeElement && document.activeElement.id, pos = active && document.activeElement.selectionStart;
   document.getElementById("view").innerHTML = fn();
-  if (active && /^(lf-q|kq|pq)$/.test(active) && document.getElementById(active)) { const el = document.getElementById(active); el.focus(); try { el.setSelectionRange(pos, pos); } catch {} }
+  if (active && /^(lf-q|kq|pq|sq)$/.test(active) && document.getElementById(active)) { const el = document.getElementById(active); el.focus(); try { el.setSelectionRange(pos, pos); } catch {} }
 }
 
 /* ---------- Ereignisse ---------- */
@@ -698,6 +769,7 @@ document.addEventListener("input", e => {
   if (e.target.id === "lf-q") { UI.f.q = e.target.value; render(); }
   if (e.target.id === "kq") { UI.kq = e.target.value; render(); }
   if (e.target.id === "pq") { UI.p.q = e.target.value; render(); }
+  if (e.target.id === "sq") { UI.sq = e.target.value; render(); }
   if (e.target.id === "ca-q") {
     const q = e.target.value.trim().toLowerCase(), box = e.target.closest(".claude-box");
     let n = 0;
@@ -815,6 +887,14 @@ document.addEventListener("click", async e => {
   }
 });
 document.addEventListener("click", e => { if (e.target.id === "sheet-bg") { UI.sheet = false; render(); } });
+document.addEventListener("click", async e => {
+  const t = e.target.closest && e.target.closest("[data-ssort],[data-szeit],[data-sneu],[data-sspeichern],[data-sstatus]"); if (!t) return;
+  if (t.dataset.ssort) { UI.ssort = t.dataset.ssort; render(); }
+  else if (t.dataset.szeit) { UI.szeit = Number(t.dataset.szeit); render(); }
+  else if (t.dataset.sneu) { UI.sneu = t.dataset.sneu === "1"; render(); if (UI.sneu) document.getElementById("si-titel")?.focus(); }
+  else if (t.dataset.sspeichern) ideeSpeichern();
+  else if (t.dataset.sstatus) { await sb.from("social_idee").update({ status: t.dataset.sstatus, geaendert_am: new Date().toISOString() }).eq("id", t.dataset.sid); await loadSocial(); render(); }
+});
 /* Palette: öffnen, ziehen, antippen */
 document.addEventListener("click", e => {
   const t = e.target;
@@ -837,7 +917,7 @@ async function checkVorlage(code) {
   UI.fvRows = error ? [] : data; render();
 }
 let reloadTimer = null;
-function liveReload() { clearTimeout(reloadTimer); reloadTimer = setTimeout(async () => { await loadAll(); render(); loadBuildable().then(render); }, 400); }
+function liveReload() { clearTimeout(reloadTimer); reloadTimer = setTimeout(async () => { if (ROLLE.rolle === "social") { await loadSocial(); render(); return; } await Promise.all([loadAll(), loadSocial()]); render(); loadBuildable().then(render); }, 400); }
 
 /* ---------- Start ---------- */
 async function start() {
@@ -848,7 +928,16 @@ async function start() {
   document.getElementById("login").hidden = true; document.getElementById("app").hidden = false;
   UI.view = location.hash.slice(1) || "start";
   document.getElementById("view").innerHTML = `<p class="empty">lade…</p>`;
-  try { await loadAll(); } catch (err) { document.getElementById("view").innerHTML = `<p class="err">Daten nicht geladen: ${esc(err.message)}</p>`; return; }
+  const { data: rl } = await sb.rpc("meine_rolle"); if (rl) ROLLE = rl;
+  if (ROLLE.rolle === "social") {
+    VIEWS.splice(0, VIEWS.length, ["social", "Social Media"]); UI.view = "social";
+    if (ROLLE.name && !me()) store.set("sdo_wer", ROLLE.name);
+    await loadSocial(); render();
+    sb.channel("ops-social").on("postgres_changes", { event: "*", schema: "public", table: "social_tag" }, liveReload).on("postgres_changes", { event: "*", schema: "public", table: "social_beitrag" }, liveReload).on("postgres_changes", { event: "*", schema: "public", table: "social_idee" }, liveReload)
+      .subscribe(s => { const el = document.getElementById("live"); el.textContent = s === "SUBSCRIBED" ? "live verbunden" : "offline"; el.classList.toggle("on", s === "SUBSCRIBED"); });
+    return;
+  }
+  try { await Promise.all([loadAll(), loadSocial()]); } catch (err) { document.getElementById("view").innerHTML = `<p class="err">Daten nicht geladen: ${esc(err.message)}</p>`; return; }
   if (!D.farben.length) { document.getElementById("view").innerHTML = `<p class="err">Dieser Zugang ist nicht freigeschaltet. Nur info@saleo-group.de hat Zugriff.</p>`; return; }
   render();
   loadBuildable().then(render);
@@ -863,6 +952,9 @@ async function start() {
     .on("postgres_changes", { event: "*", schema: "public", table: "beschichtung" }, liveReload)
     .on("postgres_changes", { event: "*", schema: "public", table: "ka_einkauf" }, liveReload)
     .on("postgres_changes", { event: "*", schema: "public", table: "claude_auftrag" }, liveReload)
+    .on("postgres_changes", { event: "*", schema: "public", table: "social_tag" }, liveReload)
+    .on("postgres_changes", { event: "*", schema: "public", table: "social_beitrag" }, liveReload)
+    .on("postgres_changes", { event: "*", schema: "public", table: "social_idee" }, liveReload)
     .subscribe(s => { const el = document.getElementById("live"); el.textContent = s === "SUBSCRIBED" ? "live verbunden" : "offline"; el.classList.toggle("on", s === "SUBSCRIBED"); });
 }
 start();
