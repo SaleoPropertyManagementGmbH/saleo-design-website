@@ -157,3 +157,8 @@ begin
 end $$;
 grant execute on function public.steuer_bericht(date, date), public.steuer_neu_zuordnen(uuid), public.steuer_zuordnen_offen() to authenticated;
 alter view steuer_charge set (security_invoker = true);
+
+-- Nachtrag 13.10.2026 (Festlegung Samuel): FIFO je Einzelteil entfällt. Fertig gekaufte Möbel, die als Ganzes verkauft werden,
+-- bekommen genau ihren Einkauf ('m:<einkauf.id>', Art fertigmoebel bzw. altbestand bei Inventur). Aus Einzelteilen gebaute Möbel
+-- und Einzelteile laufen mit Ø-Einzelpreisen aus dem Lager (Art durchschnitt), eingefroren zum Verkaufszeitpunkt.
+-- Live-Version von steuer_zuordnen und steuer_charge siehe Datenbank (charge_art zusätzlich 'durchschnitt','fertigmoebel').
