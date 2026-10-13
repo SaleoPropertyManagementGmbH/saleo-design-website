@@ -164,6 +164,7 @@ async function loadSocial() {
   const [konten, tage, beitraege, ideen] = await Promise.all([opt("social_konto", q => q.order("plattform")), opt("social_tag", q => q.gte("datum", new Date(Date.now() - 120 * 864e5).toISOString().slice(0, 10)).order("datum")),
     opt("social_beitrag", q => q.order("veroeffentlicht_am", { ascending: false })), opt("social_idee", q => q.neq("status", "archiv").order("erstellt_am", { ascending: false }))]);
   Object.assign(SOC, { konten, tage, beitraege, ideen });
+  if (ROLLE.rolle === "social") D.claude = await opt("claude_auftrag", q => q.order("erstellt_am", { ascending: false }));
 }
 const PLATT = { instagram: ["Instagram", "#c13584"], tiktok: ["TikTok", "#111"], youtube: ["YouTube", "#e00"], facebook: ["Facebook", "#1877f2"], pinterest: ["Pinterest", "#e60023"], linkedin: ["LinkedIn", "#0a66c2"] };
 const zahl = n => n == null ? "–" : Number(n) >= 10000 ? (Number(n) / 1000).toLocaleString("de-DE", { maximumFractionDigits: 1 }) + " Tsd." : Number(n).toLocaleString("de-DE");
@@ -197,7 +198,7 @@ function vSocial() {
   const sortBtn = (k, n) => `<button class="chip" aria-pressed="${UI.ssort === k}" data-ssort="${k}">${n}</button>`;
   const zeitBtn = (n, l) => `<button class="chip" aria-pressed="${UI.szeit === n}" data-szeit="${n}">${l}</button>`;
   const ideen = SOC.ideen;
-  return head("Social Media", "Instagram und TikTok: Reichweite, Reels, was gut läuft, und der Content-Plan.") +
+  return head("Social Media", "Instagram und TikTok: Reichweite, Reels, was gut läuft, und der Content-Plan.") + (ROLLE.rolle === "social" ? vClaude() : "") +
     (leer ? `<div class="banner info"><span>Noch keine Zahlen da. Sobald Metricool verbunden ist, holt die Automatik die Zahlen von Instagram und TikTok jede Stunde automatisch ab.</span></div>` : "") +
     `<div class="grid-2">${SOC.konten.filter(k => k.aktiv).map(kontoKarte).join("")}</div>
     <section class="card"><div class="card-head"><h2>Beiträge</h2><span class="note">${bs.length} in ${UI.szeit} Tagen</span></div>
@@ -761,8 +762,9 @@ function vClaude() {
   const alle = D.claude || [], offen = alle.filter(c => ["offen", "in_arbeit", "rueckfrage"].includes(c.status)).length;
   const item = c => `<div class="claude-item" data-ctxt="${esc(((c.text || "") + " " + (c.antwort || "") + " " + (c.von || "")).toLowerCase())}"><div class="t"><span class="badge ${(CST[c.status] || [""])[0]}">${(CST[c.status] || ["", c.status])[1]}</span> <b>${esc(c.von || "")}</b> <span class="wo">${when(c.erstellt_am)}</span></div><div>${esc(c.text)}</div>${c.antwort ? `<div class="antwort">${esc(c.antwort)}</div>` : ""}</div>`;
   const neu = alle.slice(0, 3), alt = alle.slice(3);
-  return `<section class="card claude-box"><div class="card-head"><h2>An Claude</h2><span class="note">${offen ? `${offen} offen · ` : ""}Antwort meist innerhalb von 10 Minuten, rund um die Uhr</span></div>
-    <div class="claude-form"><textarea id="ca-text" rows="2" placeholder="Was soll ich machen? Zum Beispiel: Rechnung für den Käufer vom grünen Konsolenregal schreiben und senden. Oder: Couchtisch ist verkauft, 180 € bar."></textarea><button class="btn primary" data-casend="1">Senden</button></div>
+  const soc = ROLLE.rolle === "social";
+  return `${soc && UI.flash ? `<div class="banner"><span>${esc(UI.flash)}</span></div>` : ""}<section class="card claude-box"><div class="card-head"><h2>${soc ? "Frag Claude" : "An Claude"}</h2><span class="note">${offen ? `${offen} offen · ` : ""}Antwort meist innerhalb von 10 Minuten, rund um die Uhr</span></div>
+    <div class="claude-form"><textarea id="ca-text" rows="2" placeholder="${soc ? "Frag mich alles zu Social Media. Zum Beispiel: Welche Reels liefen diesen Monat am besten? Oder: Schreib mir eine Caption für das grüne Sideboard." : "Was soll ich machen? Zum Beispiel: Rechnung für den Käufer vom grünen Konsolenregal schreiben und senden. Oder: Couchtisch ist verkauft, 180 € bar."}"></textarea><button class="btn primary" data-casend="1">Senden</button></div>
     ${alle.length ? `<input id="ca-q" type="search" placeholder="Im Verlauf suchen (${alle.length} Einträge)" style="width:100%;margin:10px 0 4px">
     <div class="claude-list" id="ca-neu">${neu.map(item).join("")}</div>
     ${alt.length ? `<details id="ca-alt"><summary class="btn small" style="margin-top:8px">Ältere anzeigen (${alt.length})</summary><div class="claude-list">${alt.map(item).join("")}</div></details>` : ""}
@@ -1119,7 +1121,7 @@ async function start() {
     VIEWS.splice(0, VIEWS.length, ["social", "Social Media"]); UI.view = "social";
     if (ROLLE.name && !me()) store.set("sdo_wer", ROLLE.name);
     await loadSocial(); render();
-    sb.channel("ops-social").on("postgres_changes", { event: "*", schema: "public", table: "social_tag" }, liveReload).on("postgres_changes", { event: "*", schema: "public", table: "social_beitrag" }, liveReload).on("postgres_changes", { event: "*", schema: "public", table: "social_idee" }, liveReload)
+    sb.channel("ops-social").on("postgres_changes", { event: "*", schema: "public", table: "claude_auftrag" }, liveReload).on("postgres_changes", { event: "*", schema: "public", table: "social_tag" }, liveReload).on("postgres_changes", { event: "*", schema: "public", table: "social_beitrag" }, liveReload).on("postgres_changes", { event: "*", schema: "public", table: "social_idee" }, liveReload)
       .subscribe(s => { const el = document.getElementById("live"); el.textContent = s === "SUBSCRIBED" ? "live verbunden" : "offline"; el.classList.toggle("on", s === "SUBSCRIBED"); });
     return;
   }
