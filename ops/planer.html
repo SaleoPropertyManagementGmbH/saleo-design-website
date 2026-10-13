@@ -483,6 +483,14 @@ function outer() {
   const maxX = Math.max(...state.fields.map(f => f.x + f.w)), maxY = Math.max(...state.fields.map(f => f.y + f.h));
   return { w: maxX + 23, d: (state.doppel ? 2 * state.depth : state.depth) + 23, h: maxY + (state.base === "FU" ? 40 : 80), rollen: state.base !== "FU" };
 }
+// Verkaufspreis aus Zielmarge: Marge = Gewinn vor Steuern (nach § 25a-USt) / Kunde zahlt, also Kunde zahlt = EK / (1 − 1,19 × Marge)
+function margeSetzen(prozent) {
+  const m = Math.max(0, Math.min(80, Number(prozent) || 0)) / 100, ek = bom(geometry()).reduce((a, r) => a + r.cost, 0), k = 1 - (state.rabatt || 0) / 100;
+  if (!(ek > 0)) return;
+  let zahlt = Math.ceil(ek / (1 - (1 + VAT) * m));
+  for (let i = 0; i < 50 && calcNumbers(ek, zahlt).gewD / zahlt < m - 1e-9; i++) zahlt += 1;
+  state.price = k > 0 ? Math.ceil(zahlt / k) : zahlt; state.zahlt = state.rabatt ? zahlt : null; markDirty();
+}
 const paid = () => state.zahlt != null && state.zahlt !== "" ? Number(state.zahlt) : Math.round((Number(state.price) || 0) * (1 - state.rabatt / 100) * 100) / 100;
 function calcNumbers(ek, p) {
   const ustD = Math.max(0, p - ek) * VAT / (1 + VAT), gewD = p - ek - ustD;
@@ -765,8 +773,9 @@ function tabCalc(rows) {
       <label class="f" for="in-paid">Kunde zahlt (€)<input id="in-paid" type="number" min="0" step="0.01" inputmode="decimal" value="${p}"></label>
     </div>
     <div class="chips" role="group" aria-label="Rabatt">${[0, 3, 5, 7, 10].map(r => `<button class="chip" data-rabatt="${r}" aria-pressed="${state.rabatt === r}">${r ? "−" + r + " %" : "kein Rabatt"}</button>`).join("")}</div>
+    <div class="chips" role="group" aria-label="Marge">${[20, 30, 40, 50, 60].map(m => `<button class="chip" data-marge="${m}">${m} % Marge</button>`).join("")}</div>
     <div class="pricein">
-      <label class="f" for="in-target">Inseratspreis aus Zielmarge<select id="in-target"><option value="">Wählen…</option><option>30</option><option>40</option><option>50</option><option>60</option></select></label>
+      <label class="f" for="in-target" title="Gewinn vor Steuern (nach der USt aus der Differenzbesteuerung) geteilt durch den Preis, den der Kunde zahlt. Eingeben, dann wird der Verkaufspreis daraus berechnet.">Marge vor Steuern (%)<input id="in-target" type="number" min="0" max="80" step="0.5" inputmode="decimal" value="${p ? Math.round(n.gewD / p * 1000) / 10 : ""}"></label>
       <label class="f" for="in-st">Ertragsteuer UG (%)<input id="in-st" type="number" min="0" max="50" step="0.5" value="${state.ertragsteuer}"></label>
       <label class="f" for="in-neu">USM-Neupreis (€)<input id="in-neu" type="number" min="0" step="10" value="${state.neupreis}"></label>
     </div>
@@ -1067,6 +1076,7 @@ document.addEventListener("click", async e => {
   else if (t.id === "multimode") state.multiMode = !state.multiMode;
   else if (t.id === "selsame" && f) state.multi = new Set(state.fields.filter(q => q.front === f.front && q.w === f.w && q.h === f.h).map(q => q.id));
   else if (t.id === "del" && f && state.fields.length > state.multi.size) { tryChange(() => { state.fields = state.fields.filter(q => !state.multi.has(q.id)); }); selectOnly(state.fields[0].id); }
+  else if (t.dataset.marge != null) { margeSetzen(+t.dataset.marge); }
   else if (t.dataset.rabatt != null) { state.rabatt = +t.dataset.rabatt; state.zahlt = null; markDirty(); }
   else if (t.id === "order") { state.ordered = true; PLAN.status = "angebot"; await save(); return; }
   else return;
@@ -1099,12 +1109,8 @@ document.addEventListener("change", e => {
   else if (t.id === "in-rabatt") { state.rabatt = Math.max(0, Math.min(50, +t.value || 0)); state.zahlt = null; markDirty(); }
   else if (t.id === "in-paid") { const list = Number(state.price) || 0, v = Math.max(0, +t.value || 0); state.zahlt = v; state.rabatt = list ? Math.round((1 - v / list) * 1000) / 10 : 0; markDirty(); }
   else if (t.id === "in-st") state.ertragsteuer = Math.max(0, +t.value || 0);
-  else if (t.id === "in-target" && t.value) {
-    const ek = bom(geometry()).reduce((a, r) => a + r.cost, 0), m = +t.value / 100, k = 1 - state.rabatt / 100;
-    let p = Math.ceil(ek / (1 - m) / 10) * 10;
-    for (let i = 0; i < 400 && calcNumbers(ek, p * k).gewD / (p * k) < m; i++) p += 10;
-    state.price = p; state.zahlt = null; markDirty();
-  } else return;
+  else if (t.id === "in-target" && t.value !== "") { margeSetzen(+String(t.value).replace(",", ".")); }
+  else return;
   render();
 });
 document.addEventListener("input", e => { if (e.target.id === "p-name") { PLAN.name = e.target.value; markDirty(); renderHead(); } });
