@@ -131,7 +131,7 @@ const HW = {
   TTS: ["Zwischentablarträger-Set Metall (11140)", 9, 0.15], ZGT: ["Glas-Zwischentablarträger-Set (11888)", 11, 0.15],
   BS: ["Blechschraube 4,8 × 9,5", 0.3, 0.005],
   KH: ["Klemmhalter (Halbmond)", 2.5, 0.01], KM: ["Klemme", 1, 0.005], SM4: ["Schraube M4 für Klemmhalter", 0.3, 0.003],
-  SCALT: ["Liftomat (Scharnier alte Generation)", 20, 0.35], BSALT: ["Befestigungsschiene alte Generation", 4, 0.05], HM: ["Halbmond (3 je Liftomat)", 0.02, 0.002], KLE: ["Klemme (3 je Liftomat)", 0.02, 0.002],
+  SCALT: ["Liftomat (Scharnier alte Generation)", 20, 0.35], BSALT: ["Befestigungsschiene alte Generation", 4, 0.05], HM: ["Halbmond (3 je Liftomat)", 0.02, 0.002], KLE: ["Klemme (3 je Liftomat)", 0.02, 0.002], SRALT: ["Schraube alte Klappe (3 je Liftomat, 6 je Tür, 12 je Klappe)", 0.05, 0.002],
   DG: ["Universalschloss alte Generation (Drehgriff)", 10, 0.1], SLALT: ["Schloss alte Generation", 15, 0.12],
   BWALT: ["Befestigungswinkel Front an Ausziehtablar, alt (Paar L/R)", 18, 0.15], ASALT: ["Auszugschiene alte Generation mit Schraube und Mutter (L/R)", 15, 0.6]
 };
@@ -415,7 +415,7 @@ function bom(geo) {
     add(f.front + (f.perf && ["KL", "AZ", "EI"].includes(f.front) ? "P" : ""), `${f.w}x${f.h}`, colOf(f, "front"), 1, oldFront ? "Front alte Generation" : f.perf ? "Front perforiert" : "Front", oldFront ? "A" : "N");
     const n = NAMES[f.front];
     if (f.front === "KL" || f.front === "KLP") {
-      if (old) { hw("SCALT", 2, n); hw("HM", 6, n); hw("KLE", 6, n); } // alte Klappe: keine L-Winkel, je Liftomat 3 Halbmonde + 3 Klemmen; // alte Klappe: Liftomaten; neue Klappe: Federbandscharniere; Mischen im selben Möbel erlaubt
+      if (old) { hw("SCALT", 2, n); hw("HM", 6, n); hw("KLE", 6, n); hw("SRALT", 12, n); } // alte Klappe: keine L-Winkel, je Liftomat 3 Halbmonde + 3 Klemmen; // alte Klappe: Liftomaten; neue Klappe: Federbandscharniere; Mischen im selben Möbel erlaubt
       else { hw("FBS", 2, n); hw("PSH", 2, n); if (f.soft) hw("DP", 2, n + " · Soft-Close"); if (f.lock === "U") hw("SKN", 1, n); }
     }
     if (f.front === "AZ") {
