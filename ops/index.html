@@ -536,10 +536,15 @@ function vVerbindungen() {
 }
 const CST = { offen: ["warn", "offen"], in_arbeit: ["new", "in Arbeit"], rueckfrage: ["bad", "Rückfrage"], erledigt: ["ok", "erledigt"], abgelehnt: ["", "nicht gemacht"] };
 function vClaude() {
-  const list = (D.claude || []).slice(0, 8), offen = (D.claude || []).filter(c => ["offen", "in_arbeit", "rueckfrage"].includes(c.status)).length;
+  const alle = D.claude || [], offen = alle.filter(c => ["offen", "in_arbeit", "rueckfrage"].includes(c.status)).length;
+  const item = c => `<div class="claude-item" data-ctxt="${esc(((c.text || "") + " " + (c.antwort || "") + " " + (c.von || "")).toLowerCase())}"><div class="t"><span class="badge ${(CST[c.status] || [""])[0]}">${(CST[c.status] || ["", c.status])[1]}</span> <b>${esc(c.von || "")}</b> <span class="wo">${when(c.erstellt_am)}</span></div><div>${esc(c.text)}</div>${c.antwort ? `<div class="antwort">${esc(c.antwort)}</div>` : ""}</div>`;
+  const neu = alle.slice(0, 3), alt = alle.slice(3);
   return `<section class="card claude-box"><div class="card-head"><h2>An Claude</h2><span class="note">${offen ? `${offen} offen · ` : ""}Antwort meist innerhalb von 10 Minuten, rund um die Uhr</span></div>
     <div class="claude-form"><textarea id="ca-text" rows="2" placeholder="Was soll ich machen? Zum Beispiel: Rechnung für den Käufer vom grünen Konsolenregal schreiben und senden. Oder: Couchtisch ist verkauft, 180 € bar."></textarea><button class="btn primary" data-casend="1">Senden</button></div>
-    ${list.length ? `<div class="claude-list">${list.map(c => `<div class="claude-item"><div class="t"><span class="badge ${(CST[c.status] || [""])[0]}">${(CST[c.status] || ["", c.status])[1]}</span> <b>${esc(c.von || "")}</b> <span class="wo">${when(c.erstellt_am)}</span></div><div>${esc(c.text)}</div>${c.antwort ? `<div class="antwort">${esc(c.antwort)}</div>` : ""}</div>`).join("")}</div>` : ""}
+    ${alle.length ? `<input id="ca-q" type="search" placeholder="Im Verlauf suchen (${alle.length} Einträge)" style="width:100%;margin:10px 0 4px">
+    <div class="claude-list" id="ca-neu">${neu.map(item).join("")}</div>
+    ${alt.length ? `<details id="ca-alt"><summary class="btn small" style="margin-top:8px">Ältere anzeigen (${alt.length})</summary><div class="claude-list">${alt.map(item).join("")}</div></details>` : ""}
+    <p class="note" id="ca-leer" hidden>Nichts gefunden.</p>` : ""}
   </section>`;
 }
 function vStart() {
@@ -693,6 +698,14 @@ document.addEventListener("input", e => {
   if (e.target.id === "lf-q") { UI.f.q = e.target.value; render(); }
   if (e.target.id === "kq") { UI.kq = e.target.value; render(); }
   if (e.target.id === "pq") { UI.p.q = e.target.value; render(); }
+  if (e.target.id === "ca-q") {
+    const q = e.target.value.trim().toLowerCase(), box = e.target.closest(".claude-box");
+    let n = 0;
+    box.querySelectorAll(".claude-item").forEach(el => { const ok = !q || q.split(/\s+/).every(w => el.dataset.ctxt.includes(w)); el.hidden = !ok; if (ok) n++; });
+    const alt = box.querySelector("#ca-alt");
+    if (alt) { if (q) { alt.open = true; alt.querySelector("summary").hidden = true; } else { alt.open = false; alt.querySelector("summary").hidden = false; } }
+    box.querySelector("#ca-leer").hidden = n > 0;
+  }
 });
 document.addEventListener("change", async e => {
   const t = e.target;
