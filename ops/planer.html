@@ -57,7 +57,7 @@
       <details class="card fold" id="globalscard" open><summary>Ganzes Möbel</summary>
         <div class="globals" id="globals">
           <label class="f" for="g-color">Grundfarbe<select id="g-color"></select></label>
-          <label class="f" for="g-zustand">Zustand<select id="g-zustand"><option value="G">Gebraucht</option><option value="N">Neu / neuwertig</option><option value="B">Beschichtet (große Teile beschichten, Kleinteile neu)</option></select></label>
+          <label class="f" for="g-zustand">Zustand<select id="g-zustand"><option value="G">Gebraucht</option><option value="N">Neu / neuwertig</option><option value="B">Beschichtet (große Teile beschichten, Rest aus Lager)</option></select></label>
           <label class="f" for="g-base">Unten<select id="g-base"><option value="FU">Nivellierfüße</option><option value="RN100">Lenkrollen Ø 100 (vorne mit Arretierung)</option><option value="RN50">Lenkrollen Ø 50</option></select></label>
           <label class="f" for="g-sides">Außenseiten<select id="g-sides"><option value="BL">Metall</option><option value="BP">Gelocht</option><option value="GL">Glas</option><option value="">Offen</option></select></label>
           <label class="f" for="g-doppel">Aufbau<select id="g-doppel"><option value="0">Einseitig</option><option value="1">Doppelseitig (Rücken an Rücken)</option></select></label>
@@ -356,8 +356,8 @@ function bom(geo) {
     else if (["FU", "RN"].includes(typ)) farbe = "SW";
     else if (["KU", "CO", "RO", "ER"].includes(typ)) farbe = "CR";
     const besch = state.zustand === "B" && FARBIG.includes(typ);
-    // Beschichtet: große Teile werden beschichtet (danach neuwertig), Kleinteile neu; Beschläge der alten Generation gibt es nur gebraucht
-    const z = state.zustand !== "B" ? state.zustand : (typ === "HW" && ALT_HW.includes(mass)) || gen === "A" && !besch ? "G" : "N";
+    // Beschichtet: große Teile werden beschichtet (Ø-Einkauf + Beschichtung), alles andere zum eigenen Einkaufspreis aus dem Lager (Ø gebraucht)
+    const z = state.zustand !== "B" ? state.zustand : besch ? "N" : "G";
     const code = typ === "HW" ? `HW-${mass}-SW-${z}` : typ === "KS" ? `HW-KS-${farbe}-${z}` : [typ, mass, farbe, z, gen === "A" ? "A" : ""].filter(Boolean).join("-");
     const valid = CAT[typ] ? CAT[typ].includes(String(mass)) : true;
     const e = map.get(code) || { code, typ, mass: String(mass || ""), farbe, gen, qty: 0, valid, wo: new Set(), besch };
@@ -734,7 +734,7 @@ function renderRight(rows) {
       <ul><li>Außenmaße ${o.w} × ${o.d} × ${o.h} mm (B × T × H)${o.rollen ? ", inklusive Rollen" : ", inklusive Nivellierfüße"}</li>
         <li>${state.fields.length} Fächer: ${eq}</li>
         ${cu.length > 1 ? `<li>Farben: ${cu.map(([c, q]) => `${colorName(c)} (${q} Teile)`).join(", ")}</li>` : ""}
-        <li>${state.zustand === "G" ? "Gebraucht, geprüft und gereinigt" : state.zustand === "B" ? "Große Teile frisch in Originalfarbe pulverbeschichtet, Kleinteile neu" : "Neu bzw. neuwertig"}</li>
+        <li>${state.zustand === "G" ? "Gebraucht, geprüft und gereinigt" : state.zustand === "B" ? "Große Teile frisch in Originalfarbe pulverbeschichtet, Gestell und Beschläge geprüft und gereinigt" : "Neu bzw. neuwertig"}</li>
         <li>Original USM Haller Teile. Aufbau und Versand auf Anfrage.</li></ul>
       <div><div class="pricebig">${eur(list)} <span class="note">VB</span></div><p class="note">Differenzbesteuert nach § 25a UStG, keine ausgewiesene Umsatzsteuer</p>
         ${neu > list ? `<div class="save">Neupreis bei USM ${eur(neu)}, Sie sparen ${pct(1 - list / neu)}</div>` : ""}
