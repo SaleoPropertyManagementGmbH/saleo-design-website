@@ -57,7 +57,7 @@
       <details class="card fold" id="globalscard" open><summary>Ganzes Möbel</summary>
         <div class="globals" id="globals">
           <label class="f" for="g-color">Grundfarbe<select id="g-color"></select></label>
-          <label class="f" for="g-zustand">Zustand<select id="g-zustand"><option value="G">Gebraucht</option><option value="N">Neu / neuwertig</option></select></label>
+          <label class="f" for="g-zustand">Zustand<select id="g-zustand"><option value="G">Gebraucht</option><option value="N">Neu / neuwertig</option><option value="B">Beschichtet (große Teile beschichten, Kleinteile neu)</option></select></label>
           <label class="f" for="g-base">Unten<select id="g-base"><option value="FU">Nivellierfüße</option><option value="RN100">Lenkrollen Ø 100 (vorne mit Arretierung)</option><option value="RN50">Lenkrollen Ø 50</option></select></label>
           <label class="f" for="g-sides">Außenseiten<select id="g-sides"><option value="BL">Metall</option><option value="BP">Gelocht</option><option value="GL">Glas</option><option value="">Offen</option></select></label>
           <label class="f" for="g-doppel">Aufbau<select id="g-doppel"><option value="0">Einseitig</option><option value="1">Doppelseitig (Rücken an Rücken)</option></select></label>
@@ -113,8 +113,8 @@ const CAT = {
 const SYMMETRIC = ["BL", "BP", "BPF", "BAK", "GL", "GA", "BV", "BSZ", "BK"];
 const NAMES = {
   KU: "Kugel", CO: "Connector", RO: "Rohr", FU: "Nivellierfuß", RN: "Lenkrolle",
-  BL: "Metallelement", BP: "Metallelement gelocht", BPF: "Metallelement perforiert", BAK: "Akustikelement", GL: "Glaselement", GA: "Glastablar",
-  BV: "Metallelement verkürzt", BSZ: "Metallelement mit Schlitzen", BK: "Metallelement mit Kabeldurchlass", HR: "Hängeregistratur",
+  BL: "Tablar", BP: "Tablar gelocht", BPF: "Tablar perforiert", BAK: "Akustikelement", GL: "Glaselement", GA: "Glastablar",
+  BV: "Tablar verkürzt", BSZ: "Tablar mit Schlitzen", BK: "Tablar mit Kabeldurchlass", HR: "Hängeregistratur",
   ZT: "Zwischentablar Metall", ZG: "Zwischentablar Glas", AT: "Ausziehtablar", ST: "Schrägtablar",
   KL: "Klappe", KLP: "Klappe perforiert", EIP: "Einschubtür perforiert", AZP: "Auszugstür perforiert", AZ: "Auszugstür", ER: "Einlegerahmen", EI: "Einschubtür", GT: "Glastür", KS: "Kupplungssteg"
 };
@@ -132,7 +132,7 @@ const HW = {
   BS: ["Blechschraube 4,8 × 9,5", 0.3, 0.005],
   KH: ["Klemmhalter (Halbmond)", 2.5, 0.01], KM: ["Klemme", 1, 0.005], SM4: ["Schraube M4 für Klemmhalter", 0.3, 0.003],
   SCALT: ["Liftomat (Scharnier alte Generation)", 20, 0.35], BSALT: ["Befestigungsschiene alte Generation", 4, 0.05], HM: ["Halbmond (3 je Liftomat)", 0.02, 0.002], KLE: ["Klemme (3 je Liftomat)", 0.02, 0.002],
-  DG: ["Drehgriff mit Kunststoffring (alte Generation)", 10, 0.1], SLALT: ["Schloss alte Generation", 15, 0.12],
+  DG: ["Universalschloss alte Generation (Drehgriff)", 10, 0.1], SLALT: ["Schloss alte Generation", 15, 0.12],
   BWALT: ["Befestigungswinkel Front an Ausziehtablar, alt (Paar L/R)", 18, 0.15], ASALT: ["Auszugschiene alte Generation mit Schraube und Mutter (L/R)", 15, 0.6]
 };
 const GROUPS = [["Gestell", ["KU", "CO", "RO", "FU", "RN"]], ["Metall- und Glaselemente", ["BL", "BP", "BPF", "BAK", "BK", "BV", "BSZ", "GL", "GA"]], ["Einbauten", ["ZT", "ZG", "AT", "ST", "HR", "ER"]], ["Fronten", ["KL", "KLP", "AZ", "AZP", "EIP", "EI", "GT", "KS"]], ["Beschläge und Montageteile", ["HW"]]];
@@ -146,7 +146,7 @@ const COLORS = [
 const FRONTS = [["", "Offen"], ["KL", "Klappe"], ["AZ", "Auszugstür"], ["EI", "Einschubtür"], ["GT", "Glastür"]];
 const BACKS = [["BL", "Metall"], ["BP", "Gelocht"], ["BPF", "Perforiert"], ["BAK", "Akustik"], ["BK", "Kabeldurchlass"], ["GL", "Glas"], ["", "Ohne"]];
 const INSIDES = [["", "Keiner"], ["ZT", "Zwischentablar"], ["ZG", "Zwischentablar Glas"], ["AT", "Ausziehtablar"], ["ST", "Schrägtablar"], ["HR", "Hängeregistratur"]];
-const LOCKS = { N: [["U", "Universalschloss"], ["S", "Schloss"]], A: [["D", "Drehgriff"], ["SA", "Schloss alte Generation"]] };
+const LOCKS = { N: [["U", "Universalschloss"], ["S", "Schloss"]], A: [["D", "Universalschloss"], ["SA", "Schloss"]] };
 const GENS = [["N", "Neue Generation"], ["A", "Alte Generation"]];
 const PARTS = [["all", "Alles"], ["front", "Front"], ["einbau", "Wanne / Einbau"], ["kupplung", "Kupplungsstege"], ["back", "Rückwand"], ["boden", "Boden"], ["deckel", "Deckel"], ["seiten", "Seiten"]];
 const SCOPES = [["all", "ganzes Möbel"], ["sel", "Auswahl"], ["row", "ganze Reihe"], ["col", "ganze Spalte"], ["check", "Schachbrett"], ["rows2", "jede 2. Reihe"], ["cols2", "jede 2. Spalte"]];
@@ -190,6 +190,7 @@ async function loadLive() {
     fetchAll("teil_verbaut", "*").catch(() => [])
   ]);
   LIVE.verb = Object.fromEntries(verb.map(v => [v.teil, v]));
+  LIVE.beschPreis = 16; try { const { data: fb } = await sb.from("firma").select("wert").eq("schluessel", "beschichtung_preis_blech").maybeSingle(); if (fb && fb.wert) LIVE.beschPreis = Number(fb.wert) || 16; } catch (_) {}
   LIVE.teil = teil; LIVE.tt = Object.fromEntries(tt.map(t => [t.code, t])); LIVE.std = std; LIVE.ok = true;
   if (!LIVE.ins.length) LIVE.ins = await fetch("data/inserate.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : { inserate: [] }).then(d => d.inserate || []).catch(() => []);
   // Von Hand korrigierte Planungen zu einem Inserat gelten künftig als Vorlage für dieses Inserat
@@ -205,8 +206,17 @@ function estPrice(typ, mass) {
     ZT: 10 + 80 * a, ZG: 15 + 90 * a, AT: 40 + 100 * a, ST: 20 + 90 * a, ER: 25 + 60 * a, KL: 50 + 130 * a, KLP: 60 + 150 * a, EIP: 80 + 160 * a, AZP: 60 + 150 * a, AZ: 50 + 130 * a, EI: 70 + 140 * a, GT: 60 + 140 * a })[typ] ?? 10;
 }
 function stockOf(e) {
-  const t = dbTyp(e), anyMass = ["HW", "KS", "KU", "CO", "FU"].includes(e.typ);
-  const rows = LIVE.teil.filter(r => r.typ === t && (anyMass || (r.mass || "") === e.mass) && r.farbe === e.farbe && r.zustand === state.zustand && (r.generation || "N") === (e.gen || "N"));
+  const t = dbTyp(e), anyMass = ["HW", "KS", "KU", "CO", "FU"].includes(e.typ), zs = state.zustand === "B" ? (e.code.split("-").includes("G") ? "G" : "N") : state.zustand;
+  if (e.besch) {
+    // Beschichtet: gebrauchte Teile gleichen Typs und Maßes in beliebiger Farbe, frisch in der Zielfarbe pulverbeschichtet
+    const src = LIVE.teil.filter(r => r.typ === t && (r.mass || "") === e.mass && ["S", "G"].includes(r.zustand) && (r.generation || "N") === (e.gen || "N"));
+    const frei = r => Math.max(0, r.bestand - r.reserviert - ((LIVE.verb[r.code] || {}).verbaut || 0) + (LIVE.eigen[r.code] || 0));
+    const qty = src.reduce((a, r) => a + frei(r), 0), stueck = src.reduce((a, r) => a + r.bestand, 0);
+    const basis = stueck > 0 ? src.reduce((a, r) => a + r.bestand * Number(r.durchschnittspreis), 0) / stueck : (LIVE.tt[t] && LIVE.tt[t].richtwert != null ? Number(LIVE.tt[t].richtwert) : estPrice(e.typ, e.mass));
+    const lager = [...new Set(src.filter(r => frei(r) > 0).map(r => `${colorName(r.farbe)}${r.lagerort ? " (" + r.lagerort + ")" : ""}`))].slice(0, 4).join(", ");
+    return { qty, verbaut: 0, price: Math.round((basis + LIVE.beschPreis) * 100) / 100, src: "Ø + Beschichtung", lager: lager ? "zum Beschichten: " + lager : "", nurNeu: null };
+  }
+  const rows = LIVE.teil.filter(r => r.typ === t && (anyMass || (r.mass || "") === e.mass) && r.farbe === e.farbe && r.zustand === zs && (r.generation || "N") === (e.gen || "N"));
   // Teile in aufgebauten Fertigmöbeln sind nicht frei, außer es ist genau das Möbel, das gerade geöffnet ist
   const frei = r => Math.max(0, r.bestand - r.reserviert - ((LIVE.verb[r.code] || {}).verbaut || 0) + (LIVE.eigen[r.code] || 0));
   const qty = rows.reduce((a, r) => a + frei(r), 0);
@@ -215,7 +225,7 @@ function stockOf(e) {
   let price, src;
   if (stueck > 0) { price = rows.reduce((a, r) => a + r.bestand * Number(r.durchschnittspreis), 0) / stueck; src = "Ø"; }
   else if (LIVE.tt[t] && LIVE.tt[t].richtwert != null) { price = Number(LIVE.tt[t].richtwert); src = "Richtwert"; }
-  else { price = estPrice(e.typ, e.mass) * (state.zustand === "N" ? 1.6 : 1); src = "Schätzung"; }
+  else { price = estPrice(e.typ, e.mass) * (zs === "N" ? 1.6 : 1); src = "Schätzung"; }
   const nurNeu = rows.find(r => r.nur_neu);
   return { qty, verbaut, price: Math.round(price * 100) / 100, src, lager: [...new Set(rows.map(r => r.lagerort).filter(Boolean))].join(", ") + (verbaut ? `${rows.some(r => r.lagerort) ? " · " : ""}${verbaut} verbaut` : ""), nurNeu: nurNeu ? Number(nurNeu.neupreis) || null : null };
 }
@@ -334,6 +344,7 @@ function weight(typ, mass) {
     ZT: KG_M2 * a, ZG: KG_GLAS_M2 * a * 0.85, AT: KG_M2 * a + 0.5, ST: KG_M2 * a + 0.3, ER: 1.2 + 3 * a, KL: KG_M2 * a * 1.2, KLP: KG_M2 * a * 1.1, EIP: KG_M2 * a * 1.1, AZP: KG_M2 * a * 1.1, AZ: KG_M2 * a * 1.2, EI: KG_M2 * a * 1.2, GT: KG_GLAS_M2 * a })[typ] ?? 0;
 }
 const GLASS = ["GL", "GA", "GT", "ZG"];
+const ALT_HW = ["SCALT", "DG", "SLALT", "HM", "KLE", "BSALT", "ASALT", "BWALT", "TWALT"];
 const tablarWeg = p => !!(p.owner && (p.ownerKey === "boden" ? p.owner.noBoden : p.owner.noDeckel));
 const seitenTyp = p => (p.owner && (p.leftSide ? p.owner.bpL : p.owner.bpR)) ? "BP" : state.sides;
 function bom(geo) {
@@ -344,10 +355,12 @@ function bom(geo) {
     else if (GLASS.includes(typ)) farbe = "GL";
     else if (["FU", "RN"].includes(typ)) farbe = "SW";
     else if (["KU", "CO", "RO", "ER"].includes(typ)) farbe = "CR";
-    const z = state.zustand;
+    const besch = state.zustand === "B" && FARBIG.includes(typ);
+    // Beschichtet: große Teile werden beschichtet (danach neuwertig), Kleinteile neu; Beschläge der alten Generation gibt es nur gebraucht
+    const z = state.zustand !== "B" ? state.zustand : (typ === "HW" && ALT_HW.includes(mass)) || gen === "A" && !besch ? "G" : "N";
     const code = typ === "HW" ? `HW-${mass}-SW-${z}` : typ === "KS" ? `HW-KS-${farbe}-${z}` : [typ, mass, farbe, z, gen === "A" ? "A" : ""].filter(Boolean).join("-");
     const valid = CAT[typ] ? CAT[typ].includes(String(mass)) : true;
-    const e = map.get(code) || { code, typ, mass: String(mass || ""), farbe, gen, qty: 0, valid, wo: new Set() };
+    const e = map.get(code) || { code, typ, mass: String(mass || ""), farbe, gen, qty: 0, valid, wo: new Set(), besch };
     e.qty += qty; if (wo) e.wo.add(wo); map.set(code, e);
   }
   const hw = (k, n, wo) => add("HW", k, null, n, wo);
@@ -402,7 +415,7 @@ function bom(geo) {
     add(f.front + (f.perf && ["KL", "AZ", "EI"].includes(f.front) ? "P" : ""), `${f.w}x${f.h}`, colOf(f, "front"), 1, oldFront ? "Front alte Generation" : f.perf ? "Front perforiert" : "Front", oldFront ? "A" : "N");
     const n = NAMES[f.front];
     if (f.front === "KL" || f.front === "KLP") {
-      if (old) { hw("SCALT", 2, n); hw("HM", 6, n); hw("KLE", 6, n); hw("BSALT", 4, n); } // alte Klappe: keine L-Winkel, je Liftomat 3 Halbmonde + 3 Klemmen; // alte Klappe: Liftomaten; neue Klappe: Federbandscharniere; Mischen im selben Möbel erlaubt
+      if (old) { hw("SCALT", 2, n); hw("HM", 6, n); hw("KLE", 6, n); } // alte Klappe: keine L-Winkel, je Liftomat 3 Halbmonde + 3 Klemmen; // alte Klappe: Liftomaten; neue Klappe: Federbandscharniere; Mischen im selben Möbel erlaubt
       else { hw("FBS", 2, n); hw("PSH", 2, n); if (f.soft) hw("DP", 2, n + " · Soft-Close"); if (f.lock === "U") hw("SKN", 1, n); }
     }
     if (f.front === "AZ") {
@@ -721,7 +734,7 @@ function renderRight(rows) {
       <ul><li>Außenmaße ${o.w} × ${o.d} × ${o.h} mm (B × T × H)${o.rollen ? ", inklusive Rollen" : ", inklusive Nivellierfüße"}</li>
         <li>${state.fields.length} Fächer: ${eq}</li>
         ${cu.length > 1 ? `<li>Farben: ${cu.map(([c, q]) => `${colorName(c)} (${q} Teile)`).join(", ")}</li>` : ""}
-        <li>${state.zustand === "G" ? "Gebraucht, geprüft und gereinigt" : "Neu bzw. neuwertig"}</li>
+        <li>${state.zustand === "G" ? "Gebraucht, geprüft und gereinigt" : state.zustand === "B" ? "Große Teile frisch in Originalfarbe pulverbeschichtet, Kleinteile neu" : "Neu bzw. neuwertig"}</li>
         <li>Original USM Haller Teile. Aufbau und Versand auf Anfrage.</li></ul>
       <div><div class="pricebig">${eur(list)} <span class="note">VB</span></div><p class="note">Differenzbesteuert nach § 25a UStG, keine ausgewiesene Umsatzsteuer</p>
         ${neu > list ? `<div class="save">Neupreis bei USM ${eur(neu)}, Sie sparen ${pct(1 - list / neu)}</div>` : ""}
@@ -772,7 +785,9 @@ function applyData(d) {
 function markDirty() { PLAN.dirty = true; }
 async function save() {
   if (!me()) { state.flash = "Bitte oben auswählen, wer du bist. Dann weiß der andere, wer zuletzt geändert hat."; render(); return; }
-  const row = { name: PLAN.name || "Ohne Namen", daten: snapshot(), status: PLAN.status, geaendert_am: new Date().toISOString(), geaendert_von: me() };
+  const daten = snapshot();
+  if (state.zustand === "B") { normalize(); daten._beschichtung = bom(geometry()).filter(r => r.besch && r.qty > 0).map(r => ({ teil: r.code, typ: r.typ, mass: r.mass, zielfarbe: r.farbe, menge: r.qty, text: partName(r) })); }
+  const row = { name: PLAN.name || "Ohne Namen", daten, status: PLAN.status, geaendert_am: new Date().toISOString(), geaendert_von: me() };
   const warNeu = !PLAN.id;
   const q = PLAN.id ? sb.from("planung").update(row).eq("id", PLAN.id).select().single() : sb.from("planung").insert(row).select().single();
   const btn = document.getElementById("save"); if (btn) { btn.disabled = true; btn.textContent = "Speichert…"; }
@@ -997,7 +1012,7 @@ async function auftragVerknuepfen(aid, still) {
 function kalkulationAusPlan() {
   normalize();
   const FB = r => r.farbe && FARBIG.includes(r.typ) ? ", " + colorName(r.farbe) : "";
-  return bom(geometry()).filter(r => r.qty > 0).map(r => ({ text: partName(r) + FB(r), teil: r.code, menge: r.qty, preis: Math.round(r.cost / r.qty * 100) / 100 }));
+  return bom(geometry()).filter(r => r.qty > 0).map(r => ({ text: partName(r) + FB(r) + (r.besch ? " (beschichtet)" : ""), teil: r.code, menge: r.qty, preis: Math.round(r.cost / r.qty * 100) / 100 }));
 }
 // Nach dem Speichern: Kalkulation im verknüpften Auftrag (nur Aufträge ohne Lagerteile) an die Planung anpassen
 async function kalkulationNachziehen() {

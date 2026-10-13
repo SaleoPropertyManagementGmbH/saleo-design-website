@@ -203,7 +203,7 @@ async function ideeSpeichern() {
 async function loadAll() {
   const [lager, typen, farben, plan, vorlagen, vpos, std, regeln, bew, ins] = await Promise.all([
     fetchAll("lager_health"), fetchAll("teiltyp"), fetchAll("farbe"),
-    fetchAll("planung", "id,name,status,geaendert_am,geaendert_von,erstellt_am,daten->>inserat", q => q.order("geaendert_am", { ascending: false })),
+    fetchAll("planung", "id,name,status,geaendert_am,geaendert_von,erstellt_am,daten->>inserat,besch:daten->_beschichtung,zustand:daten->>zustand", q => q.order("geaendert_am", { ascending: false })),
     fetchAll("vorlage"), fetchAll("vorlage_position"), fetchAll("usm_standard"), fetchAll("usm_regel"),
     sb.from("lagerbewegung").select("*").order("zeitpunkt", { ascending: false }).limit(300).then(r => { if (r.error) throw r.error; return r.data; }),
     fetch("data/inserate.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : { inserate: [] }).catch(() => ({ inserate: [] }))
@@ -622,6 +622,18 @@ async function palTeilen(nurLaden) {
     const a = document.createElement("a"); a.href = URL.createObjectURL(UI.palBlob); a.download = palDatei(); a.click();
   } catch (e) { UI.flash = "PDF ging nicht: " + e.message; render(); }
 }
+function vBeschBedarf() {
+  const plaene = (D.plan || []).filter(p => p.zustand === "B" && Array.isArray(p.besch) && p.besch.length && p.status !== "archiv");
+  if (!plaene.length) return "";
+  const farbe = c => `<i class="dot" style="background:${FARBHEX[c] || "#ccc"}"></i> ${esc(farbName(c))}`;
+  const quelle = b => (D.lager || []).filter(r => r.code && r.code.startsWith(b.typ + "-") && (r.mass || "") === b.mass && ["S", "G"].includes(r.zustand) && r.bestand > 0).sort((x, y) => (x.zustand === "S" ? 0 : 1) - (y.zustand === "S" ? 0 : 1));
+  return `<section class="card"><div class="card-head"><h2>Bedarf aus Planungen</h2><span class="note">Planungen mit Zustand „Beschichtet“: diese Teile müssen in der Zielfarbe beschichtet werden</span></div>
+    ${plaene.map(p => `<div class="besch-plan"><div class="t"><a href="planer.html?id=${p.id}"><b>${esc(p.name)}</b></a> <span class="badge">${esc(STATUS[p.status] || p.status)}</span></div>
+      <div class="tablewrap"><table><thead><tr><th>Teil</th><th class="num">Stück</th><th>Zielfarbe</th><th>im Lager zum Beschichten</th></tr></thead><tbody>
+      ${p.besch.map(b => { const q = quelle(b), n = q.reduce((s, r) => s + r.bestand, 0); return `<tr><td>${esc(b.text || b.teil)}</td><td class="num">${b.menge}</td><td>${farbe(b.zielfarbe)}</td><td>${n ? `${n} Stück <span class="wo">${q.slice(0, 3).map(r => esc(farbName(r.farbe)) + (r.zustand === "S" ? " (schlecht)" : "") + (r.lagerort ? " · " + esc(r.lagerort) : "")).join(", ")}</span>` : `<span class="neg">keins da, gebraucht zukaufen</span>`}</td></tr>`; }).join("")}
+      </tbody></table></div></div>`).join("")}
+  </section>`;
+}
 function vBeschichtung() {
   const B = D.besch || [], K = (D.beschK || []).filter(k => !["CR", "SW", "GL"].includes(k.farbe) && !((k.lagerort || "").includes(PAL_ORT)) && !(D.lager || []).some(r => r.code === k.code && (r.lagerort || "").includes(PAL_ORT)));
   const st = { sammeln: ["wird gesammelt", "warn"], beim_beschichter: ["beim Beschichter", "info"], zurueck: ["zurück", "ok"], storniert: ["storniert", ""] };
@@ -634,6 +646,7 @@ function vBeschichtung() {
   const offen = B.filter(b => b.status !== "zurueck" && b.status !== "storniert" && !(b.status === "sammeln" && b.notiz === PAL_ORT)), fertig = B.filter(b => b.status === "zurueck");
   return head("Beschichtung", "Zerkratzte Bleche und Fronten neu in Original-USM-Farbe. Frisch beschichtete Teile kommen als neuwertig ins Lager.", "") +
     `${UI.flash ? `<div class="banner"><span>${esc(UI.flash)}</span></div>` : ""}<div class="banner info"><span><b>Faustregel:</b> Große Teile (über 35 × 35) lohnen sich schon bei mittlerem Zustand. Kleine Teile bis 35 × 35 nur, wenn sie unbrauchbar sind: neu kosten sie etwa 32 €, das Beschichten ${eur(16)} netto pro Blech. Auftrag einfach per Plaud an Klaus diktieren, z. B. „Zum Beschichter: 4 Tablare 750 × 350 weiß, schlecht, neu in schwarz“.</span></div>
+    ${vBeschBedarf()}
     ${vPalette()}
     ${K.length ? `<section class="card"><div class="card-head"><h2>Kandidaten für den Beschichter</h2><span class="note">Lagerbestand in schlechtem Zustand, ohne Rohre und Beschläge</span></div><p class="note" style="margin:0 0 8px">Große Teile lohnen sich immer. Kleine oder schwer verkäufliche Maße trotzdem beschichten, wenn sie kaputt sind, sonst liegt dort totes Kapital.</p><div class="tablewrap"><table><thead><tr><th>Teil</th><th class="num">frei</th><th>Farbe</th><th>Empfehlung</th><th></th></tr></thead><tbody>
       ${K.map(k => `<tr><td>${katLabel(k.code)} ${esc((k.mass || "").replace("x", " × "))}${katVon(k.code) ? "" : " " + esc(k.bezeichnung)}<div class="code">${esc(k.code)}</div></td><td class="num">${k.frei}</td><td>${farbe(k.farbe)}</td><td>${k.bewertung && k.bewertung.lohnt ? `<span class="badge ok">beschichten</span><div class="wo">${esc(k.bewertung.grund || "")}</div>` : `<span class="badge warn">beschichten, wenn kaputt</span><div class="wo">Kleines Teil: neu kaum teurer, aber kaputt ist es totes Kapital</div>`}</td><td><button class="btn small" data-palauf="${esc(k.code)}">Auf die Palette</button></td></tr>`).join("")}</tbody></table></div></section>` : ""}
