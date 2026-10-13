@@ -489,3 +489,13 @@ details.hand summary::-webkit-details-marker { display: none; }
 @media (max-width: 520px) { .soc-board { grid-template-columns: 1fr; } }
 .soc-konto .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 @media (max-width: 520px) { .soc-konto .stat { padding: 10px; } .soc-konto .stat b { font-size: 1.15rem; } .soc-konto .stat span, .soc-konto .stat small { font-size: .72rem; } }
+
+/* Speichern-Bestätigung */
+#saved-toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 30px) scale(.96); opacity: 0; pointer-events: none; z-index: 9999; display: flex; align-items: center; gap: 12px; background: #1c2f55; color: #fff; padding: 12px 20px 12px 14px; border-radius: 14px; box-shadow: 0 12px 34px rgba(0,0,0,.22); transition: opacity .25s ease, transform .35s cubic-bezier(.2,1.4,.4,1); }
+#saved-toast.an { opacity: 1; transform: translate(-50%, 0) scale(1); }
+#saved-toast b { display: block; font-size: 1rem; } #saved-toast span { display: block; font-size: .82rem; opacity: .85; }
+#saved-toast svg { width: 34px; height: 34px; flex: 0 0 auto; fill: none; stroke: #6fe3a4; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+#saved-toast svg circle { stroke-dasharray: 145; stroke-dashoffset: 145; } #saved-toast svg path { stroke-dasharray: 40; stroke-dashoffset: 40; }
+#saved-toast.an svg circle { animation: saveCircle .45s ease-out forwards; } #saved-toast.an svg path { animation: saveCheck .3s .4s ease-out forwards; }
+@keyframes saveCircle { to { stroke-dashoffset: 0; } } @keyframes saveCheck { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { #saved-toast, #saved-toast.an svg circle, #saved-toast.an svg path { transition: none; animation: none; stroke-dashoffset: 0; } }
