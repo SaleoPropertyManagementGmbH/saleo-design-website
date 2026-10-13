@@ -647,7 +647,7 @@ async function palTeilen(nurLaden) {
   } catch (e) { UI.flash = "PDF ging nicht: " + e.message; render(); }
 }
 function vBeschBedarf() {
-  const plaene = (D.plan || []).filter(p => p.zustand === "B" && Array.isArray(p.besch) && p.besch.length && p.status !== "archiv");
+  const plaene = (D.plan || []).filter(p => Array.isArray(p.besch) && p.besch.length && p.status !== "archiv");
   if (!plaene.length) return "";
   const farbe = c => `<i class="dot" style="background:${FARBHEX[c] || "#ccc"}"></i> ${esc(farbName(c))}`;
   const quelle = b => (D.lager || []).filter(r => r.code && r.code.startsWith(b.typ + "-") && (r.mass || "") === b.mass && ["S", "G"].includes(r.zustand) && r.bestand > 0).sort((x, y) => (x.zustand === "S" ? 0 : 1) - (y.zustand === "S" ? 0 : 1));

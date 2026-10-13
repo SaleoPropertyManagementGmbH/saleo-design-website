@@ -57,7 +57,7 @@
       <details class="card fold" id="globalscard" open><summary>Ganzes Möbel</summary>
         <div class="globals" id="globals">
           <label class="f" for="g-color">Grundfarbe<select id="g-color"></select></label>
-          <label class="f" for="g-zustand">Zustand<select id="g-zustand"><option value="G">Gebraucht</option><option value="N">Neu / neuwertig</option><option value="B">Beschichtet (große Teile beschichten, Rest aus Lager)</option></select></label>
+          <label class="f" for="g-zustand">Zustand<select id="g-zustand"><option value="G">Gebraucht</option><option value="N">Neu / neuwertig</option></select></label>
           <label class="f" for="g-base">Unten<select id="g-base"><option value="FU">Nivellierfüße</option><option value="RN100">Lenkrollen Ø 100 (vorne mit Arretierung)</option><option value="RN50">Lenkrollen Ø 50</option></select></label>
           <label class="f" for="g-sides">Außenseiten<select id="g-sides"><option value="BL">Metall</option><option value="BP">Gelocht</option><option value="GL">Glas</option><option value="">Offen</option></select></label>
           <label class="f" for="g-doppel">Aufbau<select id="g-doppel"><option value="0">Einseitig</option><option value="1">Doppelseitig (Rücken an Rücken)</option></select></label>
@@ -172,7 +172,7 @@ const TEMPLATE_OPTS = { "Rollcontainer": { depth: 500, base: "RN50" } };
 const applyTpl = k => { state.fields = TEMPLATES[k](); Object.assign(state, TEMPLATE_OPTS[k] || {}); };
 
 const state = { fields: TEMPLATES["Sideboard"](), depth: 350, color: "24", zustand: "G", base: "FU", sides: "BL", top: "BL", doppel: false, extra: [],
-  buyNew: {}, sel: 1, multi: new Set([1]), multiMode: false, price: null, rabatt: 0, ertragsteuer: 30, neupreis: "", view: "intern", tab: "bom", ordered: false, flash: null,
+  buyNew: {}, besch: {}, sel: 1, multi: new Set([1]), multiMode: false, price: null, rabatt: 0, ertragsteuer: 30, neupreis: "", view: "intern", tab: "bom", ordered: false, flash: null,
   paint: { part: "all", scope: "all" } };
 const undoStack = [];
 const sels = () => state.fields.filter(f => state.multi.has(f.id));
@@ -206,13 +206,17 @@ function estPrice(typ, mass) {
     ZT: 10 + 80 * a, ZG: 15 + 90 * a, AT: 40 + 100 * a, ST: 20 + 90 * a, ER: 25 + 60 * a, KL: 50 + 130 * a, KLP: 60 + 150 * a, EIP: 80 + 160 * a, AZP: 60 + 150 * a, AZ: 50 + 130 * a, EI: 70 + 140 * a, GT: 60 + 140 * a })[typ] ?? 10;
 }
 function stockOf(e) {
-  const t = dbTyp(e), anyMass = ["HW", "KS", "KU", "CO", "FU"].includes(e.typ), zs = state.zustand === "B" ? (e.code.split("-").includes("G") ? "G" : "N") : state.zustand;
+  const t = dbTyp(e), anyMass = ["HW", "KS", "KU", "CO", "FU"].includes(e.typ), zs = state.zustand;
   if (e.besch) {
-    // Beschichtet: gebrauchte Teile gleichen Typs und Maßes in beliebiger Farbe, frisch in der Zielfarbe pulverbeschichtet
-    const src = LIVE.teil.filter(r => r.typ === t && (r.mass || "") === e.mass && ["S", "G"].includes(r.zustand) && (r.generation || "N") === (e.gen || "N"));
+    // Beschichten (je Zeile wählbar): Ø-Preis des Teils, wie es auf den Paletten liegt (beliebige Farbe, gebraucht oder schlecht); liegt keins da, Ø-Lagerpreis des Teils; dazu Beschichtung je Blech netto
+    const alle = LIVE.teil.filter(r => r.typ === t && (r.mass || "") === e.mass && (r.generation || "N") === (e.gen || "N"));
+    const src = alle.filter(r => ["S", "G"].includes(r.zustand));
     const frei = r => Math.max(0, r.bestand - r.reserviert - ((LIVE.verb[r.code] || {}).verbaut || 0) + (LIVE.eigen[r.code] || 0));
     const qty = src.reduce((a, r) => a + frei(r), 0), stueck = src.reduce((a, r) => a + r.bestand, 0);
-    const basis = stueck > 0 ? src.reduce((a, r) => a + r.bestand * Number(r.durchschnittspreis), 0) / stueck : (LIVE.tt[t] && LIVE.tt[t].richtwert != null ? Number(LIVE.tt[t].richtwert) : estPrice(e.typ, e.mass));
+    const mitPreis = alle.filter(r => Number(r.durchschnittspreis) > 0);
+    const basis = stueck > 0 ? src.reduce((a, r) => a + r.bestand * Number(r.durchschnittspreis), 0) / stueck
+      : mitPreis.length ? mitPreis.reduce((a, r) => a + Number(r.durchschnittspreis), 0) / mitPreis.length
+      : (LIVE.tt[t] && LIVE.tt[t].richtwert != null ? Number(LIVE.tt[t].richtwert) : estPrice(e.typ, e.mass));
     const lager = [...new Set(src.filter(r => frei(r) > 0).map(r => `${colorName(r.farbe)}${r.lagerort ? " (" + r.lagerort + ")" : ""}`))].slice(0, 4).join(", ");
     return { qty, verbaut: 0, price: Math.round((basis + LIVE.beschPreis) * 100) / 100, src: "Ø + Beschichtung", lager: lager ? "zum Beschichten: " + lager : "", nurNeu: null };
   }
@@ -355,12 +359,10 @@ function bom(geo) {
     else if (GLASS.includes(typ)) farbe = "GL";
     else if (["FU", "RN"].includes(typ)) farbe = "SW";
     else if (["KU", "CO", "RO", "ER"].includes(typ)) farbe = "CR";
-    const besch = state.zustand === "B" && FARBIG.includes(typ);
-    // Beschichtet: große Teile werden beschichtet (Ø-Einkauf + Beschichtung), alles andere zum eigenen Einkaufspreis aus dem Lager (Ø gebraucht)
-    const z = state.zustand !== "B" ? state.zustand : besch ? "N" : "G";
+    const z = state.zustand;
     const code = typ === "HW" ? `HW-${mass}-SW-${z}` : typ === "KS" ? `HW-KS-${farbe}-${z}` : [typ, mass, farbe, z, gen === "A" ? "A" : ""].filter(Boolean).join("-");
     const valid = CAT[typ] ? CAT[typ].includes(String(mass)) : true;
-    const e = map.get(code) || { code, typ, mass: String(mass || ""), farbe, gen, qty: 0, valid, wo: new Set(), besch };
+    const e = map.get(code) || { code, typ, mass: String(mass || ""), farbe, gen, qty: 0, valid, wo: new Set(), besch: FARBIG.includes(typ) && !!(state.besch || {})[code] };
     e.qty += qty; if (wo) e.wo.add(wo); map.set(code, e);
   }
   const hw = (k, n, wo) => add("HW", k, null, n, wo);
@@ -435,7 +437,7 @@ function bom(geo) {
   return [...map.values()].map(e => {
     const s = stockOf(e), kg = weight(e.typ, e.mass);
     if (state.buyNew[e.code] == null && s.nurNeu != null && s.qty < e.qty) state.buyNew[e.code] = s.nurNeu;
-    const missing = Math.max(0, e.qty - s.qty), nk = state.buyNew[e.code];
+    const missing = e.besch ? 0 : Math.max(0, e.qty - s.qty), nk = e.besch ? null : state.buyNew[e.code];
     const cost = nk != null ? (e.qty - missing) * s.price + missing * nk : e.qty * s.price;
     return { ...e, stock: s.qty, price: s.price, src: s.src, lager: s.lager, cost, missing, neu: nk != null, nk, kg, kgSum: kg * e.qty };
   }).sort((a, b) => order.indexOf(a.typ) - order.indexOf(b.typ) || a.mass.localeCompare(b.mass, "de", { numeric: true }) || a.farbe.localeCompare(b.farbe));
@@ -664,14 +666,15 @@ function tabBom(rows) {
     const rs = rows.filter(r => typs.includes(r.typ)); if (!rs.length) return;
     body += `<tr class="grp"><td colspan="7">${name}</td></tr>` + rs.map(r => {
       const pill = !r.valid ? `<span class="pill bad">Maß ungültig</span>` : r.missing ? (r.neu ? `<span class="pill">${r.missing} neu</span>` : `<span class="pill warn">fehlt ${r.missing}</span>`) : `<span class="pill ok">${r.stock}</span>`;
-      const nk = `<label class="nk"><input type="checkbox" data-buynew="${r.code}" ${r.neu ? "checked" : ""}> neu kaufen</label>${r.neu ? `<input class="nkp" type="number" min="0" step="0.5" data-nkprice="${r.code}" value="${r.nk}" aria-label="Neupreis je Stück"> €/Stk` : ""}`;
+      const bs = FARBIG.includes(r.typ) ? `<label class="nk"><input type="checkbox" data-besch="${r.code}" ${r.besch ? "checked" : ""}> beschichten (+${eur(LIVE.beschPreis)} netto)</label>` : "";
+      const nk = (r.besch ? "" : `<label class="nk"><input type="checkbox" data-buynew="${r.code}" ${r.neu ? "checked" : ""}> neu kaufen</label>${r.neu ? `<input class="nkp" type="number" min="0" step="0.5" data-nkprice="${r.code}" value="${r.nk}" aria-label="Neupreis je Stück"> €/Stk` : ""}`) + bs;
       const sw = FARBIG.includes(r.typ) ? `<i style="display:inline-block;width:9px;height:9px;background:${colorHex(r.farbe)};border:1px solid var(--line);margin-right:5px"></i>` : "";
-      return `<tr><td>${sw}${partName(r)}${FARBIG.includes(r.typ) ? ` <span class="wo">${colorName(r.farbe)}</span>` : ""}${r.wo.size ? ` <span class="wo">· ${[...r.wo].join(", ")}</span>` : ""}<div class="code">${r.code}</div>${r.missing || r.neu ? `<div class="nkrow">${nk}</div>` : ""}</td><td class="num">${r.qty}</td><td class="num">${pill}</td><td class="code">${esc(r.lager)}</td><td class="num">${kgf(r.kg)}</td><td class="num">${eur(r.price)}<div class="src">${r.src}</div></td><td class="num">${eur(r.cost)}</td></tr>`;
+      return `<tr><td>${sw}${partName(r)}${FARBIG.includes(r.typ) ? ` <span class="wo">${colorName(r.farbe)}</span>` : ""}${r.wo.size ? ` <span class="wo">· ${[...r.wo].join(", ")}</span>` : ""}<div class="code">${r.code}</div>${r.missing || r.neu || FARBIG.includes(r.typ) ? `<div class="nkrow">${nk}</div>` : ""}</td><td class="num">${r.qty}</td><td class="num">${pill}</td><td class="code">${esc(r.lager)}</td><td class="num">${kgf(r.kg)}</td><td class="num">${eur(r.price)}<div class="src">${r.src}</div></td><td class="num">${eur(r.cost)}</td></tr>`;
     }).join("");
   });
   return `<div class="tablewrap"><table><thead><tr><th>Teil</th><th class="num">Menge</th><th class="num">Lager</th><th>Fach</th><th class="num">kg/Stk</th><th class="num">Preis</th><th class="num">Summe</th></tr></thead><tbody>${body}
     <tr class="grp"><td>Gesamt</td><td class="num">${rows.reduce((a, r) => a + r.qty, 0)}</td><td></td><td></td><td class="num">${kgf(rows.reduce((a, r) => a + r.kgSum, 0))}</td><td></td><td class="num">${eur(rows.reduce((a, r) => a + r.cost, 0))}</td></tr></tbody></table></div>
-    <p class="note">Bestand und Durchschnittspreis kommen live aus dem Lager. Preisquelle unter dem Preis: Ø = gleitender Durchschnitt aus dem Lager, Richtwert = am Teiltyp hinterlegt, Schätzung = Näherung, solange das Teil noch nicht erfasst ist. Jede Farbe ist eine eigene Zeile, so stimmt die Entnahme. Tablar, Seiten- und Rückwand sind dasselbe Metallelement und teilen sich den Bestand. Unter Schubladen und Ausziehtablaren liegt ein verkürztes Element, unter Einschubtüren eines mit Schlitzen. „Neu kaufen" gilt für die fehlende Menge und wird mit der Planung gespeichert.</p>`;
+    <p class="note">Bestand und Durchschnittspreis kommen live aus dem Lager. Preisquelle unter dem Preis: Ø = gleitender Durchschnitt aus dem Lager, Richtwert = am Teiltyp hinterlegt, Schätzung = Näherung, solange das Teil noch nicht erfasst ist. Jede Farbe ist eine eigene Zeile, so stimmt die Entnahme. Tablar, Seiten- und Rückwand sind dasselbe Metallelement und teilen sich den Bestand. Unter Schubladen und Ausziehtablaren liegt ein verkürztes Element, unter Einschubtüren eines mit Schlitzen. „Neu kaufen" gilt für die fehlende Menge. „Beschichten" gilt für die ganze Zeile: Ø-Preis des Teils auf den Paletten (jede Farbe), sonst Ø-Lagerpreis, plus Beschichtung je Blech netto; diese Teile landen unter Beschichtung in der Ops-App. Beides wird mit der Planung gespeichert.</p>`;
 }
 function tabCalc(rows) {
   const ek = rows.reduce((a, r) => a + r.cost, 0), list = Number(state.price) || 0, p = paid(), n = calcNumbers(ek, p), st = state.ertragsteuer / 100;
@@ -734,7 +737,7 @@ function renderRight(rows) {
       <ul><li>Außenmaße ${o.w} × ${o.d} × ${o.h} mm (B × T × H)${o.rollen ? ", inklusive Rollen" : ", inklusive Nivellierfüße"}</li>
         <li>${state.fields.length} Fächer: ${eq}</li>
         ${cu.length > 1 ? `<li>Farben: ${cu.map(([c, q]) => `${colorName(c)} (${q} Teile)`).join(", ")}</li>` : ""}
-        <li>${state.zustand === "G" ? "Gebraucht, geprüft und gereinigt" : state.zustand === "B" ? "Große Teile frisch in Originalfarbe pulverbeschichtet, Gestell und Beschläge geprüft und gereinigt" : "Neu bzw. neuwertig"}</li>
+        <li>${state.zustand === "G" ? "Gebraucht, geprüft und gereinigt" : "Neu bzw. neuwertig"}</li>${Object.keys(state.besch || {}).length ? `<li>Tablare und Fronten teilweise frisch in Originalfarbe pulverbeschichtet</li>` : ""}
         <li>Original USM Haller Teile. Aufbau und Versand auf Anfrage.</li></ul>
       <div><div class="pricebig">${eur(list)} <span class="note">VB</span></div><p class="note">Differenzbesteuert nach § 25a UStG, keine ausgewiesene Umsatzsteuer</p>
         ${neu > list ? `<div class="save">Neupreis bei USM ${eur(neu)}, Sie sparen ${pct(1 - list / neu)}</div>` : ""}
@@ -771,13 +774,15 @@ function render() {
 }
 
 /* ---------- Speichern, Laden, Live ---------- */
-const SAVE_KEYS = ["fields", "depth", "color", "zustand", "base", "sides", "top", "doppel", "extra", "buyNew", "price", "rabatt", "ertragsteuer", "neupreis"];
+const SAVE_KEYS = ["fields", "depth", "color", "zustand", "base", "sides", "top", "doppel", "extra", "buyNew", "besch", "price", "rabatt", "ertragsteuer", "neupreis"];
 function snapshot() { const d = {}; SAVE_KEYS.forEach(k => d[k] = state[k]); d._geraet = DEVICE; d._version = 6; d._inserat = PLAN.inserat || null; d._vorlage = !!(PLAN.vorlage && PLAN.inserat); return JSON.parse(JSON.stringify(d)); }
 function applyData(d) {
   state.doppel = false; state.extra = [];
   SAVE_KEYS.forEach(k => { if (d[k] !== undefined) state[k] = JSON.parse(JSON.stringify(d[k])); });
   PLAN.inserat = d._inserat || PLAN.inserat || null;
   PLAN.vorlage = !!d._vorlage;
+  if (!d.besch) state.besch = {};
+  if (state.zustand === "B") { state.zustand = "G"; state.besch = {}; normalize(); bom(geometry()).filter(r => FARBIG.includes(r.typ)).forEach(r => state.besch[r.code] = true); }
   state.fields.forEach(f => { if (!f.col) f.col = {}; if (f.front === "KLP") { f.front = "KL"; f.perf = true; } });
   uid = Math.max(0, ...state.fields.map(f => f.id)) + 1;
   selectOnly(state.fields[0].id); undoStack.length = 0;
@@ -786,7 +791,7 @@ function markDirty() { PLAN.dirty = true; }
 async function save() {
   if (!me()) { state.flash = "Bitte oben auswählen, wer du bist. Dann weiß der andere, wer zuletzt geändert hat."; render(); return; }
   const daten = snapshot();
-  if (state.zustand === "B") { normalize(); daten._beschichtung = bom(geometry()).filter(r => r.besch && r.qty > 0).map(r => ({ teil: r.code, typ: r.typ, mass: r.mass, zielfarbe: r.farbe, menge: r.qty, text: partName(r) })); }
+  { normalize(); daten._beschichtung = bom(geometry()).filter(r => r.besch && r.qty > 0).map(r => ({ teil: r.code, typ: r.typ, mass: r.mass, zielfarbe: r.farbe, menge: r.qty, text: partName(r) })); }
   const row = { name: PLAN.name || "Ohne Namen", daten, status: PLAN.status, geaendert_am: new Date().toISOString(), geaendert_von: me() };
   const warNeu = !PLAN.id;
   const q = PLAN.id ? sb.from("planung").update(row).eq("id", PLAN.id).select().single() : sb.from("planung").insert(row).select().single();
@@ -960,7 +965,8 @@ document.addEventListener("change", e => {
   else if (t.id === "e-w" && f && t.value) tryChange(() => { sels().forEach(q => q.w = +t.value); });
   else if (t.id === "e-h" && f && t.value) tryChange(() => { sels().forEach(q => q.h = +t.value); });
   else if (t.id === "g-color") { state.color = t.value; markDirty(); }
-  else if (t.id === "g-zustand") { state.zustand = t.value; state.buyNew = {}; markDirty(); }
+  else if (t.id === "g-zustand") { state.zustand = t.value; state.buyNew = {}; state.besch = {}; markDirty(); }
+  else if (t.dataset.besch) { state.besch = state.besch || {}; if (t.checked) state.besch[t.dataset.besch] = true; else delete state.besch[t.dataset.besch]; markDirty(); }
   else if (t.id === "g-base") { state.base = t.value; markDirty(); }
   else if (t.id === "g-sides") { state.sides = t.value; markDirty(); }
   else if (t.id === "g-doppel") { state.doppel = t.value === "1"; markDirty(); }
