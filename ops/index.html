@@ -846,7 +846,7 @@ function vStart() {
       <section class="card"><div class="card-head"><h2>Sofort baubar aus dem Lager</h2><span class="note">gebrauchte Teile</span></div>
         ${D.build ? `<div class="tablewrap"><table><thead><tr><th>Vorlage</th><th>Farbe</th><th class="num">Stück</th><th>Engpass</th></tr></thead><tbody>${D.build.map(x => `<tr><td>${esc(x.v.name)}</td><td><i class="dot" style="background:${FARBHEX[x.c]}"></i> ${esc(farbName(x.c))}</td><td class="num"><b class="${x.n ? "good" : "neg"}">${x.n}</b></td><td class="wo">${x.eng ? esc(x.eng.teil) + ` (${x.eng.vorhanden}/${x.eng.noetig})` : ""}</td></tr>`).join("")}</tbody></table></div>` : `<p class="empty">rechne…</p>`}</section>
       <section class="card"><div class="card-head"><h2>Letzte Lagerbewegungen</h2><a href="#protokoll">Protokoll</a></div>
-        ${D.bew.slice(0, 6).map(r => `<div class="list-row"><div class="grow"><div class="t code" style="font-size:.8rem">${esc(r.teil)}</div><div class="wo">${when(r.zeitpunkt)} · ${esc(r.art)}</div></div><b>${r.menge > 0 ? "+" : ""}${r.menge}</b></div>`).join("") || `<p class="empty">Noch keine Buchungen.</p>`}</section>
+        ${D.bew.slice(0, 6).map(r => `<div class="list-row"><div class="grow"><div class="t">${bewTeil(r.teil)}</div><div class="wo">${when(r.zeitpunkt)} · ${bewArt(r.art)}</div></div><b>${r.menge > 0 ? "+" : ""}${r.menge}</b></div>`).join("") || `<p class="empty">Noch keine Buchungen.</p>`}</section>
     </div>`;
 }
 function vProdukte() {
@@ -942,10 +942,14 @@ function vRegeln() {
     Object.entries(B).map(([k, n]) => { const rs = D.regeln.filter(r => r.bereich === k); if (!rs.length) return "";
       return `<section class="card"><div class="card-head"><h2>${n}</h2></div><div class="tablewrap"><table><tbody>${rs.map(r => `<tr><td style="width:50%"><b style="font-weight:550">${esc(r.regel)}</b>${r.bedingung ? `<div class="wo">${esc(r.bedingung)}</div>` : ""}</td><td style="white-space:normal">${esc(fmt(r.wert))} ${esc(r.einheit || "")}</td><td class="src">${r.status && r.status.startsWith("unbest") ? `<span class="badge warn">unbestätigt</span>` : `<span class="badge ok">belegt</span>`}${r.quelle ? ` <a href="${esc(r.quelle)}" target="_blank" rel="noopener">Quelle</a>` : ""}</td></tr>`).join("")}</tbody></table></div></section>`; }).join("");
 }
+const BEW_ART = { einkauf: ["ok", "Einkauf"], verkauf: ["warn", "Verkauf"], inventur: ["", "Inventur"], umbuchung: ["", "Umbuchung"], umlagerung: ["", "Umlagerung"], korrektur: ["", "Korrektur"], beschichtung: ["", "Beschichtung"], storno: ["bad", "Storno"] };
+const bewArt = a => { const x = BEW_ART[a] || ["", a ? a[0].toUpperCase() + a.slice(1) : ""]; return `<span class="badge ${x[0]}">${esc(x[1])}</span>`; };
+// Teil im Protokoll mit demselben Etikett wie im Lager (Gruppe, Farbe, Maß, Eigenschaften), Code klein darunter
+const bewTeil = code => { const r = (D.lager || []).find(x => x.code === code); return r ? `${teilEtikett(r)}<div class="code">${esc(code)}</div>` : `<span class="code">${esc(code)}</span>`; };
 function vProtokoll() {
   return head("Protokoll", "Jede Inventur, jeder Einkauf und Verkauf mit Bestand und Durchschnittspreis danach.") +
     `<section class="card">${D.bew.length ? `<div class="tablewrap"><table><thead><tr><th>Zeit</th><th>Art</th><th>Teil</th><th class="num">Menge</th><th class="num">Preis/Stk</th><th class="num">Bestand</th><th class="num">Ø danach</th><th>Notiz</th></tr></thead><tbody>
-    ${D.bew.map(r => `<tr><td class="wo">${when(r.zeitpunkt)}</td><td>${esc(r.art)}</td><td class="code">${esc(r.teil)}</td><td class="num">${r.menge > 0 ? "+" : ""}${r.menge}</td><td class="num">${r.preis_stueck != null ? eur(r.preis_stueck) : ""}</td><td class="num">${r.bestand_danach}</td><td class="num">${eur(r.durchschnitt_danach)}</td><td class="wo">${esc(r.notiz || "")}</td></tr>`).join("")}
+    ${D.bew.map(r => `<tr><td class="wo">${when(r.zeitpunkt)}</td><td>${bewArt(r.art)}</td><td>${bewTeil(r.teil)}</td><td class="num"><b class="${r.menge > 0 ? "good" : r.menge < 0 ? "neg" : ""}">${r.menge > 0 ? "+" : ""}${r.menge}</b></td><td class="num">${r.preis_stueck != null ? eur(r.preis_stueck) : ""}</td><td class="num">${r.bestand_danach}</td><td class="num">${eur(r.durchschnitt_danach)}</td><td class="wo">${esc(r.notiz || "")}</td></tr>`).join("")}
     </tbody></table></div>` : `<p class="empty">Noch keine Buchungen.</p>`}</section>`;
 }
 function navHtml() {
