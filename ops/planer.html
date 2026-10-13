@@ -133,7 +133,7 @@ const HW = {
   BS: ["Blechschraube 4,8 × 9,5", 0.3, 0.005],
   KH: ["Klemmhalter (Halbmond)", 2.5, 0.01], KM: ["Klemme", 1, 0.005], SM4: ["Schraube M4 für Klemmhalter", 0.3, 0.003],
   SCALT: ["Liftomat (Scharnier alte Generation)", 20, 0.35], BSALT: ["Befestigungsschiene alte Generation", 4, 0.05], HM: ["Halbmond (3 je Liftomat)", 0.02, 0.002], KLE: ["Klemme (3 je Liftomat)", 0.02, 0.002], SRALT: ["Schraube alte Klappe (3 je Liftomat, 6 je Tür, 12 je Klappe)", 0.05, 0.002],
-  DG: ["Universalschloss alte Generation (Drehgriff)", 10, 0.1], SLALT: ["Schloss alte Generation", 15, 0.12], SKALT: ["Schlosskasten alte Generation", 3.5, 0.03],
+  DG: ["Universalschloss alte Generation (Zylinder/Drehknauf)", 10, 0.1], SLALT: ["Schloss alte Generation", 15, 0.12], KRALT: ["Kunststoffeinsatz für Schloss, alte Generation (in der Tür)", 1, 0.01], SLA: ["Schließlasche alte Generation (Metall, Rückseite)", 2, 0.02],
   BWALT: ["Befestigungswinkel Front an Ausziehtablar, alt (Paar L/R)", 18, 0.15], ASALT: ["Auszugschiene alte Generation mit Schraube und Mutter (L/R)", 15, 0.6]
 };
 const ESSENTIELL = ["KU", "CO", "RO"];
@@ -355,7 +355,7 @@ function weight(typ, mass) {
     ZT: KG_M2 * a, ZG: KG_GLAS_M2 * a * 0.85, AT: KG_M2 * a + 0.5, ST: KG_M2 * a + 0.3, ER: 1.2 + 3 * a, KL: KG_M2 * a * 1.2, KLP: KG_M2 * a * 1.1, EIP: KG_M2 * a * 1.1, AZP: KG_M2 * a * 1.1, AZ: KG_M2 * a * 1.2, EI: KG_M2 * a * 1.2, GT: KG_GLAS_M2 * a })[typ] ?? 0;
 }
 const GLASS = ["GL", "GA", "GT", "ZG"];
-const ALT_HW = ["SCALT", "DG", "SLALT", "SKALT", "HM", "KLE", "BSALT", "ASALT", "BWALT", "TWALT"];
+const ALT_HW = ["SCALT", "DG", "SLALT", "KRALT", "SLA", "HM", "KLE", "BSALT", "ASALT", "BWALT", "TWALT"];
 const tablarWeg = p => !!(p.owner && (p.ownerKey === "boden" ? p.owner.noBoden : p.owner.noDeckel));
 const seitenTyp = p => (p.owner && (p.leftSide ? p.owner.bpL : p.owner.bpR)) ? "BP" : state.sides;
 function bom(geo) {
@@ -408,11 +408,11 @@ function bom(geo) {
     const hw = (k, n, w) => hw1(k, n * M, w);
     const old = f.gen === "A";
     const klN = !old && (f.front === "KL" || f.front === "KLP");
-    // Jede Tür: 1 Schlosskasten ihrer Generation + 1 Universalschloss oder 1 Schloss (Schlosskasten passt für beide), keine Komplettsets
+    // Jede Tür, neue Generation: 1 Schlosskasten + 1 Universalschloss oder 1 Schloss. Alte Generation: Zylinder (Universalschloss oder Schloss) + Kunststoffeinsatz in der Tür + Metall-Schließlasche hinten. Keine Komplettsets
     const altSchloss = old && ["KL", "KLP", "AZ"].includes(f.front);
     const mitSchloss = ["S", "SA"].includes(f.lock);
     const lockHw = altSchloss ? (mitSchloss ? "SLALT" : "DG") : (mitSchloss ? "SL" : "USL");
-    const kastenHw = altSchloss ? "SKALT" : "SKN";
+    const kastenHw = altSchloss ? ["KRALT", "SLA"] : ["SKN"];
     const erH = [350, 250, 175].find(x => x <= f.h);
     if (f.back) { add(f.back, `${f.w}x${f.h}`, colOf(f, "back"), 1, "Rückwand"); if (f.back === "GL") hw("GH", 4, "Glasrückwand"); }
     if (f.inside) {
@@ -439,7 +439,7 @@ function bom(geo) {
     }
     if (f.front === "EI") { hw("EFP", 2, n); hw("EZS", 1, n); hw("EH", 2, n); add("KS", "", colOf(f, "kupplung"), 2, n); }
     if (f.front === "GT") hw("GS", 2, n);
-    hw(lockHw, 1, n); hw(kastenHw, 1, n);
+    hw(lockHw, 1, n); kastenHw.forEach(k => hw(k, 1, n));
   });
   (state.extra || []).forEach(e => add(e.typ, e.mass || "", e.farbe || state.color, Number(e.qty) || 0, e.wo || "Zusatz"));
   const feet = geo.nodes.filter(n => n[1] === 0).length * P;
