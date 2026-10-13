@@ -73,6 +73,10 @@ function zahlungText() {
   return z;
 }
 const bezahlt = () => R.status === "bezahlt";
+// Versand bei § 25a: steht brutto als Position, darunter netto und 19 % USt ausgewiesen (Festlegung Steuerberater 13.10.2026)
+const versandBrutto = () => R.besteuerung === "differenz" ? Math.round((R.positionen || []).filter(p => /^(Versand|Lieferung)/i.test(String(p.text || "").trim())).reduce((a, p) => a + Number(p.menge) * Number(p.preis), 0) * 100) / 100 : 0;
+const versandTeile = () => { const b = versandBrutto(), n = Math.round(b / 1.19 * 100) / 100; return { b, n, u: Math.round((b - n) * 100) / 100 }; };
+const SONDER_VERSAND = "Ausgenommen sind die Versandkosten: Sie unterliegen der Regelbesteuerung, die darin enthaltene Umsatzsteuer ist oben ausgewiesen.";
 const steuerZeilen = () => [F.steuernummer ? `Steuernummer: ${F.steuernummer}` : "", F.ust_id ? `USt-IdNr.: ${F.ust_id}` : ""].filter(Boolean);
 const fussSpalten = () => [[F.name, F.strasse, F.ort], [F.telefon ? `Tel.: ${F.telefon}` : "", F.email, F.web], [...steuerZeilen(), F.register || "", F.geschaeftsfuehrer ? `Geschäftsführer: ${F.geschaeftsfuehrer}` : ""], [F.bank || "", F.kontoinhaber ? `Kontoinhaber: ${F.kontoinhaber}` : "", F.iban ? `IBAN: ${F.iban}` : "", F.bic ? `BIC: ${F.bic}` : ""]].map(c => c.filter(Boolean));
 function girocode() {
@@ -92,9 +96,9 @@ function render() {
     <table class="pos"><thead><tr><th>Pos.</th><th>Beschreibung</th><th class="r">Menge</th><th class="r">Einzelpreis</th><th class="r">Gesamt</th></tr></thead><tbody>
       ${pos.map((p, i) => `<tr><td>${i + 1}</td><td>${esc(p.text)}</td><td class="r">${p.menge}</td><td class="r">${eurD(p.preis)}</td><td class="r">${eurD(p.menge * p.preis)}</td></tr>`).join("")}
     </tbody></table>
-    <div class="summe">${R.besteuerung === "regel" ? `<div><span>Nettobetrag</span><span>${eurD(R.netto)}</span></div><div><span>zzgl. 19 % USt</span><span>${eurD(R.ust)}</span></div>` : ""}
+    <div class="summe">${versandBrutto() > 0 ? `<div><span>Versandkosten netto</span><span>${eurD(versandTeile().n)}</span></div><div><span>darin 19 % USt auf Versand</span><span>${eurD(versandTeile().u)}</span></div>` : ""}${R.besteuerung === "regel" ? `<div><span>Nettobetrag</span><span>${eurD(R.netto)}</span></div><div><span>zzgl. 19 % USt</span><span>${eurD(R.ust)}</span></div>` : ""}
       <div class="end"><span>Rechnungsbetrag</span><span>${eurD(R.brutto)}</span></div></div>
-    <div class="hinweis">${R.besteuerung === "differenz" ? `<p>${SONDER}</p>` : ""}${R.hinweis ? `<p>${esc(R.hinweis)}</p>` : ""}${F.rechnung_hinweis ? `<p>${esc(F.rechnung_hinweis)}</p>` : ""}</div>
+    <div class="hinweis">${R.besteuerung === "differenz" ? `<p>${SONDER}${versandBrutto() > 0 ? " " + SONDER_VERSAND : ""}</p>` : ""}${R.hinweis ? `<p>${esc(R.hinweis)}</p>` : ""}${F.rechnung_hinweis ? `<p>${esc(F.rechnung_hinweis)}</p>` : ""}</div>
     <div class="zahlung">${bezahlt() ? `<div><b class="t">Bereits bezahlt</b>Der Betrag ist bei uns eingegangen. Vielen Dank!</div>` : `<div><b class="t">Bitte zahlen Sie bis zum ${datD(faellig())}</b><ul>${zahlungText().map(t => `<li>${esc(t)}</li>`).join("")}</ul></div>${qr ? `<div class="qr">${qr.createSvgTag({ cellSize: 3, margin: 0 })}Mit der Banking-App scannen</div>` : ""}`}</div>
     <div class="danke">Vielen Dank für Ihren Einkauf!</div>
     <div class="fuss">${fussSpalten().map(c => `<div>${c.map(t => `<div>${esc(t)}</div>`).join("")}</div>`).join("")}</div>
@@ -136,11 +140,12 @@ function pdf() {
     y += zeilen.length * 5 + 2.5; d.setDrawColor(228, 230, 235); d.line(L, y - 3.5, Rr, y - 3.5);
   });
   y += 2; d.setFontSize(10);
+  if (versandBrutto() > 0) { const vt = versandTeile(); grau(); d.text("Versandkosten netto", 124, y); dunkel(); d.text(eurD(vt.n), Rr - 3, y, { align: "right" }); y += 5.5; grau(); d.text("darin 19 % USt auf Versand", 124, y); dunkel(); d.text(eurD(vt.u), Rr - 3, y, { align: "right" }); y += 3; }
   if (R.besteuerung === "regel") { grau(); d.text("Nettobetrag", 124, y); dunkel(); d.text(eurD(R.netto), Rr - 3, y, { align: "right" }); y += 5.5; grau(); d.text("zzgl. 19 % USt", 124, y); dunkel(); d.text(eurD(R.ust), Rr - 3, y, { align: "right" }); y += 3; }
   d.setFillColor(...AK); d.roundedRect(120, y, 70, 11, 1.8, 1.8, "F"); weiss(); fett(true); d.setFontSize(11); d.text("Rechnungsbetrag", 124, y + 7.2); d.text(eurD(R.brutto), Rr - 4, y + 7.2, { align: "right" }); fett(false); dunkel();
   y += 20; d.setFontSize(8.5); grau();
   const absatz = t => { const z = d.splitTextToSize(t, Rr - L); d.text(z, L, y); y += z.length * 4 + 2; };
-  if (R.besteuerung === "differenz") absatz(SONDER);
+  if (R.besteuerung === "differenz") absatz(SONDER + (versandBrutto() > 0 ? " " + SONDER_VERSAND : ""));
   if (R.hinweis) absatz(R.hinweis);
   if (F.rechnung_hinweis) absatz(F.rechnung_hinweis);
   const qr = girocode(), txtB = qr ? 118 : Rr - L - 10;

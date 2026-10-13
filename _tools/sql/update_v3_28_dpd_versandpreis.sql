@@ -39,3 +39,6 @@ end $$;
 grant execute on function dpd_versandpreis(jsonb, text) to authenticated;
 
 -- auftrag_aendern nimmt zusätzlich versand_eigen (DPD netto) und paket (jsonb) an; sonst unverändert (live in der DB angelegt am 13.10.2026)
+
+-- steuer_bericht (13.10.2026): Versand bei § 25a regulär mit 19 % (Steuerberater), Positionen „Versand…“/„Lieferung…“ aus der Rechnung,
+-- nicht Teil der Differenz; Summe versand_brutto, versand_netto, ust_versand, in netto_regel/ust_regel enthalten (live in der DB)
