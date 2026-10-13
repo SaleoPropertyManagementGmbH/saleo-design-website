@@ -282,6 +282,11 @@ function geometry() {
   return { nodes: nl, hP, vP, deg, tubes, badTubes: [...hP, ...vP].filter(p => !TUBES.includes(p.len)) };
 }
 
+/* ---------- Innentablare ---------- */
+const MIT_FRONT = ["KL", "KLP", "AZ", "AZP", "EI", "EIP"];
+const nachbarn = p => state.fields.filter(f => (f.x + f.w === p.x || f.x === p.x) && f.y <= p.y1 && f.y + f.h >= p.y2);
+const innenTablar = p => !p.outer && nachbarn(p).some(f => MIT_FRONT.includes(f.front));
+
 /* ---------- Farben je Element ---------- */
 function colOf(f, k) {
   if (!f) return state.color;
@@ -366,13 +371,13 @@ function bom(geo) {
     add(st, `${d}x${p.len}`, colOf(p.owner, "seiten"), M, "Außentablar");
     if (st === "GL") hw("GH", 4 * M, "Glasseite");
   });
-  // Innentablar: senkrechte, gelochte Trennwand (Höhe × Tiefe) zwischen Fächern mit Klappen; L-Winkel je Reihe: 1 je Innentablar + 1 je Außentablar
+  // Innentablar: senkrechte, gelochte Trennwand (Höhe × Tiefe) zwischen zwei Fächern nebeneinander, sobald eines davon eine Front hat
+  // (Klappe, Auszugstür, Einschubtür, jede Generation). L-Winkel nur bei neuen Klappen: je Reihe 1 je Innentablar + 1 je Außentablar.
   const klNeu = f => f && (f.front === "KL" || f.front === "KLP") && f.gen !== "A";
   geo.vP.forEach(p => {
-    const nb = state.fields.filter(f => (f.x + f.w === p.x || f.x === p.x) && f.y <= p.y1 && f.y + f.h >= p.y2);
-    if (!nb.some(klNeu)) return;
-    if (!p.outer) add("BP", `${d}x${p.len}`, colOf(nb.find(klNeu), "seiten"), M, "Innentablar");
-    hw("MWS", M, "L-Winkel");
+    const nb = nachbarn(p);
+    if (!p.outer && innenTablar(p)) add("BP", `${d}x${p.len}`, colOf(nb.find(f => f.front) || nb[0], "seiten"), M, "Innentablar");
+    if (nb.some(klNeu)) hw("MWS", M, "L-Winkel");
   });
   const add1 = add, hw1 = hw;
   state.fields.forEach(f => {
@@ -513,6 +518,11 @@ function drawing(geo) {
   if (state.sides) geo.vP.filter(p => p.outer && !p.open).forEach(p => {
     const sx = p.leftSide ? X(p.x) - 7.5 : X(p.x) + 2.5, fill = state.sides === "GL" ? "#a9d4e2" : colorHex(colOf(p.owner, "seiten")), gl = seitenTyp(p) === "BP";
     g += `<rect x="${sx}" y="${Y(p.y2)}" width="5" height="${(p.y2 - p.y1) * S}" fill="${fill}" stroke="#00000033" stroke-width=".6"><title>Seite: ${state.sides === "GL" ? "Glas" : colorName(colOf(p.owner, "seiten"))}</title></rect>`;
+  });
+  // Innentablare zwischen zwei Fächern, in ihrer Farbe
+  geo.vP.filter(innenTablar).forEach(p => {
+    const nb = nachbarn(p), c = colOf(nb.find(f => f.front) || nb[0], "seiten");
+    g += `<rect x="${X(p.x) - 3}" y="${Y(p.y2) + 4}" width="6" height="${(p.y2 - p.y1) * S - 8}" fill="${colorHex(c)}" stroke="#00000055" stroke-width=".6" stroke-dasharray="2 1.5"><title>Innentablar ${p.len} × ${state.depth}: ${colorName(c)}</title></rect>`;
   });
   // Tablare (Boden, Deckel) als Kante in ihrer Farbe, Rohr davor
   geo.hP.forEach(p => {
