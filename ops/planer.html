@@ -94,6 +94,7 @@ const CAT = {
   GL: L("750x500 500x500 500x395 750x350 500x350 395x350 350x350 750x250 500x250 395x250 350x250 250x250"),
   GA: L("750x500 750x350 750x250 500x500 500x395 500x350 500x250 395x350 395x250 350x350 350x250 250x250"),
   BV: L("750x500 750x350 500x500 500x350 500x395"),
+  BSL: L("750x500"), SLR: L("750x500"),
   BK: L("750x350 500x350 750x500 500x500 395x350"),
   HR: L("750x500 750x350 395x500"),
   BSZ: L("750x350 500x350"),
@@ -115,7 +116,7 @@ const SYMMETRIC = ["BL", "BP", "BPF", "BAK", "GL", "GA", "BV", "BSZ", "BK"];
 const NAMES = {
   KU: "Kugel", CO: "Connector", RO: "Rohr", FU: "Nivellierfuß", RN: "Lenkrolle",
   BL: "Tablar", BP: "Tablar gelocht", BPF: "Tablar perforiert", BAK: "Akustikelement", GL: "Glaselement", GA: "Glastablar",
-  BV: "Tablar verkürzt", BSZ: "Tablar mit Schlitzen", BK: "Tablar mit Kabeldurchlass", HR: "Hängeregistratur",
+  BSL: "Schwerlasttablar", SLR: "Schwerlastrahmen (2 Rohre 750 mit Schwerlastträgern)", BV: "Tablar verkürzt", BSZ: "Tablar mit Schlitzen", BK: "Tablar mit Kabeldurchlass", HR: "Hängeregistratur",
   ZT: "Zwischentablar Metall", ZG: "Zwischentablar Glas", AT: "Ausziehtablar", ST: "Schrägtablar",
   KL: "Klappe", KLP: "Klappe perforiert", EIP: "Einschubtür perforiert", AZP: "Auszugstür perforiert", AZ: "Auszugstür", ER: "Einlegerahmen", EI: "Einschubtür", GT: "Glastür", KS: "Kupplungssteg"
 };
@@ -137,7 +138,7 @@ const HW = {
   BWALT: ["Befestigungswinkel Front an Ausziehtablar, alt (Paar L/R)", 18, 0.15], ASALT: ["Auszugschiene alte Generation mit Schraube und Mutter (L/R)", 15, 0.6]
 };
 const ESSENTIELL = ["KU", "CO", "RO"];
-const GROUPS = [["Gestell", ["KU", "CO", "RO", "FU", "RN"]], ["Metall- und Glaselemente", ["BL", "BP", "BPF", "BAK", "BK", "BV", "BSZ", "GL", "GA"]], ["Einbauten", ["ZT", "ZG", "AT", "ST", "HR", "ER"]], ["Fronten", ["KL", "KLP", "AZ", "AZP", "EIP", "EI", "GT", "KS"]], ["Beschläge und Montageteile", ["HW"]]];
+const GROUPS = [["Gestell", ["KU", "CO", "RO", "SLR", "FU", "RN"]], ["Metall- und Glaselemente", ["BL", "BSL", "BP", "BPF", "BAK", "BK", "BV", "BSZ", "GL", "GA"]], ["Einbauten", ["ZT", "ZG", "AT", "ST", "HR", "ER"]], ["Fronten", ["KL", "KLP", "AZ", "AZP", "EIP", "EI", "GT", "KS"]], ["Beschläge und Montageteile", ["HW"]]];
 const COLORS = [
   ["24", "Reinweiß", "#efeee9"], ["29", "Lichtgrau", "#c6c8c5"], ["35", "USM Mattsilber", "#a9abae"],
   ["32", "Mittelgrau", "#7f8386"], ["33", "Anthrazitgrau", "#3b4146"], ["30", "Graphitschwarz", "#232425"],
@@ -204,7 +205,7 @@ function estPrice(typ, mass) {
   const a = area(mass);
   if (typ === "HW") return HW[mass][1];
   return ({ KU: 4, CO: 1.2, RO: 3 + Number(mass) / 125, FU: 1.5, RN: 9, KS: 5,
-    BL: 6 + 75 * a, BK: 10 + 80 * a, HR: 30 + 60 * a, BP: 8 + 85 * a, BPF: 10 + 90 * a, BAK: 20 + 120 * a, BV: 6 + 75 * a, BSZ: 10 + 80 * a, GL: 20 + 90 * a, GA: 20 + 90 * a,
+    BSL: 12 + 90 * a, SLR: 45, BL: 6 + 75 * a, BK: 10 + 80 * a, HR: 30 + 60 * a, BP: 8 + 85 * a, BPF: 10 + 90 * a, BAK: 20 + 120 * a, BV: 6 + 75 * a, BSZ: 10 + 80 * a, GL: 20 + 90 * a, GA: 20 + 90 * a,
     ZT: 10 + 80 * a, ZG: 15 + 90 * a, AT: 40 + 100 * a, ST: 20 + 90 * a, ER: 25 + 60 * a, KL: 50 + 130 * a, KLP: 60 + 150 * a, EIP: 80 + 160 * a, AZP: 60 + 150 * a, AZ: 50 + 130 * a, EI: 70 + 140 * a, GT: 60 + 140 * a })[typ] ?? 10;
 }
 const PAL_ORT = "Palette Beschichter";
@@ -351,7 +352,7 @@ function weight(typ, mass) {
   if (typ === "HW") return HW[mass][2];
   const a = area(mass);
   return ({ KU: 0.07, CO: 0.01, RO: KG_ROHR_M * Number(mass) / 1000, FU: 0.03, RN: String(mass) === "100" ? 0.45 : 0.15, KS: 0.1,
-    BL: KG_M2 * a, BK: KG_M2 * a * 0.95, HR: 1.5 + 2 * a, BP: KG_M2 * a * 0.8, BPF: KG_M2 * a * 0.85, BAK: KG_M2 * a * 1.1, BV: KG_M2 * a * 0.93, BSZ: KG_M2 * a, GL: KG_GLAS_M2 * a, GA: KG_GLAS_M2 * a,
+    BSL: KG_M2 * a * 1.05, SLR: 4.5, BL: KG_M2 * a, BK: KG_M2 * a * 0.95, HR: 1.5 + 2 * a, BP: KG_M2 * a * 0.8, BPF: KG_M2 * a * 0.85, BAK: KG_M2 * a * 1.1, BV: KG_M2 * a * 0.93, BSZ: KG_M2 * a, GL: KG_GLAS_M2 * a, GA: KG_GLAS_M2 * a,
     ZT: KG_M2 * a, ZG: KG_GLAS_M2 * a * 0.85, AT: KG_M2 * a + 0.5, ST: KG_M2 * a + 0.3, ER: 1.2 + 3 * a, KL: KG_M2 * a * 1.2, KLP: KG_M2 * a * 1.1, EIP: KG_M2 * a * 1.1, AZP: KG_M2 * a * 1.1, AZ: KG_M2 * a * 1.2, EI: KG_M2 * a * 1.2, GT: KG_GLAS_M2 * a })[typ] ?? 0;
 }
 const GLASS = ["GL", "GA", "GT", "ZG"];
@@ -365,7 +366,7 @@ function bom(geo) {
     if (typ === "HW") farbe = "SW";
     else if (GLASS.includes(typ)) farbe = "GL";
     else if (["FU", "RN"].includes(typ)) farbe = "SW";
-    else if (["KU", "CO", "RO", "ER"].includes(typ)) farbe = "CR";
+    else if (["KU", "CO", "RO", "ER", "SLR"].includes(typ)) farbe = "CR";
     const z = state.zustand;
     const code = typ === "HW" ? `HW-${mass}-SW-${z}` : typ === "KS" ? `HW-KS-${farbe}-${z}` : [typ, mass, farbe, z, gen === "A" ? "A" : ""].filter(Boolean).join("-");
     const valid = CAT[typ] ? CAT[typ].includes(String(mass)) : true;
@@ -384,7 +385,10 @@ function bom(geo) {
   state.fields.forEach(f => { if (f.front === "AZ" || f.inside === "AT") special.set(`${f.x},${f.y}`, "BV"); if (f.front === "EI") special.set(`${f.x},${f.y}`, "BSZ"); });
   geo.hP.filter(p => !tablarWeg(p)).forEach(p => {
     const sp = special.get(`${p.x1},${p.y}`);
-    const typ = sp || (deckelGlas(p) ? "GA" : "BL");
+    // Schwerlast: nur 750 × 500, Tablar mit Aussparungen auf einem Schwerlastrahmen (2 Rohre 750 fest mit Schwerlastträgern), dazu 4 Kugeln und 2 Rohre 500 (je Rohr 2 Connectoren)
+    const schwer = !sp && !p.top && p.ownerKey === "boden" && p.owner && p.owner.schwerlast && p.len === 750 && d === 500;
+    const typ = sp || (schwer ? "BSL" : deckelGlas(p) ? "GA" : "BL");
+    if (schwer) { add("SLR", "750x500", null, M, "Schwerlast"); add("KU", "", null, 4 * M, "Schwerlastrahmen"); add("RO", 500, null, 2 * M, "Schwerlastrahmen"); add("CO", "", null, 4 * M, "Schwerlastrahmen"); }
     add(typ, `${p.len}x${d}`, tablarColor(p), M, typ === "BV" ? "Boden unter Auszug" : typ === "BSZ" ? "Boden Einschubtür" : p.top ? "Deckel" : "Boden");
     if (typ === "GA") hw("GH", 4 * M, "Glastablar");
     if (p.len === 750 && typ !== "GA") hw("BS", 2 * M, "750er Boden");
@@ -444,7 +448,7 @@ function bom(geo) {
   (state.extra || []).forEach(e => add(e.typ, e.mass || "", e.farbe || state.color, Number(e.qty) || 0, e.wo || "Zusatz"));
   const feet = geo.nodes.filter(n => n[1] === 0).length * P;
   if (state.base === "FU") add("FU", "", null, feet); else add("RN", state.base === "RN100" ? "100" : "50", null, feet);
-  const order = ["KU", "CO", "RO", "FU", "RN", "BL", "BK", "BV", "BSZ", "BP", "BPF", "BAK", "GL", "GA", "ZT", "ZG", "AT", "ST", "HR", "ER", "KL", "KLP", "AZ", "AZP", "EI", "EIP", "GT", "KS", "HW"];
+  const order = ["KU", "CO", "RO", "SLR", "FU", "RN", "BL", "BSL", "BK", "BV", "BSZ", "BP", "BPF", "BAK", "GL", "GA", "ZT", "ZG", "AT", "ST", "HR", "ER", "KL", "KLP", "AZ", "AZP", "EI", "EIP", "GT", "KS", "HW"];
   // Teile, die der Nutzer aus der Stückliste genommen hat (nicht beim Gestell: Kugeln, Connectoren, Rohre)
   map.forEach(e => { const w = ESSENTIELL.includes(e.typ) ? 0 : Math.min(e.qty, Number((state.weg || {})[e.code]) || 0); e.weg = w; e.qty -= w; });
   return [...map.values()].map(e => {
@@ -464,7 +468,7 @@ function bom(geo) {
   }).sort((a, b) => order.indexOf(a.typ) - order.indexOf(b.typ) || a.mass.localeCompare(b.mass, "de", { numeric: true }) || a.farbe.localeCompare(b.farbe));
 }
 const partName = r => r.typ === "HW" ? HW[r.mass][0] : r.typ === "RN" ? `Lenkrolle Ø ${r.mass}` : `${NAMES[r.typ]}${r.mass ? " " + r.mass.replace("x", " × ") : ""}`;
-const FARBIG = ["BL", "BK", "BP", "BPF", "BAK", "BV", "BSZ", "ZT", "AT", "ST", "KL", "KLP", "AZ", "AZP", "EI", "EIP", "KS"];
+const FARBIG = ["BL", "BSL", "BK", "BP", "BPF", "BAK", "BV", "BSZ", "ZT", "AT", "ST", "KL", "KLP", "AZ", "AZP", "EI", "EIP", "KS"];
 
 /* ---------- Format ---------- */
 const pct = n => (n * 100).toLocaleString("de-DE", { maximumFractionDigits: 1 }) + " %";
@@ -645,6 +649,7 @@ function renderEditor() {
     ${list.every(q => q.front === "AZ" || q.inside === "AT") ? `<div class="group"><span>Einlegerahmen</span><div class="chips"><button class="chip" data-rahmen="0" aria-pressed="${list.every(q => !q.rahmen)}">Ohne</button><button class="chip" data-rahmen="1" aria-pressed="${list.every(q => q.rahmen)}">Mit Einlegerahmen</button></div></div>` : ""}
     <div class="group"><span>Seiten</span><div class="chips"><button class="chip" data-open="L" aria-pressed="${list.every(q => q.openL)}">Links offen</button><button class="chip" data-open="R" aria-pressed="${list.every(q => q.openR)}">Rechts offen</button></div></div>
     <div class="group"><span>Seitenelement</span><div class="chips"><button class="chip" data-flag="bpL" aria-pressed="${list.every(q => q.bpL)}">Links gelocht</button><button class="chip" data-flag="bpR" aria-pressed="${list.every(q => q.bpR)}">Rechts gelocht</button></div></div>
+    ${list.every(q => q.w === 750) && state.depth === 500 ? `<div class="group"><span>Schwerlast</span><div class="chips"><button class="chip" data-flag="schwerlast" aria-pressed="${list.every(q => q.schwerlast)}">Boden als Schwerlasttablar</button></div></div>` : ""}
     <div class="group"><span>Tablare</span><div class="chips"><button class="chip" data-flag="noBoden" aria-pressed="${list.every(q => q.noBoden)}">Ohne Boden</button><button class="chip" data-flag="noDeckel" aria-pressed="${list.every(q => q.noDeckel)}">Ohne Deckel</button><button class="chip" data-flag="glasDeckel" aria-pressed="${list.every(q => q.glasDeckel)}">Deckel aus Glas</button></div></div>
     <div class="group"><span>Rückwand</span><div class="chips">${chips(BACKS, "back", "back")}</div></div>
     <div class="group"><span>Einbau</span><div class="chips">${chips(INSIDES, "inside", "inside")}</div></div>`;
