@@ -314,6 +314,8 @@ function colOf(f, k) {
   return k === "kupplung" ? colOf(f, "front") : state.color;
 }
 const tablarColor = p => colOf(p.owner, p.ownerKey);
+// Deckel aus Glas: fürs ganze Möbel (Abdeckung oben) oder je Fach (Tablare > Deckel aus Glas)
+const deckelGlas = p => !!p.top && (state.top === "GA" || !!(p.owner && p.owner.glasDeckel));
 function rank(vals) { const s = [...new Set(vals)].sort((a, b) => a - b); return v => s.indexOf(v); }
 function paintTargets() {
   const fs = state.fields, sel = sels(), sc = state.paint.scope;
@@ -381,7 +383,7 @@ function bom(geo) {
   state.fields.forEach(f => { if (f.front === "AZ" || f.inside === "AT") special.set(`${f.x},${f.y}`, "BV"); if (f.front === "EI") special.set(`${f.x},${f.y}`, "BSZ"); });
   geo.hP.filter(p => !tablarWeg(p)).forEach(p => {
     const sp = special.get(`${p.x1},${p.y}`);
-    const typ = sp || (p.top && state.top === "GA" ? "GA" : "BL");
+    const typ = sp || (deckelGlas(p) ? "GA" : "BL");
     add(typ, `${p.len}x${d}`, tablarColor(p), M, typ === "BV" ? "Boden unter Auszug" : typ === "BSZ" ? "Boden Einschubtür" : p.top ? "Deckel" : "Boden");
     if (typ === "GA") hw("GH", 4 * M, "Glastablar");
     if (p.len === 750 && typ !== "GA") hw("BS", 2 * M, "750er Boden");
@@ -554,7 +556,7 @@ function drawing(geo) {
   });
   // Tablare (Boden, Deckel) als Kante in ihrer Farbe, Rohr davor
   geo.hP.forEach(p => {
-    const glas = p.top && state.top === "GA", tc = tablarColor(p);
+    const glas = deckelGlas(p), tc = tablarColor(p);
     if (!tablarWeg(p)) g += `<rect x="${X(p.x1) + 4}" y="${Y(p.y) - 4.5}" width="${(p.x2 - p.x1) * S - 8}" height="9" fill="${glas ? "#a9d4e2" : colorHex(tc)}" stroke="#00000033" stroke-width=".6"><title>${p.top ? "Deckel" : "Boden"}: ${glas ? "Glas" : colorName(tc)}</title></rect>`;
     g += `<rect x="${X(p.x1)}" y="${Y(p.y) - 1.6}" width="${(p.x2 - p.x1) * S}" height="3.2" fill="url(#tubeH)" ${TUBES.includes(p.len) ? "" : 'stroke="var(--bad)" stroke-width="1.5"'}/>`;
   });
@@ -587,7 +589,7 @@ function messages(geo) {
   if (o.h >= ANKER_AB[state.depth]) m("bad", `Wandverankerung zwingend: Außenhöhe ${o.h} mm, bei Tiefe ${state.depth} schreibt USM sie ab ${ANKER_AB[state.depth]} mm vor. Mindestens 2 Sets an den oberen äußeren Ecken, je Set 20 kg Haltekraft.`);
   else if (o.h >= ANKER_AB[state.depth] * 0.75) m("warn", `Hoch und schmal: ab ${ANKER_AB[state.depth]} mm Außenhöhe ist bei Tiefe ${state.depth} eine Wandverankerung Pflicht. USM empfiehlt sie immer.`);
   if (state.depth === 250 && fs.some(f => ["AZ", "EI"].includes(f.front) || f.inside === "AT" || f.rahmen)) m("bad", "Tiefe 250: keine Schublade, Einschubtür, Ausziehtablar oder Einlegerahmen. Klappe geht.");
-  const glas = fs.some(f => f.back === "GL" || f.front === "GT" || f.inside === "ZG") || state.sides === "GL" || state.top === "GA";
+  const glas = fs.some(f => f.back === "GL" || f.front === "GT" || f.inside === "ZG" || f.glasDeckel) || state.sides === "GL" || state.top === "GA";
   if (rollen && glas) m("bad", "USM: Möbel mit Glaselementen oder Glastüren nie auf Rollen.");
   const rollcontainer = rollen && state.depth === 500 && fs.every(f => f.x === 0 && (f.w === 395 || f.w === 500));
   if (rollcontainer) m("info", "Rollcontainer: Schubladen nur einzeln ausziehen, schwere Hängeregistratur nach unten. Schlüssel mit Nummer notieren.");
@@ -627,7 +629,7 @@ function renderEditor() {
     ${list.every(q => q.front === "AZ" || q.inside === "AT") ? `<div class="group"><span>Einlegerahmen</span><div class="chips"><button class="chip" data-rahmen="0" aria-pressed="${list.every(q => !q.rahmen)}">Ohne</button><button class="chip" data-rahmen="1" aria-pressed="${list.every(q => q.rahmen)}">Mit Einlegerahmen</button></div></div>` : ""}
     <div class="group"><span>Seiten</span><div class="chips"><button class="chip" data-open="L" aria-pressed="${list.every(q => q.openL)}">Links offen</button><button class="chip" data-open="R" aria-pressed="${list.every(q => q.openR)}">Rechts offen</button></div></div>
     <div class="group"><span>Seitenelement</span><div class="chips"><button class="chip" data-flag="bpL" aria-pressed="${list.every(q => q.bpL)}">Links gelocht</button><button class="chip" data-flag="bpR" aria-pressed="${list.every(q => q.bpR)}">Rechts gelocht</button></div></div>
-    <div class="group"><span>Tablare</span><div class="chips"><button class="chip" data-flag="noBoden" aria-pressed="${list.every(q => q.noBoden)}">Ohne Boden</button><button class="chip" data-flag="noDeckel" aria-pressed="${list.every(q => q.noDeckel)}">Ohne Deckel</button></div></div>
+    <div class="group"><span>Tablare</span><div class="chips"><button class="chip" data-flag="noBoden" aria-pressed="${list.every(q => q.noBoden)}">Ohne Boden</button><button class="chip" data-flag="noDeckel" aria-pressed="${list.every(q => q.noDeckel)}">Ohne Deckel</button><button class="chip" data-flag="glasDeckel" aria-pressed="${list.every(q => q.glasDeckel)}">Deckel aus Glas</button></div></div>
     <div class="group"><span>Rückwand</span><div class="chips">${chips(BACKS, "back", "back")}</div></div>
     <div class="group"><span>Einbau</span><div class="chips">${chips(INSIDES, "inside", "inside")}</div></div>`;
   pbox.innerHTML = `<div class="editor"><div class="editor-head"><h3>Farben</h3><span class="note">Standard: ganzes Möbel in der Grundfarbe</span></div>
