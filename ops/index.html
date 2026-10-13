@@ -74,8 +74,9 @@ const svg = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICON[k]}</svg>`;
 const VIEWS = [["start", "Übersicht"], ["auftraege", "Aufträge"], ["produkte", "Produkte"], ["social", "Social Media"], ["moebel", "Fertige Möbel"], ["beschichtung", "Beschichtung"], ["planungen", "Planungen"], ["lager", "Lager"], ["auswertung", "Auswertung"], ["vorlagen", "Vorlagen"], ["katalog", "Teilekatalog"], ["regeln", "USM-Regeln"], ["protokoll", "Protokoll"]];
 const D = { lager: [], typen: [], farben: [], plan: [], vorlagen: [], vpos: [], std: [], regeln: [], bew: [], build: null, ins: [], insStand: null, moebel: [], mteile: [], ausw: [], verk: [], auf: [], zahl: [] };
 let ROLLE = { rolle: "voll", name: "" };
+const HAND_KEY = "sdo_hand_entwurf";
 const SOC = { konten: [], tage: [], beitraege: [], ideen: [] };
-const UI = { sq: "", ssort: "aufrufe", szeit: 30, sneu: false, view: "start", f: { q: "", gruppe: "", farbe: "", zustand: "", nur: "voll" }, p: { art: "moebel", farbe: "", q: "", sort: "neu" }, kq: "", fv: null, fvFarbe: "24", fvZustand: "G", fvRows: null, del: null, pf: "", sheet: false };
+const UI = { hand: (() => { try { return JSON.parse(store.get(HAND_KEY, "{}")) || {}; } catch { return {}; } })(), aedit: null, aform: {}, sq: "", ssort: "aufrufe", szeit: 30, sneu: false, view: "start", f: { q: "", gruppe: "", farbe: "", zustand: "", nur: "voll" }, p: { art: "moebel", farbe: "", q: "", sort: "neu" }, kq: "", fv: null, fvFarbe: "24", fvZustand: "G", fvRows: null, del: null, pf: "", sheet: false };
 const STATUS = { entwurf: "Entwurf", angebot: "Angebot", reserviert: "Reserviert", verkauft: "Verkauft", archiv: "Archiv" };
 const FARBHEX = { "24": "#efeee9", "29": "#c6c8c5", "35": "#a9abae", "32": "#7f8386", "33": "#3b4146", "30": "#232425", "34": "#24344d", "27": "#1a4f8b", "28": "#2f6a46", "36": "#43472f", "25": "#d99c1c", "26": "#e2561d", "23": "#8b1f2a", "22": "#5b3b2a", "31": "#cdbb98", "CR": "#c9ced4", "SW": "#222", "GL": "#cfe6ee" };
 const farbName = c => (D.farben.find(f => f.code === c) || { name: c || "" }).name;
@@ -322,27 +323,52 @@ function auftragKarte(a) {
     ${(a.kalkulation || []).length ? `<details class="teile" open><summary>Kalkulation (nur Rechnung, nichts wird ausgebucht)</summary><ul>${a.kalkulation.map(x => `<li>${x.menge} × ${esc(x.text || x.teil)} à ${eur(x.preis)} = <b>${eur(x.menge * x.preis)}</b>${x.teil ? ` <span class="code">${esc(x.teil)}</span>` : ""}</li>`).join("")}</ul><p class="wo">Summe ${eur(a.kalkulation.reduce((s, x) => s + x.menge * x.preis, 0))}</p></details>` : ""}
     ${a.notiz ? `<p class="wo" style="white-space:pre-wrap;margin:.4rem 0 0">${esc(a.notiz)}</p>` : ""}
     ${a.chat_auszug ? `<details class="teile"><summary>Chat-Auszug</summary><p class="wo" style="white-space:pre-wrap">${esc(a.chat_auszug)}</p></details>` : ""}
-    <div class="actions">${planerLink(a) ? `<a class="btn" href="${planerLink(a)}">Möbel ansehen</a>` : ""}${a.rechnung_id && a.rechnung_status === "entwurf" ? `<a class="btn primary" href="rechnung.html?id=${a.rechnung_id}">Rechnung prüfen und senden</a>` : ""}${a.status === "heiss" ? `<button class="btn" data-abez="${a.id}" title="Backup, falls die Zahlung nicht automatisch erkannt wird">Zahlung ist da</button>` : ""}${a.status === "bezahlt" ? `<button class="btn primary" data-afrei="${a.id}">Label freigeben</button>` : ""}${a.status === "freigegeben" ? `<span class="wo">freigegeben von ${esc(a.freigabe_von || "")} ${a.freigabe_am ? when(a.freigabe_am) : ""}</span><button class="btn small" data-azurueck="${a.id}">Zurücknehmen</button>` : ""}${a.moebel_id ? `<a class="btn small" href="planer.html?moebel=${a.moebel_id}">Kalkulation</a>` : ""}${ins ? `<a class="btn small" href="${esc(ins.url)}" target="_blank" rel="noopener">Anzeige</a>` : ""}</div>
+    ${UI.aedit === a.id ? vAuftragEdit(a) : ""}
+    <div class="actions"${UI.aedit === a.id ? " hidden" : ""}>${a.status !== "storniert" ? `<button class="btn" data-aedit="${a.id}">Bearbeiten</button>` : ""}${planerLink(a) ? `<a class="btn" href="${planerLink(a)}">Möbel ansehen</a>` : ""}${a.rechnung_id && a.rechnung_status === "entwurf" ? `<a class="btn primary" href="rechnung.html?id=${a.rechnung_id}">Rechnung prüfen und senden</a>` : ""}${a.status === "heiss" ? `<button class="btn" data-abez="${a.id}" title="Backup, falls die Zahlung nicht automatisch erkannt wird">Zahlung ist da</button>` : ""}${a.status === "bezahlt" ? `<button class="btn primary" data-afrei="${a.id}">Label freigeben</button>` : ""}${a.status === "freigegeben" ? `<span class="wo">freigegeben von ${esc(a.freigabe_von || "")} ${a.freigabe_am ? when(a.freigabe_am) : ""}</span><button class="btn small" data-azurueck="${a.id}">Zurücknehmen</button>` : ""}${a.moebel_id ? `<a class="btn small" href="planer.html?moebel=${a.moebel_id}">Kalkulation</a>` : ""}${ins ? `<a class="btn small" href="${esc(ins.url)}" target="_blank" rel="noopener">Anzeige</a>` : ""}</div>
   </article>`;
 }
+const HF = (id, d = "") => esc(UI.hand[id] ?? d);
+const HSEL = (id, opts, d) => opts.map(([v, n]) => `<option value="${v}"${(UI.hand[id] ?? d) === v ? " selected" : ""}>${n}</option>`).join("");
 function vHandAuftrag() {
   const mo = (D.moebel || []).filter(m => ["aufgebaut", "reserviert"].includes(m.status));
   return `<details class="card hand"${UI.handOffen ? " open" : ""}><summary><b>+ Auftrag von Hand anlegen</b> <span class="note">wenn ein Verkauf nicht automatisch erkannt wurde</span></summary>
     <div class="hand-grid">
-      <label>Möbel<select id="h-moebel"><option value="">anderes / Einzelteile</option>${mo.map(m => `<option value="${m.id}">${esc(m.name)}</option>`).join("")}</select></label>
-      <label>Bezeichnung<input id="h-titel" type="text" placeholder="z. B. Sideboard 2 × 1 schwarz"></label>
-      <label>Preis (€)<input id="h-preis" type="number" step="0.01" inputmode="decimal"></label>
-      <label>Versand<select id="h-versand"><option value="abholung">Abholung</option><option value="dpd">DPD</option></select></label>
-      <label>Versandkosten Kunde (€)<input id="h-vk" type="number" step="0.01" inputmode="decimal" value="0"></label>
-      <label>Kanal<select id="h-kanal"><option value="kleinanzeigen">Kleinanzeigen</option><option value="ebay">eBay</option><option value="direkt">Direkt</option></select></label>
-      <label>Name Käufer<input id="h-name" type="text" autocomplete="off"></label>
-      <label>E-Mail<input id="h-mail" type="email" autocomplete="off"></label>
-      <label>Straße und Nr.<input id="h-str" type="text" autocomplete="off"></label>
-      <label>PLZ<input id="h-plz" type="text" inputmode="numeric" autocomplete="off"></label>
-      <label>Ort<input id="h-ort" type="text" autocomplete="off"></label>
+      <label>Möbel<select id="h-moebel"><option value="">anderes / Einzelteile</option>${mo.map(m => `<option value="${m.id}"${UI.hand["h-moebel"] === m.id ? " selected" : ""}>${esc(m.name)}</option>`).join("")}</select></label>
+      <label>Bezeichnung<input id="h-titel" type="text" placeholder="z. B. Sideboard 2 × 1 schwarz" value="${HF("h-titel")}"></label>
+      <label>Preis (€) <span class="wo">kann auch später</span><input id="h-preis" type="number" step="0.01" inputmode="decimal" value="${HF("h-preis")}"></label>
+      <label>Versand<select id="h-versand">${HSEL("h-versand", [["abholung", "Abholung"], ["dpd", "DPD"], ["spedition", "Spedition"]], "abholung")}</select></label>
+      <label>Versandkosten Kunde (€)<input id="h-vk" type="number" step="0.01" inputmode="decimal" value="${HF("h-vk", "0")}"></label>
+      <label>Kanal<select id="h-kanal">${HSEL("h-kanal", [["kleinanzeigen", "Kleinanzeigen"], ["ebay", "eBay"], ["direkt", "Direkt"]], "kleinanzeigen")}</select></label>
+      <label>Inseratnummer <span class="wo">optional</span><input id="h-inserat" type="text" inputmode="numeric" value="${HF("h-inserat")}"></label>
+      <label>Name Käufer<input id="h-name" type="text" autocomplete="off" value="${HF("h-name")}"></label>
+      <label>E-Mail<input id="h-mail" type="email" autocomplete="off" value="${HF("h-mail")}"></label>
+      <label>Straße und Nr.<input id="h-str" type="text" autocomplete="off" value="${HF("h-str")}"></label>
+      <label>PLZ<input id="h-plz" type="text" inputmode="numeric" autocomplete="off" value="${HF("h-plz")}"></label>
+      <label>Ort<input id="h-ort" type="text" autocomplete="off" value="${HF("h-ort")}"></label>
     </div>
-    <p class="note">Mit Adresse oder E-Mail entsteht sofort ein Rechnungsentwurf. Ohne Adresse nur der Auftrag.</p>
-    <button class="btn primary" data-handneu="1">Auftrag anlegen</button></details>`;
+    <p class="note">Alles kann später im Auftrag über „Bearbeiten“ ergänzt oder geändert werden. Sobald Preis, Name und Adresse oder E-Mail da sind, entsteht ein Rechnungsentwurf (geht erst nach eurer Freigabe raus).</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" data-handneu="1">Auftrag anlegen</button>${Object.keys(UI.hand).length ? `<button class="btn" data-handleer="1">Eingaben leeren</button>` : ""}</div></details>`;
+}
+function vAuftragEdit(a) {
+  const f = UI.aform, v = k => esc(f[k] ?? "");
+  const sel = (k, o) => o.map(([x, n]) => `<option value="${x}"${f[k] === x ? " selected" : ""}>${n}</option>`).join("");
+  return `<div class="hand-grid aedit">
+      <label>Bezeichnung<input id="ae-titel" type="text" value="${v("titel")}"></label>
+      <label>Preis (€)<input id="ae-preis" type="number" step="0.01" inputmode="decimal" value="${v("preis")}"></label>
+      <label>Versand<select id="ae-versandart">${sel("versandart", [["abholung", "Abholung"], ["dpd", "DPD"], ["spedition", "Spedition"]])}</select></label>
+      <label>Versandkosten Kunde (€)<input id="ae-versand_kunde" type="number" step="0.01" inputmode="decimal" value="${v("versand_kunde")}"></label>
+      <label>Kanal<select id="ae-kanal">${sel("kanal", [["kleinanzeigen", "Kleinanzeigen"], ["ebay", "eBay"], ["direkt", "Direkt"]])}</select></label>
+      <label>Inseratnummer<input id="ae-inserat" type="text" inputmode="numeric" value="${v("inserat")}"></label>
+      <label>Name Käufer<input id="ae-kunde_name" type="text" autocomplete="off" value="${v("kunde_name")}"></label>
+      <label>E-Mail oder Kontakt<input id="ae-email" type="text" autocomplete="off" value="${v("email")}"></label>
+      <label>Straße und Nr.<input id="ae-strasse" type="text" autocomplete="off" value="${v("strasse")}"></label>
+      <label>PLZ<input id="ae-plz" type="text" inputmode="numeric" autocomplete="off" value="${v("plz")}"></label>
+      <label>Ort<input id="ae-ort" type="text" autocomplete="off" value="${v("ort")}"></label>
+      <label>Land<input id="ae-land" type="text" autocomplete="off" value="${v("land")}"></label>
+      <label style="grid-column:1/-1">Notiz<textarea id="ae-notiz" rows="3">${v("notiz")}</textarea></label>
+    </div>
+    <p class="note">Ein noch nicht gesendeter Rechnungsentwurf wird automatisch mit angepasst. Gesendete Rechnungen bleiben unverändert.</p>
+    <div class="actions"><button class="btn primary" data-aspeichern="${a.id}">Speichern</button><button class="btn" data-aabbruch="1">Abbrechen</button></div>`;
 }
 function vAuftraege() {
   const g = s => D.auf.filter(a => s.includes(a.status));
@@ -784,16 +810,19 @@ function render() {
   const fn = { start: vStart, auftraege: vAuftraege, produkte: vProdukte, moebel: vMoebel, beschichtung: vBeschichtung, auswertung: vAuswertung, lager: vLager, planungen: vPlanungen, vorlagen: vVorlagen, katalog: vKatalog, regeln: vRegeln, protokoll: vProtokoll, social: vSocial }[UI.view] || (ROLLE.rolle === "social" ? vSocial : vStart);
   const active = document.activeElement && document.activeElement.id, pos = active && document.activeElement.selectionStart;
   document.getElementById("view").innerHTML = fn();
-  if (active && /^(lf-q|kq|pq|sq)$/.test(active) && document.getElementById(active)) { const el = document.getElementById(active); el.focus(); try { el.setSelectionRange(pos, pos); } catch {} }
+  if (active && /^(lf-q|kq|pq|sq|h-.+|ae-.+)$/.test(active) && document.getElementById(active)) { const el = document.getElementById(active); el.focus(); try { el.setSelectionRange(pos, pos); } catch {} }
 }
 
 /* ---------- Ereignisse ---------- */
+document.addEventListener("toggle", e => { if (e.target.classList && e.target.classList.contains("hand")) UI.handOffen = e.target.open; }, true);
 window.addEventListener("hashchange", () => { UI.view = location.hash.slice(1) || "start"; UI.sheet = false; render(); window.scrollTo(0, 0); });
 document.addEventListener("input", e => {
   if (e.target.id === "lf-q") { UI.f.q = e.target.value; render(); }
   if (e.target.id === "kq") { UI.kq = e.target.value; render(); }
   if (e.target.id === "pq") { UI.p.q = e.target.value; render(); }
   if (e.target.id === "sq") { UI.sq = e.target.value; render(); }
+  if (/^h-/.test(e.target.id || "")) { UI.hand[e.target.id] = e.target.value; store.set(HAND_KEY, JSON.stringify(UI.hand)); }
+  if (/^ae-/.test(e.target.id || "")) UI.aform[e.target.id.slice(3)] = e.target.value;
   if (e.target.id === "ca-q") {
     const q = e.target.value.trim().toLowerCase(), box = e.target.closest(".claude-box");
     let n = 0;
@@ -805,6 +834,8 @@ document.addEventListener("input", e => {
 });
 document.addEventListener("change", async e => {
   const t = e.target;
+  if (/^h-/.test(t.id || "")) { UI.hand[t.id] = t.value; store.set(HAND_KEY, JSON.stringify(UI.hand)); }
+  if (/^ae-/.test(t.id || "")) UI.aform[t.id.slice(3)] = t.value;
   if (t.dataset && t.dataset.teilfoto && t.files && t.files[0]) {
     const typ = t.dataset.teilfoto, f = t.files[0], pfad = typ + "-" + Date.now() + ".jpg";
     const blob = await new Promise(res => { const img = new Image(); img.onload = () => { const k = Math.min(1, 900 / Math.max(img.width, img.height)); const c = document.createElement("canvas"); c.width = img.width * k; c.height = img.height * k; c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); c.toBlob(res, "image/jpeg", 0.82); }; img.src = URL.createObjectURL(f); });
@@ -874,15 +905,36 @@ document.addEventListener("click", async e => {
     palSenden(b);
   }
   else if (b.dataset.palpdf) { palTeilen(b.dataset.palpdf === "laden"); }
+  else if (b.dataset.handleer) { UI.hand = {}; store.set(HAND_KEY, "{}"); render(); }
   else if (b.dataset.handneu) {
-    if (!me()) { UI.flash = "Bitte zuerst bei „Ich bin“ auswählen, wer den Auftrag anlegt."; render(); return; }
-    const v = id => (document.getElementById(id)?.value || "").trim();
-    const str = v("h-str"), plz = v("h-plz"), ort = v("h-ort");
-    const p = { moebel_id: v("h-moebel") || null, titel: v("h-titel") || (document.getElementById("h-moebel")?.selectedOptions[0]?.value ? document.getElementById("h-moebel").selectedOptions[0].text : ""), preis: Number(v("h-preis").replace(",", ".")), versandart: v("h-versand"),
-      versand_kunde: Number(v("h-vk").replace(",", ".") || 0), kanal: v("h-kanal"), kunde_name: v("h-name"), email: v("h-mail"), adresse: str || plz || ort ? { strasse: str, plz, ort, land: "DE" } : null, wer: me() };
+    const v = id => String(UI.hand[id] ?? document.getElementById(id)?.value ?? "").trim();
+    const str = v("h-str"), plz = v("h-plz"), ort = v("h-ort"), mSel = document.getElementById("h-moebel");
+    const titel = v("h-titel") || (mSel && mSel.value ? mSel.selectedOptions[0].text : "");
+    if (!titel && !v("h-name")) { UI.flash = "Bitte mindestens eine Bezeichnung oder den Namen des Käufers eintragen."; UI.handOffen = true; render(); return; }
+    const p = { moebel_id: v("h-moebel") || null, titel, preis: v("h-preis").replace(",", "."), versandart: v("h-versand") || "abholung", inserat: v("h-inserat"),
+      versand_kunde: v("h-vk").replace(",", ".") || "0", kanal: v("h-kanal") || "kleinanzeigen", kunde_name: v("h-name"), email: v("h-mail"), adresse: str || plz || ort ? { strasse: str, plz, ort, land: "DE" } : null, wer: me() || "App" };
     b.disabled = true; b.textContent = "wird angelegt…";
     const { error } = await sb.rpc("auftrag_von_hand", { p });
-    UI.handOffen = !!error; UI.flash = error ? "Ging nicht: " + error.message : "Auftrag angelegt." + (p.email || p.adresse ? " Der Rechnungsentwurf steht im Auftrag unter „Rechnung prüfen und senden“." : ""); liveReload();
+    if (error) { b.disabled = false; b.textContent = "Auftrag anlegen"; UI.handOffen = true; UI.flash = "Ging nicht: " + error.message + ". Deine Eingaben sind noch da."; render(); return; }
+    UI.hand = {}; store.set(HAND_KEY, "{}"); UI.handOffen = false;
+    UI.flash = "Auftrag angelegt." + (p.preis && p.kunde_name && (p.email || p.adresse) ? " Der Rechnungsentwurf steht im Auftrag unter „Rechnung prüfen und senden“." : " Fehlendes kannst du jederzeit über „Bearbeiten“ im Auftrag ergänzen."); liveReload();
+  }
+  else if (b.dataset.aedit) {
+    const a = D.auf.find(x => x.id === b.dataset.aedit); if (!a) return;
+    const ad = a.adresse || {};
+    UI.aedit = a.id; UI.aform = { titel: a.titel || "", preis: a.preis ?? "", versandart: a.versandart || "abholung", versand_kunde: a.versand_kunde ?? 0, kanal: a.kanal || "kleinanzeigen", inserat: a.inserat || "",
+      kunde_name: a.kaeufer_name || "", email: a.kaeufer_kontakt || "", strasse: ad.strasse || "", plz: ad.plz || "", ort: ad.ort || "", land: ad.land || "DE", notiz: a.notiz || "" };
+    render();
+  }
+  else if (b.dataset.aabbruch) { UI.aedit = null; UI.aform = {}; render(); }
+  else if (b.dataset.aspeichern) {
+    const f = UI.aform, adr = (f.strasse || f.plz || f.ort) ? { strasse: String(f.strasse).trim(), plz: String(f.plz).trim(), ort: String(f.ort).trim(), land: String(f.land || "DE").trim() || "DE" } : null;
+    const p = { titel: String(f.titel).trim(), preis: String(f.preis).replace(",", ".").trim(), versandart: f.versandart, versand_kunde: String(f.versand_kunde).replace(",", ".").trim(), kanal: f.kanal,
+      inserat: String(f.inserat).trim(), kunde_name: String(f.kunde_name).trim(), email: String(f.email).trim(), adresse: adr, notiz: String(f.notiz).trim() };
+    b.disabled = true; b.textContent = "speichert…";
+    const { data, error } = await sb.rpc("auftrag_aendern", { p_id: b.dataset.aspeichern, p });
+    if (error) { b.disabled = false; b.textContent = "Speichern"; UI.flash = "Speichern ging nicht: " + error.message + ". Deine Änderungen sind noch da."; render(); return; }
+    UI.aedit = null; UI.aform = {}; UI.flash = "Auftrag gespeichert." + (data && data.rechnung ? " " + data.rechnung + "." : ""); liveReload();
   }
   else if (b.dataset.refresh) {
     b.disabled = true; b.textContent = "wird aktualisiert…";
