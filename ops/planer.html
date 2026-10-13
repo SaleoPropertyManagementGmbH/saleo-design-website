@@ -136,6 +136,7 @@ const HW = {
   DG: ["Universalschloss alte Generation (Drehgriff)", 10, 0.1], SLALT: ["Schloss alte Generation", 15, 0.12],
   BWALT: ["Befestigungswinkel Front an Ausziehtablar, alt (Paar L/R)", 18, 0.15], ASALT: ["Auszugschiene alte Generation mit Schraube und Mutter (L/R)", 15, 0.6]
 };
+const ESSENTIELL = ["KU", "CO", "RO"];
 const GROUPS = [["Gestell", ["KU", "CO", "RO", "FU", "RN"]], ["Metall- und Glaselemente", ["BL", "BP", "BPF", "BAK", "BK", "BV", "BSZ", "GL", "GA"]], ["Einbauten", ["ZT", "ZG", "AT", "ST", "HR", "ER"]], ["Fronten", ["KL", "KLP", "AZ", "AZP", "EIP", "EI", "GT", "KS"]], ["Beschläge und Montageteile", ["HW"]]];
 const COLORS = [
   ["24", "Reinweiß", "#efeee9"], ["29", "Lichtgrau", "#c6c8c5"], ["35", "USM Mattsilber", "#a9abae"],
@@ -173,7 +174,7 @@ const TEMPLATE_OPTS = { "Rollcontainer": { depth: 500, base: "RN50" } };
 const applyTpl = k => { state.fields = TEMPLATES[k](); Object.assign(state, TEMPLATE_OPTS[k] || {}); };
 
 const state = { fields: TEMPLATES["Sideboard"](), depth: 350, color: "24", zustand: "G", base: "FU", sides: "BL", top: "BL", doppel: false, extra: [],
-  buyNew: {}, besch: {}, sel: 1, multi: new Set([1]), multiMode: false, price: null, rabatt: 0, ertragsteuer: 30, neupreis: "", view: "intern", tab: "bom", ordered: false, flash: null,
+  buyNew: {}, besch: {}, weg: {}, sel: 1, multi: new Set([1]), multiMode: false, price: null, rabatt: 0, ertragsteuer: 30, neupreis: "", view: "intern", tab: "bom", ordered: false, flash: null,
   paint: { part: "all", scope: "all" } };
 const undoStack = [];
 const sels = () => state.fields.filter(f => state.multi.has(f.id));
@@ -440,6 +441,8 @@ function bom(geo) {
   const feet = geo.nodes.filter(n => n[1] === 0).length * P;
   if (state.base === "FU") add("FU", "", null, feet); else add("RN", state.base === "RN100" ? "100" : "50", null, feet);
   const order = ["KU", "CO", "RO", "FU", "RN", "BL", "BK", "BV", "BSZ", "BP", "BPF", "BAK", "GL", "GA", "ZT", "ZG", "AT", "ST", "HR", "ER", "KL", "KLP", "AZ", "AZP", "EI", "EIP", "GT", "KS", "HW"];
+  // Teile, die der Nutzer aus der Stückliste genommen hat (nicht beim Gestell: Kugeln, Connectoren, Rohre)
+  map.forEach(e => { const w = ESSENTIELL.includes(e.typ) ? 0 : Math.min(e.qty, Number((state.weg || {})[e.code]) || 0); e.weg = w; e.qty -= w; });
   return [...map.values()].map(e => {
     // Erst zählt, was in Zielfarbe schon im Lager liegt (auch frisch beschichtet/neuwertig); beschichtet oder neu gekauft wird nur der Rest
     const s = stockOf({ ...e, besch: false }), kg = weight(e.typ, e.mass);
@@ -679,11 +682,12 @@ function tabBom(rows) {
   GROUPS.forEach(([name, typs]) => {
     const rs = rows.filter(r => typs.includes(r.typ)); if (!rs.length) return;
     body += `<tr class="grp"><td colspan="7">${name}</td></tr>` + rs.map(r => {
-      const pill = !r.valid ? `<span class="pill bad">Maß ungültig</span>` : r.besch ? `<span class="pill">${Math.min(r.stock, r.qty)} da · ${r.beschN} beschichten</span>` : r.missing ? (r.neu ? `<span class="pill">${r.missing} neu</span>` : `<span class="pill warn">fehlt ${r.missing}</span>`) : `<span class="pill ok">${r.stock}</span>`;
+      const pill = r.qty === 0 && r.weg ? `<span class="pill">entfernt</span>` : !r.valid ? `<span class="pill bad">Maß ungültig</span>` : r.besch ? `<span class="pill">${Math.min(r.stock, r.qty)} da · ${r.beschN} beschichten</span>` : r.missing ? (r.neu ? `<span class="pill">${r.missing} neu</span>` : `<span class="pill warn">fehlt ${r.missing}</span>`) : `<span class="pill ok">${r.stock}</span>`;
       const bs = FARBIG.includes(r.typ) ? `<label class="nk"><input type="checkbox" data-besch="${r.code}" ${r.besch ? "checked" : ""}> beschichten (+${eur(LIVE.beschPreis)} netto)</label>` : "";
       const nk = (r.besch ? "" : `<label class="nk"><input type="checkbox" data-buynew="${r.code}" ${r.neu ? "checked" : ""}> neu kaufen</label>${r.neu ? `<input class="nkp" type="number" min="0" step="0.5" data-nkprice="${r.code}" value="${r.nk}" aria-label="Neupreis je Stück"> €/Stk` : ""}`) + bs;
+      const wg = ESSENTIELL.includes(r.typ) ? "" : `<span class="wegbox">${r.qty > 0 ? `<button class="chip small" data-weg="${r.code}" title="Ein Stück weniger">−1</button><button class="chip small" data-wegall="${r.code}" title="Ganze Zeile aus der Stückliste nehmen">entfernen</button>` : ""}${r.weg ? `<span class="wo">${r.weg} entfernt</span> <button class="chip small" data-wegreset="${r.code}">zurück</button>` : ""}</span>`;
       const sw = FARBIG.includes(r.typ) ? `<i style="display:inline-block;width:9px;height:9px;background:${colorHex(r.farbe)};border:1px solid var(--line);margin-right:5px"></i>` : "";
-      return `<tr><td>${sw}${partName(r)}${FARBIG.includes(r.typ) ? ` <span class="wo">${colorName(r.farbe)}</span>` : ""}${r.wo.size ? ` <span class="wo">· ${[...r.wo].join(", ")}</span>` : ""}<div class="code">${r.code}</div>${r.missing || r.neu || FARBIG.includes(r.typ) ? `<div class="nkrow">${nk}</div>` : ""}</td><td class="num">${r.qty}</td><td class="num">${pill}</td><td class="code">${esc(r.lager)}</td><td class="num">${kgf(r.kg)}</td><td class="num">${eur(r.price)}<div class="src">${r.src}</div></td><td class="num">${eur(r.cost)}</td></tr>`;
+      return `<tr><td>${sw}${partName(r)}${FARBIG.includes(r.typ) ? ` <span class="wo">${colorName(r.farbe)}</span>` : ""}${r.wo.size ? ` <span class="wo">· ${[...r.wo].join(", ")}</span>` : ""}<div class="code">${r.code}</div>${r.qty > 0 && (r.missing || r.neu || FARBIG.includes(r.typ)) ? `<div class="nkrow">${nk}</div>` : ""}<div class="nkrow">${wg}</div></td><td class="num">${r.qty}</td><td class="num">${pill}</td><td class="code">${esc(r.lager)}</td><td class="num">${kgf(r.kg)}</td><td class="num">${eur(r.price)}<div class="src">${r.src}</div></td><td class="num">${eur(r.cost)}</td></tr>`;
     }).join("");
   });
   return `<div class="tablewrap"><table><thead><tr><th>Teil</th><th class="num">Menge</th><th class="num">Lager</th><th>Fach</th><th class="num">kg/Stk</th><th class="num">Preis</th><th class="num">Summe</th></tr></thead><tbody>${body}
@@ -789,7 +793,7 @@ function render() {
 }
 
 /* ---------- Speichern, Laden, Live ---------- */
-const SAVE_KEYS = ["fields", "depth", "color", "zustand", "base", "sides", "top", "doppel", "extra", "buyNew", "besch", "price", "zahlt", "rabatt", "ertragsteuer", "neupreis"];
+const SAVE_KEYS = ["fields", "depth", "color", "zustand", "base", "sides", "top", "doppel", "extra", "buyNew", "besch", "weg", "price", "zahlt", "rabatt", "ertragsteuer", "neupreis"];
 function snapshot() { const d = {}; SAVE_KEYS.forEach(k => d[k] = state[k]); d._geraet = DEVICE; d._version = 6; d._inserat = PLAN.inserat || null; d._vorlage = !!(PLAN.vorlage && PLAN.inserat); return JSON.parse(JSON.stringify(d)); }
 function applyData(d) {
   state.doppel = false; state.extra = []; state.zahlt = null;
@@ -797,6 +801,7 @@ function applyData(d) {
   PLAN.inserat = d._inserat || PLAN.inserat || null;
   PLAN.vorlage = !!d._vorlage;
   if (!d.besch) state.besch = {};
+  if (!d.weg) state.weg = {};
   if (state.zustand === "B") { state.zustand = "G"; state.besch = {}; normalize(); bom(geometry()).filter(r => FARBIG.includes(r.typ)).forEach(r => state.besch[r.code] = true); }
   state.fields.forEach(f => { if (!f.col) f.col = {}; if (f.front === "KLP") { f.front = "KL"; f.perf = true; } });
   uid = Math.max(0, ...state.fields.map(f => f.id)) + 1;
@@ -930,6 +935,13 @@ document.addEventListener("click", async e => {
   const f = state.fields.find(q => q.id === state.sel);
   if (t.id === "v-intern" || t.id === "v-kunde") { state.view = t.id.slice(2); state.ordered = false; }
   else if (t.id === "save") { await save(); return; }
+  else if (t.dataset.weg || t.dataset.wegall || t.dataset.wegreset) {
+    state.weg = state.weg || {};
+    const code = t.dataset.weg || t.dataset.wegall || t.dataset.wegreset;
+    if (t.dataset.wegreset) delete state.weg[code];
+    else { const r = bom(geometry()).find(x => x.code === code); const rest = r ? r.qty : 0; state.weg[code] = (Number(state.weg[code]) || 0) + (t.dataset.wegall ? rest : Math.min(1, rest)); }
+    markDirty();
+  }
   else if (t.id === "mkauftrag") {
     if (PLAN.auftrag) { location.href = "index.html#auftraege"; return; }
     t.disabled = true;
@@ -993,7 +1005,7 @@ document.addEventListener("change", e => {
   else if (t.id === "e-w" && f && t.value) tryChange(() => { sels().forEach(q => q.w = +t.value); });
   else if (t.id === "e-h" && f && t.value) tryChange(() => { sels().forEach(q => q.h = +t.value); });
   else if (t.id === "g-color") { state.color = t.value; markDirty(); }
-  else if (t.id === "g-zustand") { state.zustand = t.value; state.buyNew = {}; state.besch = {}; markDirty(); }
+  else if (t.id === "g-zustand") { state.zustand = t.value; state.buyNew = {}; state.besch = {}; state.weg = {}; markDirty(); }
   else if (t.dataset.besch) { state.besch = state.besch || {}; if (t.checked) state.besch[t.dataset.besch] = true; else delete state.besch[t.dataset.besch]; markDirty(); }
   else if (t.id === "g-base") { state.base = t.value; markDirty(); }
   else if (t.id === "g-sides") { state.sides = t.value; markDirty(); }

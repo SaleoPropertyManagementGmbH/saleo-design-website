@@ -499,3 +499,5 @@ details.hand summary::-webkit-details-marker { display: none; }
 #saved-toast.an svg circle { animation: saveCircle .45s ease-out forwards; } #saved-toast.an svg path { animation: saveCheck .3s .4s ease-out forwards; }
 @keyframes saveCircle { to { stroke-dashoffset: 0; } } @keyframes saveCheck { to { stroke-dashoffset: 0; } }
 @media (prefers-reduced-motion: reduce) { #saved-toast, #saved-toast.an svg circle, #saved-toast.an svg path { transition: none; animation: none; stroke-dashoffset: 0; } }
+.wegbox { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.wegbox .chip.small { padding: 2px 8px; font-size: .72rem; min-height: 0; }
