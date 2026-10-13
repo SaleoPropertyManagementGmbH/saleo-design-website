@@ -148,7 +148,7 @@ const INSIDES = [["", "Keiner"], ["ZT", "Zwischentablar"], ["ZG", "Zwischentabla
 const LOCKS = { N: [["U", "Universalschloss"], ["S", "Schloss"]], A: [["D", "Drehgriff"], ["SA", "Schloss alte Generation"]] };
 const GENS = [["N", "Neue Generation"], ["A", "Alte Generation"]];
 const PARTS = [["all", "Alles"], ["front", "Front"], ["einbau", "Wanne / Einbau"], ["kupplung", "Kupplungsstege"], ["back", "Rückwand"], ["boden", "Boden"], ["deckel", "Deckel"], ["seiten", "Seiten"]];
-const SCOPES = [["sel", "Auswahl"], ["row", "ganze Reihe"], ["col", "ganze Spalte"], ["check", "Schachbrett"], ["rows2", "jede 2. Reihe"], ["cols2", "jede 2. Spalte"], ["all", "ganzes Möbel"]];
+const SCOPES = [["all", "ganzes Möbel"], ["sel", "Auswahl"], ["row", "ganze Reihe"], ["col", "ganze Spalte"], ["check", "Schachbrett"], ["rows2", "jede 2. Reihe"], ["cols2", "jede 2. Spalte"]];
 /* Regeln aus usm_regel (Stand 10.10.2026) */
 const ANKER_AB = { 250: 1417, 350: 1984, 500: 2835 };
 const VAT = 0.19, REGEL_AUFSCHLAG = 0.10;
@@ -172,7 +172,7 @@ const applyTpl = k => { state.fields = TEMPLATES[k](); Object.assign(state, TEMP
 
 const state = { fields: TEMPLATES["Sideboard"](), depth: 350, color: "24", zustand: "G", base: "FU", sides: "BL", top: "BL", doppel: false, extra: [],
   buyNew: {}, sel: 1, multi: new Set([1]), multiMode: false, price: null, rabatt: 0, ertragsteuer: 30, neupreis: "", view: "intern", tab: "bom", ordered: false, flash: null,
-  paint: { part: "all", scope: "sel" } };
+  paint: { part: "all", scope: "all" } };
 const undoStack = [];
 const sels = () => state.fields.filter(f => state.multi.has(f.id));
 function selectOnly(id) { state.sel = id; state.multi = new Set([id]); }
@@ -305,6 +305,11 @@ function paintTargets() {
   return sel;
 }
 function applyColor(code) {
+  // Alles auf ganzes Möbel: Grundfarbe umstellen (auch Außenseiten, Deckel, Boden, Rückwände) und Einzelfarben löschen
+  if (state.paint.part === "all" && state.paint.scope === "all") {
+    tryChange(() => { if (code) state.color = code; state.fields.forEach(f => { f.col = {}; }); });
+    return;
+  }
   const keys = state.paint.part === "all" ? PARTS.slice(1).map(p => p[0]) : [state.paint.part];
   tryChange(() => paintTargets().forEach(f => {
     f.col = f.col || {};
@@ -563,7 +568,7 @@ function messages(geo) {
 function renderEditor() {
   const box = document.getElementById("editor"), list = sels(), f = list[0];
   const pbox = document.getElementById("paintbox");
-  if (!f) { box.innerHTML = `<p class="note">Fach in der Zeichnung antippen. Mit Strg oder Shift oder über „Mehrfachauswahl“ mehrere markieren. Mit den blauen Plus-Feldern baust du an.</p>`; pbox.innerHTML = `<h3 style="font-size:1.02rem;margin-bottom:6px">Farben</h3><p class="note">Erst ein Fach antippen, dann hier Front, Wanne, Tablare oder Seiten einfärben.</p>`; return; }
+  if (!f) { box.innerHTML = `<p class="note">Fach in der Zeichnung antippen. Mit Strg oder Shift oder über „Mehrfachauswahl“ mehrere markieren. Mit den blauen Plus-Feldern baust du an.</p>`; pbox.innerHTML = `<h3 style="font-size:1.02rem;margin-bottom:6px">Farben</h3><div class="swatches">${COLORS.map(([c, n, hex]) => `<button class="sw" data-paint="${c}" style="background:${hex}" title="${n} (${c})" aria-label="${n}" aria-pressed="${state.color === c && !hasOverrides()}"></button>`).join("")}</div><p class="note" style="margin-top:6px">Farbe antippen färbt das ganze Möbel. Für einzelne Teile (Front, Wanne, Tablare, Seiten) erst ein Fach antippen.</p>`; return; }
   const multi = list.length > 1, same = k => list.every(q => q[k] === f[k]);
   const opt = (arr, v) => (v == null ? `<option value="" selected>gemischt</option>` : "") + arr.map(x => `<option value="${x}"${x === v ? " selected" : ""}>${x}</option>`).join("");
   const chips = (items, key, cur) => items.map(([v, n]) => `<button class="chip" data-${key}="${v}" aria-pressed="${list.every(q => (q[cur] || "") === v)}">${n}</button>`).join("");
@@ -891,6 +896,7 @@ document.addEventListener("click", async e => {
   else if (t.dataset.rahmen != null && f) tryChange(() => { sels().forEach(q => q.rahmen = t.dataset.rahmen === "1"); });
   else if (t.dataset.part) state.paint.part = t.dataset.part;
   else if (t.dataset.scope) state.paint.scope = t.dataset.scope;
+  else if (t.dataset.paint != null && !f) { state.paint.part = "all"; state.paint.scope = "all"; applyColor(t.dataset.paint || null); }
   else if (t.dataset.paint != null && f) applyColor(t.dataset.paint || null);
   else if (t.id === "resetcol") tryChange(() => state.fields.forEach(q => q.col = {}));
   else if (t.id === "multimode") state.multiMode = !state.multiMode;
