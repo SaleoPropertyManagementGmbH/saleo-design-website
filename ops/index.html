@@ -67,11 +67,12 @@ const ICON = {
   moebel: '<rect x="3" y="5" width="18" height="12" rx="1.5"/><path d="M12 5v12M3 11h18M6 17v2M18 17v2"/>',
   auswertung: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   beschichtung: '<path d="M4 14h10v6H4z"/><path d="M14 16h3a3 3 0 0 0 3-3V5"/><path d="M17 3h6v4h-6z"/>',
+  steuer: '<path d="M6 3h9l3 3v15H6z"/><path d="M9 9h6M9 13h6M9 17h3"/>',
   social: '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/>',
   mehr: '<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>'
 };
 const svg = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICON[k]}</svg>`;
-const VIEWS = [["start", "Übersicht"], ["auftraege", "Aufträge"], ["produkte", "Produkte"], ["social", "Social Media"], ["moebel", "Fertige Möbel"], ["beschichtung", "Beschichtung"], ["planungen", "Planungen"], ["lager", "Lager"], ["auswertung", "Auswertung"], ["vorlagen", "Vorlagen"], ["katalog", "Teilekatalog"], ["regeln", "USM-Regeln"], ["protokoll", "Protokoll"]];
+const VIEWS = [["start", "Übersicht"], ["auftraege", "Aufträge"], ["produkte", "Produkte"], ["social", "Social Media"], ["moebel", "Fertige Möbel"], ["beschichtung", "Beschichtung"], ["planungen", "Planungen"], ["lager", "Lager"], ["auswertung", "Auswertung"], ["steuer", "Steuer § 25a"], ["vorlagen", "Vorlagen"], ["katalog", "Teilekatalog"], ["regeln", "USM-Regeln"], ["protokoll", "Protokoll"]];
 const D = { lager: [], typen: [], farben: [], plan: [], vorlagen: [], vpos: [], std: [], regeln: [], bew: [], build: null, ins: [], insStand: null, moebel: [], mteile: [], ausw: [], verk: [], auf: [], zahl: [] };
 let ROLLE = { rolle: "voll", name: "" };
 const HAND_KEY = "sdo_hand_entwurf";
@@ -293,6 +294,62 @@ function vMoebel() {
     `<div class="stats">${stat("Sofort verfügbar", da.filter(m => m.status === "aufgebaut").length)}${stat("Reserviert", da.filter(m => m.status === "reserviert").length)}${stat("Warenwert aufgebaut", eur(wert).replace(",00", ""))}${stat("Verkauft bisher", D.moebel.filter(m => m.status === "verkauft").length)}</div>
     ${da.length ? `<div class="products">${da.map(moebelKarte).join("")}</div>` : `<div class="banner info"><span>Noch kein fertiges Möbel erfasst. Einfach per Plaud an Klaus diktieren, z. B. „Fertigmöbel gekauft: Sideboard 153 breit, 74 hoch, 37 tief, schwarz, 2 Klappen, gebraucht, 900 Euro, Benzin 30, Lagerort R1“. Ich rechne es in Einzelteile um und buche es ein.</span></div>`}
     ${weg.length ? `<section class="card"><div class="card-head"><h2>Verkauft oder zerlegt</h2></div><div class="tablewrap"><table><tbody>${weg.map(m => `<tr><td><b>${esc(m.name)}</b><div class="wo">${esc(m.masse || "")}</div></td><td><span class="badge">${(MST[m.status] || ["", m.status])[1]}</span></td><td class="wo">${when(m.geaendert_am)}</td></tr>`).join("")}</tbody></table></div></section>` : ""}`;
+}
+/* ---------- Steuer: Differenzbesteuerung § 25a ---------- */
+function stZeitraum(z) {
+  const [j, t] = z.split("-"), J = +j;
+  if (!t) return [`${J}-01-01`, `${J}-12-31`];
+  if (t[0] === "Q") { const q = +t[1], m1 = (q - 1) * 3 + 1, m3 = q * 3; return [`${J}-${String(m1).padStart(2, "0")}-01`, new Date(Date.UTC(J, m3, 0)).toISOString().slice(0, 10)]; }
+  const m = +t; return [`${J}-${t}-01`, new Date(Date.UTC(J, m, 0)).toISOString().slice(0, 10)];
+}
+async function loadSteuer() {
+  UI.stLaden = true;
+  const [von, bis] = stZeitraum(UI.stZ);
+  const { data, error } = await sb.rpc("steuer_bericht", { p_von: von, p_bis: bis });
+  UI.stLaden = false; UI.stDaten = error ? null : data; UI.stFehler = error ? error.message : null; UI.stFuer = UI.stZ;
+  if (UI.view === "steuer") render();
+}
+function stOptionen() {
+  const h = new Date(), o = [];
+  for (let i = 0; i < 12; i++) { const d = new Date(h.getFullYear(), h.getMonth() - i, 1); o.push([`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`, d.toLocaleDateString("de-DE", { month: "long", year: "numeric" })]); }
+  for (let i = 0; i < 4; i++) { const q0 = Math.floor(h.getMonth() / 3) - i, j = h.getFullYear() + Math.floor(q0 / 4), q = ((q0 % 4) + 4) % 4 + 1; o.push([`${j}-Q${q}`, `${q}. Quartal ${j}`]); }
+  o.push([`${h.getFullYear()}`, `Jahr ${h.getFullYear()}`], [`${h.getFullYear() - 1}`, `Jahr ${h.getFullYear() - 1}`]);
+  return o;
+}
+function steuerCsv() {
+  const d = UI.stDaten; if (!d) return;
+  const n = x => Number(x || 0).toFixed(2).replace(".", ","), q = x => `"${String(x ?? "").replace(/"/g, '""')}"`;
+  const z = ["Differenzbesteuerung § 25a UStG;Zeitraum " + d.von + " bis " + d.bis, "",
+    "Datum;Rechnung;Kunde;Artikel;Besteuerung;Verkaufspreis brutto;Einkaufspreis § 25a;Differenz;Bemessungsgrundlage;USt;Teile ohne Beleg;Teile Altbestand"];
+  d.verkaeufe.forEach(v => z.push([v.datum, q(v.nummer || ""), q(v.kaeufer_name || ""), q(v.titel || ""), v.besteuerung, n(v.vk), n(v.ek), n(v.differenz), n(v.bemessung), n(v.ust), v.ohne_beleg, v.altbestand].join(";")));
+  const s = d.summe;
+  z.push("", `Summe;;;;;${n(s.vk)};${n(s.ek)};;${n(s.bemessung_25a)};${n(s.ust_25a)};${s.ohne_beleg};${s.altbestand}`, `Positive Differenzen;${n(s.diff_pos)}`, `Negative Differenzen (nicht verrechenbar);${n(s.diff_neg)}`, "",
+    "Zuordnung Einkauf zu Verkauf", "Rechnung;Artikel;Teil;Menge;Einkaufspreis je Stück;Herkunft;Einkaufsdatum;Verkäufer;Beleg;Inserat");
+  d.verkaeufe.forEach(v => (v.teile || []).forEach(t => z.push([q(v.nummer || ""), q(v.titel || ""), t.teil, t.menge, n(t.ek_stueck), t.art === "einkauf" ? "Einkauf" : t.art === "altbestand" ? "Altbestand" : "ohne Beleg", t.datum || "", q(t.lieferant || ""), q(t.beleg || ""), t.inserat || ""].join(";"))));
+  const blob = new Blob(["\ufeff" + z.join("\r\n")], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `Differenzbesteuerung_${UI.stZ}.csv`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+function vSteuer() {
+  if (!UI.stZ) { const h = new Date(); UI.stZ = `${h.getFullYear()}-${String(h.getMonth() + 1).padStart(2, "0")}`; }
+  if (!UI.stLaden && UI.stFuer !== UI.stZ) setTimeout(loadSteuer, 0);
+  const d = UI.stFuer === UI.stZ ? UI.stDaten : null, s = d ? d.summe : null;
+  const wahl = `<select id="st-z" aria-label="Zeitraum">${stOptionen().map(([k, t]) => `<option value="${k}"${k === UI.stZ ? " selected" : ""}>${esc(t)}</option>`).join("")}</select>`;
+  const herkunft = t => t.art === "einkauf" ? `Einkauf ${t.datum ? new Date(t.datum).toLocaleDateString("de-DE") : ""}${t.lieferant ? " · " + esc(t.lieferant) : ""}${t.inserat ? " · Inserat " + esc(t.inserat) : ""}` : t.art === "altbestand" ? `<span class="badge warn">Altbestand</span> ${esc(t.lieferant || "")}` : `<span class="badge bad">ohne Beleg</span> Ø-Preis`;
+  const zeile = v => {
+    const hin = [v.besteuerung !== "differenz" ? `<span class="badge info">mit USt</span>` : "", !(v.teile || []).length ? `<span class="badge bad">keine Teile</span>` : "", v.ohne_beleg ? `<span class="badge bad">${v.ohne_beleg} ohne Beleg</span>` : "", v.altbestand ? `<span class="badge warn">${v.altbestand} Altbestand</span>` : "", Number(v.differenz) < 0 ? `<span class="badge warn">negativ</span>` : ""].join(" ");
+    return `<tr><td>${new Date(v.datum).toLocaleDateString("de-DE")}</td><td>${esc(v.nummer || "–")}</td><td><details><summary>${esc(kurz(v.titel || ""))}${v.kaeufer_name ? ` <span class="wo">${esc(v.kaeufer_name)}</span>` : ""}</summary>
+      ${(v.teile || []).length ? `<div class="tablewrap"><table><thead><tr><th>Teil</th><th class="num">Stück</th><th class="num">EK je Stück</th><th>Herkunft</th></tr></thead><tbody>${v.teile.map(t => `<tr><td class="code">${esc(t.teil)}</td><td class="num">${t.menge}</td><td class="num">${eur(t.ek_stueck)}</td><td>${herkunft(t)}</td></tr>`).join("")}</tbody></table></div>` : `<p class="note">Im Auftrag sind keine Teile hinterlegt, deshalb zählt der volle Preis als Differenz. Teile im Auftrag eintragen, dann neu zuordnen.</p>`}
+      <button class="btn small" data-stneu="${v.id}">Neu zuordnen</button></details></td>
+      <td class="num">${eur(v.vk)}</td><td class="num">${eur(v.ek)}</td><td class="num">${eur(v.differenz)}</td><td class="num">${eur(v.ust)}</td><td>${hin}</td></tr>`;
+  };
+  return head("Steuer § 25a", "Differenzbesteuerung: Jeder Verkauf bekommt seine Einkäufe zugeordnet, ältester Einkauf zuerst. Daraus Differenz und Umsatzsteuer je Verkauf, als Liste für Maxim.", `${wahl}<button class="btn" id="st-csv"${d ? "" : " disabled"}>CSV für Maxim</button>`) +
+    (UI.stFehler ? `<p class="err">${esc(UI.stFehler)}</p>` : "") +
+    (!d ? `<p class="empty">lade…</p>` : `<div class="stats">${stat("Verkäufe", s.verkaeufe)}${stat("Verkaufspreise", eur(s.vk))}${stat("Einkaufspreise § 25a", eur(s.ek))}${stat("USt aus Differenz", eur(s.ust_25a), "Bemessung " + eur(s.bemessung_25a), "good")}</div>
+    ${s.ust_regel ? `<div class="stats">${stat("Verkäufe mit USt-Ausweis", eur(s.netto_regel), "netto")}${stat("USt regulär", eur(s.ust_regel))}</div>` : ""}
+    ${s.ohne_beleg || s.altbestand || Number(s.diff_neg) < 0 ? `<div class="banner info"><span>${[s.ohne_beleg ? `<b>${s.ohne_beleg} Teile ohne Einkaufsbeleg:</b> dafür liegt kein Einkauf im System, gerechnet wird mit dem Ø-Lagerpreis.` : "", s.altbestand ? `<b>${s.altbestand} Teile aus dem Altbestand</b> (Inventur): Einkaufspreis laut Inventur, Belege dazu mit Maxim klären.` : "", Number(s.diff_neg) < 0 ? `<b>Negative Differenzen ${eur(s.diff_neg)}:</b> mindern die Steuer anderer Verkäufe nicht.` : ""].filter(Boolean).join("<br>")}</span></div>` : ""}
+    <section class="card"><div class="tablewrap"><table><thead><tr><th>Datum</th><th>Rechnung</th><th>Verkauf (antippen für Zuordnung)</th><th class="num">Verkaufspreis</th><th class="num">Einkauf § 25a</th><th class="num">Differenz</th><th class="num">USt</th><th>Hinweise</th></tr></thead><tbody>
+    ${d.verkaeufe.length ? d.verkaeufe.map(zeile).join("") : `<tr><td colspan="8" class="empty">In diesem Zeitraum gibt es noch keine bezahlten Verkäufe.</td></tr>`}</tbody></table></div></section>
+    <p class="note">So rechnet die App: Verkaufspreis ist, was der Kunde brutto zahlt, inklusive Versand. Einkaufspreis ist, was ihr dem Verkäufer für genau diese Teile gezahlt habt, ohne Benzin, Fahrzeug, Beschichtung und Palettenversand. Differenz je Verkauf, Umsatzsteuer = 19/119 der positiven Differenz. Zugeordnet wird nach Teil und Maß, Farbe und Zustand egal, ältester Einkauf zuerst. Verkäufe mit USt-Ausweis laufen regulär. Einzeldifferenz oder Gesamtdifferenz (§ 25a Abs. 4) und den Umgang mit dem Altbestand bitte mit Maxim festlegen.</p>`);
 }
 function vAuswertung() {
   const a = D.ausw.slice().sort((x, y) => Number(y.rohertrag_je_monat) - Number(x.rohertrag_je_monat));
@@ -844,7 +901,7 @@ function render() {
   document.getElementById("whobox").innerHTML = wb;
   document.getElementById("whobox-m").innerHTML = wb.replace('id="who"', 'id="who-m"');
   document.getElementById("mtitle").textContent = (VIEWS.find(v => v[0] === UI.view) || VIEWS[0])[1];
-  const fn = { start: vStart, auftraege: vAuftraege, produkte: vProdukte, moebel: vMoebel, beschichtung: vBeschichtung, auswertung: vAuswertung, lager: vLager, planungen: vPlanungen, vorlagen: vVorlagen, katalog: vKatalog, regeln: vRegeln, protokoll: vProtokoll, social: vSocial }[UI.view] || (ROLLE.rolle === "social" ? vSocial : vStart);
+  const fn = { start: vStart, auftraege: vAuftraege, produkte: vProdukte, moebel: vMoebel, beschichtung: vBeschichtung, auswertung: vAuswertung, steuer: vSteuer, lager: vLager, planungen: vPlanungen, vorlagen: vVorlagen, katalog: vKatalog, regeln: vRegeln, protokoll: vProtokoll, social: vSocial }[UI.view] || (ROLLE.rolle === "social" ? vSocial : vStart);
   const active = document.activeElement && document.activeElement.id, pos = active && document.activeElement.selectionStart;
   document.getElementById("view").innerHTML = fn();
   if (active && /^(lf-q|kq|pq|sq|h-.+|ae-.+)$/.test(active) && document.getElementById(active)) { const el = document.getElementById(active); el.focus(); try { el.setSelectionRange(pos, pos); } catch {} }
@@ -1016,6 +1073,12 @@ document.addEventListener("click", e => {
   const tile = t.closest("[data-paltile]"); if (tile) { UI.palSel = UI.palSel === tile.dataset.paltile ? null : tile.dataset.paltile; render(); return; }
   const mi = t.closest("[data-palminus]"); if (mi) { palMinus(mi); return; }
   const ei = t.closest("[data-palfarbe]"); if (ei && UI.palSel) palZuordnen(UI.palSel, ei.dataset.palfarbe);
+});
+document.addEventListener("change", e => { if (e.target.id === "st-z") { UI.stZ = e.target.value; render(); } });
+document.addEventListener("click", async e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.id === "st-csv") steuerCsv();
+  else if (b.dataset.stneu) { b.disabled = true; const { error } = await sb.rpc("steuer_neu_zuordnen", { p_auftrag: b.dataset.stneu }); if (error) UI.stFehler = error.message; UI.stFuer = null; render(); }
 });
 document.addEventListener("change", e => { if (e.target.id === "pal-auftrag") { UI.palAuftrag = e.target.value || null; render(); } });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && UI.pal) { UI.pal = false; UI.palSel = null; render(); } });
