@@ -856,7 +856,7 @@ function vClaude() {
   const neu = alle.slice(0, 3), alt = alle.slice(3);
   const soc = ROLLE.rolle === "social";
   return `${soc && UI.flash ? `<div class="banner"><span>${esc(UI.flash)}</span></div>` : ""}<section class="card claude-box"><div class="card-head"><h2>${soc ? "Frag Claude" : "An Claude"}</h2><span class="note">${offen ? `${offen} offen · ` : ""}Antwort meist innerhalb von 10 Minuten, rund um die Uhr</span></div>
-    <div class="claude-form"><textarea id="ca-text" rows="2" placeholder="${soc ? "Frag mich alles zu Social Media. Zum Beispiel: Welche Reels liefen diesen Monat am besten? Oder: Schreib mir eine Caption für das grüne Sideboard." : "Was soll ich machen? Zum Beispiel: Rechnung für den Käufer vom grünen Konsolenregal schreiben und senden. Oder: Couchtisch ist verkauft, 180 € bar."}">${esc(caEntwurf())}</textarea><div class="ca-knoepfe">${SPRACHE ? `<button class="btn mic${DIKTAT.an ? " an" : ""}" data-camic="1" aria-pressed="${DIKTAT.an}" title="Sprechen statt tippen">${svg("mic")}<span>${DIKTAT.an ? "Stopp" : "Sprechen"}</span></button>` : ""}<button class="btn primary" data-casend="1">Senden</button></div></div>
+    <div class="claude-form"><textarea id="ca-text" rows="2" placeholder="${soc ? "Frag mich alles zu Social Media. Zum Beispiel: Welche Reels liefen diesen Monat am besten? Oder: Schreib mir eine Caption für das grüne Sideboard." : "Was soll ich machen? Zum Beispiel: Rechnung für den Käufer vom grünen Konsolenregal schreiben und senden. Oder: Couchtisch ist verkauft, 180 € bar."}">${esc(caEntwurf())}</textarea><div class="ca-knoepfe">${SPRACHE ? `<button class="btn mic${DIKTAT.an ? " an" : ""}" data-camic="1" aria-pressed="${DIKTAT.an}" title="Sprechen statt tippen">${svg("mic")}<span>${DIKTAT.an ? "Stopp" : "Sprechen"}</span></button>` : ""}<button class="btn primary" data-casend="1">Senden</button></div></div>${UI.caMsg ? `<div class="banner ${UI.caMsg[0] === "ok" ? "info" : ""}" style="margin-top:8px"><span>${esc(UI.caMsg[1])}</span></div>` : ""}
     ${alle.length ? `<input id="ca-q" type="search" placeholder="Im Verlauf suchen (${alle.length} Einträge)" style="width:100%;margin:10px 0 4px">
     <div class="claude-list" id="ca-neu">${neu.map(item).join("")}</div>
     ${alt.length ? `<details id="ca-alt"${UI.caAltOffen ? " open" : ""}><summary class="btn small ca-alt-sum"><span class="zu">Ältere anzeigen (${alt.length})</span><span class="auf">▲ Verlauf einklappen</span></summary><div class="claude-list">${alt.map(item).join("")}</div><button class="btn small" data-caeinklappen="1" style="margin-top:8px">▲ Verlauf einklappen</button></details>` : ""}
@@ -1072,7 +1072,7 @@ document.addEventListener("input", e => {
   if (e.target.id === "arch-q") { UI.archQ = e.target.value; render(); }
   if (/^h-/.test(e.target.id || "")) { UI.hand[e.target.id] = e.target.value; store.set(HAND_KEY, JSON.stringify(UI.hand)); }
   if (/^ae-/.test(e.target.id || "")) UI.aform[e.target.id.slice(3)] = e.target.value;
-  if (e.target.id === "ca-text") { UI.caDraft = e.target.value; store.set(CA_KEY, e.target.value); }
+  if (e.target.id === "ca-text") { UI.caDraft = e.target.value; store.set(CA_KEY, e.target.value); UI.caMsg = null; }
   if (e.target.id === "ca-q") {
     const q = e.target.value.trim().toLowerCase(), box = e.target.closest(".claude-box");
     let n = 0;
@@ -1145,12 +1145,17 @@ document.addEventListener("click", async e => {
   else if (b.dataset.casend) {
     if (DIKTAT.an) { DIKTAT.an = false; try { DIKTAT.rec.stop(); } catch {} }
     const ta = document.getElementById("ca-text"), t = ((ta && ta.value) || caEntwurf() || "").trim();
-    if (!t) { UI.flash = "Das Feld ist leer. Bitte Text eingeben."; render(); return; }
-    if (!me()) { UI.flash = "Bitte zuerst bei „Ich bin“ auswählen, wer schreibt."; render(); return; }
+    if (!t) { UI.caMsg = ["warn", "Das Feld ist leer. Bitte Text eingeben oder sprechen."]; render(); return; }
+    const wer = me() || ROLLE.name || "App";
     b.disabled = true; b.textContent = "wird gesendet…";
-    const { error } = await sb.rpc("claude_auftrag_neu", { p_text: t, p_von: me() });
+    let error = null;
+    try {
+      ({ error } = await sb.rpc("claude_auftrag_neu", { p_text: t, p_von: wer }));
+      if (error && /jwt|token|auth/i.test(error.message || "")) { await sb.auth.refreshSession(); ({ error } = await sb.rpc("claude_auftrag_neu", { p_text: t, p_von: wer })); }
+    } catch (err) { error = { message: String(err && err.message || err) }; }
     if (!error) { UI.caDraft = ""; store.set(CA_KEY, ""); }
-    UI.flash = error ? "Ging nicht: " + error.message + " Dein Text ist noch im Feld." : "Ist bei mir angekommen. Ich melde mich hier mit der Antwort."; liveReload();
+    UI.caMsg = error ? ["bad", "Ging nicht: " + error.message + " Dein Text ist noch im Feld."] : ["ok", "Ist angekommen. Die Antwort erscheint hier, meist innerhalb von 10 Minuten."];
+    b.disabled = false; b.textContent = "Senden"; render(); liveReload();
   }
   else if (b.dataset.abez) {
     if (!me()) { UI.flash = "Bitte zuerst bei „Ich bin“ auswählen, wer die Zahlung bestätigt."; render(); return; }
