@@ -62,6 +62,14 @@ const eurD = n => (Number(n) || 0).toLocaleString("de-DE", { minimumFractionDigi
 const datD = d => new Date(d).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
 let R = null, F = {};
 const SONDER = "Gebrauchtgegenstände/Sonderregelung. Differenzbesteuerung nach § 25a UStG, die Umsatzsteuer wird nicht gesondert ausgewiesen.";
+const WIDERRUF = {
+  fernabsatz: "Widerrufsrecht: Verbraucher, die per Kleinanzeigen-Chat, E-Mail oder Telefon bestellt haben, können den Vertrag binnen 14 Tagen ab Erhalt der Ware ohne Angabe von Gründen widerrufen. Die vollständige Widerrufsbelehrung mit Muster-Widerrufsformular steht in den Rechtlichen Angaben unseres Kleinanzeigen-Angebots. Im Fall des Widerrufs tragen Sie die unmittelbaren Kosten der Rücksendung bzw. Rückholung.",
+  vor_ort: "Der Kaufvertrag wurde vor Ort bei uns abgeschlossen. Ein gesetzliches Widerrufsrecht besteht daher nicht. Ihre gesetzlichen Rechte bei Mängeln bleiben unberührt.",
+  gewerblich: "Kauf durch einen Unternehmer für seine gewerbliche oder selbständige Tätigkeit. Ein Widerrufsrecht besteht nicht.",
+  sonder: t => `Kein Widerrufsrecht für folgende Teile, da sie nach Ihren Vorgaben angefertigt bzw. eigens für Sie hergestellt wurden (§ 312g Abs. 2 Nr. 1 BGB), wie vor Vertragsschluss mitgeteilt: ${t}. Für alle übrigen Teile gilt das gesetzliche Widerrufsrecht gemäß der Widerrufsbelehrung in unserem Kleinanzeigen-Angebot; im Fall des Widerrufs tragen Sie die unmittelbaren Kosten der Rücksendung bzw. Rückholung.`
+};
+const GEWAEHR_1J = "Für gebrauchte Ware wurde vor Vertragsschluss ausdrücklich und gesondert vereinbart, dass Ansprüche wegen Mängeln nach einem Jahr ab Ablieferung verjähren.";
+function rechtsTexte() { if (R.widerruf_drucken === false) return []; const w = R.widerruf || "fernabsatz"; const t = w === "sonder" ? WIDERRUF.sonder(R.widerruf_teile || "") : WIDERRUF[w]; return [t, R.gewaehr_1jahr ? GEWAEHR_1J : null].filter(Boolean); }
 function faellig() { const d = new Date(R.datum); d.setDate(d.getDate() + Number(F.zahlungsziel_tage || 7)); return d; }
 function adresseZeilen() { const a = R.kunde_adresse || {}; return [R.kunde_name, a.zusatz, a.strasse, [a.plz, a.ort].filter(Boolean).join(" "), a.land && a.land !== "DE" ? a.land : ""].filter(Boolean); }
 function zahlungText() {
@@ -98,7 +106,7 @@ function render() {
     </tbody></table>
     <div class="summe">${versandBrutto() > 0 ? `<div><span>Versandkosten netto</span><span>${eurD(versandTeile().n)}</span></div><div><span>darin 19 % USt auf Versand</span><span>${eurD(versandTeile().u)}</span></div>` : ""}${R.besteuerung === "regel" ? `<div><span>Nettobetrag</span><span>${eurD(R.netto)}</span></div><div><span>zzgl. 19 % USt</span><span>${eurD(R.ust)}</span></div>` : ""}
       <div class="end"><span>Rechnungsbetrag</span><span>${eurD(R.brutto)}</span></div></div>
-    <div class="hinweis">${R.besteuerung === "differenz" ? `<p>${SONDER}${versandBrutto() > 0 ? " " + SONDER_VERSAND : ""}</p>` : ""}${R.hinweis ? `<p>${esc(R.hinweis)}</p>` : ""}${F.rechnung_hinweis ? `<p>${esc(F.rechnung_hinweis)}</p>` : ""}</div>
+    <div class="hinweis">${R.besteuerung === "differenz" ? `<p>${SONDER}${versandBrutto() > 0 ? " " + SONDER_VERSAND : ""}</p>` : ""}${R.hinweis ? `<p>${esc(R.hinweis)}</p>` : ""}${rechtsTexte().map(t => `<p>${esc(t)}</p>`).join("")}${F.rechnung_hinweis ? `<p>${esc(F.rechnung_hinweis)}</p>` : ""}</div>
     <div class="zahlung">${bezahlt() ? `<div><b class="t">Bereits bezahlt</b>Der Betrag ist bei uns eingegangen. Vielen Dank!</div>` : `<div><b class="t">Bitte zahlen Sie bis zum ${datD(faellig())}</b><ul>${zahlungText().map(t => `<li>${esc(t)}</li>`).join("")}</ul></div>${qr ? `<div class="qr">${qr.createSvgTag({ cellSize: 3, margin: 0 })}Mit der Banking-App scannen</div>` : ""}`}</div>
     <div class="danke">Vielen Dank für Ihren Einkauf!</div>
     <div class="fuss">${fussSpalten().map(c => `<div>${c.map(t => `<div>${esc(t)}</div>`).join("")}</div>`).join("")}</div>
@@ -147,6 +155,7 @@ function pdf() {
   const absatz = t => { const z = d.splitTextToSize(t, Rr - L); d.text(z, L, y); y += z.length * 4 + 2; };
   if (R.besteuerung === "differenz") absatz(SONDER + (versandBrutto() > 0 ? " " + SONDER_VERSAND : ""));
   if (R.hinweis) absatz(R.hinweis);
+  rechtsTexte().forEach(absatz);
   if (F.rechnung_hinweis) absatz(F.rechnung_hinweis);
   const qr = girocode(), txtB = qr ? 118 : Rr - L - 10;
   d.setFontSize(9.5);
@@ -212,7 +221,7 @@ let E = null;
 function editor() {
   const a = R.kunde_adresse || {};
   E = { kunde_name: R.kunde_name || "", kunde_email: R.kunde_email || "", strasse: a.strasse || "", zusatz: a.zusatz || "", plz: a.plz || "", ort: a.ort || "", land: a.land || "DE",
-    positionen: R.positionen.map(p => ({ ...p })), hinweis: R.hinweis || "", besteuerung: R.besteuerung, lieferdatum: (R.lieferdatum || "").slice(0, 10) };
+    positionen: R.positionen.map(p => ({ ...p })), hinweis: R.hinweis || "", besteuerung: R.besteuerung, lieferdatum: (R.lieferdatum || "").slice(0, 10), widerruf: R.widerruf || "fernabsatz", widerruf_teile: R.widerruf_teile || "", gewaehr_1jahr: !!R.gewaehr_1jahr };
   zeigeEditor();
 }
 function zeigeEditor() {
@@ -224,6 +233,11 @@ function zeigeEditor() {
     <h3 style="margin:14px 0 6px">Positionen</h3>
     ${E.positionen.map((p, i) => `<div class="ed-pos"><input type="text" data-pos="${i}" data-k="text" value="${esc(p.text)}" placeholder="Beschreibung"><input data-pos="${i}" data-k="menge" type="number" min="0" step="1" value="${p.menge}" title="Menge"><input data-pos="${i}" data-k="preis" type="number" step="0.01" value="${p.preis}" title="Einzelpreis in €"><button class="btn small" data-posweg="${i}" title="Position entfernen">✕</button></div>`).join("")}
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"><button class="btn small" id="posneu">+ Position</button><button class="btn small" id="versandneu">+ Versandkosten</button><span class="note" style="margin-left:auto">Summe Positionen: <b id="ed-summe">${eurD(summe)}</b></span></div>
+    <h3 style="margin:14px 0 6px">Widerruf und Gewährleistung</h3>
+    <div class="ed-grid"><label class="ed-f"><span>Wie wurde gekauft?</span><select data-ed="widerruf"><option value="fernabsatz"${E.widerruf === "fernabsatz" ? " selected" : ""}>Privatkunde per Chat, Mail oder Telefon (Widerrufsrecht)</option><option value="sonder"${E.widerruf === "sonder" ? " selected" : ""}>Enthält Sonderanfertigung (Teile ohne Widerruf)</option><option value="vor_ort"${E.widerruf === "vor_ort" ? " selected" : ""}>Kauf vor Ort abgeschlossen (kein Widerruf)</option><option value="gewerblich"${E.widerruf === "gewerblich" ? " selected" : ""}>Gewerblicher Käufer (kein Widerruf)</option></select></label>
+    ${E.widerruf === "sonder" ? `<label class="ed-f"><span>Welche Teile sind Sonderanfertigung?</span><input data-ed="widerruf_teile" type="text" value="${esc(E.widerruf_teile)}" placeholder="z. B. 4 Tablare 750 × 350, pulverbeschichtet in Wunschfarbe RAL 6011"></label>` : ""}</div>
+    <label class="ed-check" style="display:flex;gap:8px;align-items:center;margin-top:8px"><input type="checkbox" data-edcheck="gewaehr_1jahr"${E.gewaehr_1jahr ? " checked" : ""}> Gewährleistung für gebrauchte Ware auf 1 Jahr verkürzt (nur wenn der Kunde das vor dem Kauf ausdrücklich bestätigt hat)</label>
+    <p class="note" style="margin:6px 0 0">Ein Ausschluss wirkt nur, wenn der Kunde vor dem Kauf darüber informiert wurde (im Angebot oder Chat). Die Rechnung hält es nur fest.</p>
     <label class="ed-f" style="margin-top:12px"><span>Hinweis auf der Rechnung (optional)</span><textarea data-ed="hinweis" rows="2">${esc(E.hinweis)}</textarea></label>
     <div style="display:flex;gap:8px;margin-top:12px"><button class="btn primary" id="edspeichern">Speichern</button><button class="btn" id="edabbruch">Abbrechen</button></div></section>`;
 }
@@ -231,7 +245,7 @@ async function speichern() {
   const pos = E.positionen.filter(p => String(p.text).trim()).map(p => ({ ...p, text: String(p.text).trim(), menge: Number(p.menge) || 0, preis: Math.round((Number(p.preis) || 0) * 100) / 100 }));
   if (!pos.length) { document.getElementById("msg").innerHTML = `<div class="banner"><span>Mindestens eine Position mit Beschreibung ist nötig.</span></div>`; return; }
   const adresse = { strasse: E.strasse.trim(), plz: E.plz.trim(), ort: E.ort.trim(), land: E.land || "DE", ...(E.zusatz.trim() ? { zusatz: E.zusatz.trim() } : {}) };
-  const { error } = await sb.rpc("rechnung_aendern", { p_id: R.id, p: { kunde_name: E.kunde_name.trim(), kunde_email: E.kunde_email.trim(), kunde_adresse: adresse, positionen: pos, hinweis: E.hinweis.trim(), besteuerung: E.besteuerung, lieferdatum: E.lieferdatum } });
+  const { error } = await sb.rpc("rechnung_aendern", { p_id: R.id, p: { kunde_name: E.kunde_name.trim(), kunde_email: E.kunde_email.trim(), kunde_adresse: adresse, positionen: pos, hinweis: E.hinweis.trim(), besteuerung: E.besteuerung, lieferdatum: E.lieferdatum, widerruf: E.widerruf, widerruf_teile: E.widerruf_teile.trim(), gewaehr_1jahr: E.gewaehr_1jahr } });
   if (error) { document.getElementById("msg").innerHTML = `<div class="banner"><span>Speichern hat nicht geklappt: ${esc(error.message)}</span></div>`; return; }
   E = null; document.getElementById("msg").innerHTML = ""; await laden();
   document.getElementById("msg").innerHTML = `<div class="banner info"><span>Gespeichert. Bitte unten prüfen, dann „Freigeben und senden“.</span></div>`;
@@ -241,7 +255,7 @@ document.addEventListener("input", e => {
   if (t.dataset.ed) E[t.dataset.ed] = t.value;
   if (t.dataset.pos) { E.positionen[t.dataset.pos][t.dataset.k] = t.value; const s = E.positionen.reduce((a, p) => a + (Number(p.menge) || 0) * (Number(p.preis) || 0), 0); document.getElementById("ed-summe").textContent = eurD(s); }
 });
-document.addEventListener("change", e => { if (E && e.target.dataset.ed) E[e.target.dataset.ed] = e.target.value; });
+document.addEventListener("change", e => { if (!E) return; if (e.target.dataset.ed) { E[e.target.dataset.ed] = e.target.value; if (e.target.dataset.ed === "widerruf") zeigeEditor(); } if (e.target.dataset.edcheck) E[e.target.dataset.edcheck] = e.target.checked; });
 async function laden() {
   const id = new URLSearchParams(location.search).get("id");
   const [{ data: r, error }, { data: f }] = await Promise.all([sb.from("rechnung").select("*").eq("id", id).single(), sb.from("firma").select("*")]);
