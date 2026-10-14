@@ -529,3 +529,5 @@ details.hand summary::-webkit-details-marker { display: none; }
 .ek-kopf::-webkit-details-marker { display: none; }
 .ek-kopf .ek-summe { white-space: nowrap; font-size: 1.05rem; }
 details[open] > .ek-kopf { margin-bottom: 10px; }
+
+.vk-in { width: 80px; text-align: right; font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: inherit; }

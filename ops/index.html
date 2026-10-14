@@ -54,6 +54,7 @@
 
 <script>
 const ICON = {
+  verkaufspreise: '<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.5"/>',
   einkaeufe: '<path d="M4 7h16l-1.5 12h-13z"/><path d="M9 7a3 3 0 0 1 6 0"/><path d="M12 11v5M9.5 13.5 12 16l2.5-2.5"/>',
   mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
   x: '<path d="M6 6l12 12M18 6L6 18"/>',
@@ -75,7 +76,7 @@ const ICON = {
   mehr: '<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>'
 };
 const svg = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICON[k]}</svg>`;
-const VIEWS = [["start", "Übersicht"], ["auftraege", "Aufträge"], ["produkte", "Produkte"], ["social", "Social Media"], ["moebel", "Fertige Möbel"], ["beschichtung", "Beschichtung"], ["planungen", "Planungen"], ["lager", "Lager"], ["einkaeufe", "Einkäufe"], ["auswertung", "Auswertung"], ["finanzen", "Finanzen"], ["vorlagen", "Vorlagen"], ["katalog", "Teilekatalog"], ["regeln", "USM-Regeln"], ["protokoll", "Protokoll"]];
+const VIEWS = [["start", "Übersicht"], ["auftraege", "Aufträge"], ["produkte", "Produkte"], ["social", "Social Media"], ["moebel", "Fertige Möbel"], ["beschichtung", "Beschichtung"], ["planungen", "Planungen"], ["lager", "Lager"], ["einkaeufe", "Einkäufe"], ["verkaufspreise", "Verkaufspreise"], ["auswertung", "Auswertung"], ["finanzen", "Finanzen"], ["vorlagen", "Vorlagen"], ["katalog", "Teilekatalog"], ["regeln", "USM-Regeln"], ["protokoll", "Protokoll"]];
 const D = { lager: [], typen: [], farben: [], plan: [], vorlagen: [], vpos: [], std: [], regeln: [], bew: [], build: null, ins: [], insStand: null, moebel: [], mteile: [], ausw: [], verk: [], auf: [], zahl: [] };
 let ROLLE = { rolle: "voll", name: "" };
 const HAND_KEY = "sdo_hand_entwurf";
@@ -292,8 +293,8 @@ async function loadAll() {
   const opt = (t, s = "*", m) => fetchAll(t, s, m).catch(() => []);
   const [moebel, mteile, ausw, verk, auf, zahl, verb, besch, beschK, einkaeufe, claude] = await Promise.all([opt("moebel", "*", q => q.order("erstellt_am", { ascending: false })), opt("moebel_teil"), opt("auswertung_kategorie"), opt("marge_je_verkauf", "*", q => q.order("datum", { ascending: false })),
     opt("auftrag_uebersicht", "*", q => q.order("erstellt_am", { ascending: false })), opt("zahlung", "*", q => q.eq("status", "neu").order("zeitpunkt", { ascending: false })), opt("verbindung", "*", q => q.order("reihenfolge")), opt("beschichtung_uebersicht", "*", q => q.order("erstellt_am", { ascending: false })), opt("beschichtung_kandidat"), opt("ka_einkauf", "*", q => q.order("geaendert_am", { ascending: false })), opt("claude_auftrag", "*", q => q.order("erstellt_am", { ascending: false }))]);
-  const [weinkauf, wepos] = await Promise.all([opt("einkauf", "*", q => q.order("datum", { ascending: false })), opt("einkauf_position")]);
-  D.weinkauf = weinkauf; D.wepos = wepos;
+  const [weinkauf, wepos, vkp] = await Promise.all([opt("einkauf", "*", q => q.order("datum", { ascending: false })), opt("einkauf_position"), opt("marktpreis")]);
+  D.weinkauf = weinkauf; D.wepos = wepos; D.vkp = vkp;
   Object.assign(D, { lager, typen, farben, plan, vorlagen, vpos, std, regeln, bew, ins: ins.inserate || [], insStand: ins.stand, moebel, mteile, ausw, verk, auf, zahl, verb, besch, beschK, einkaeufe, claude });
   D.farben.sort((a, b) => (a.sortierung || 0) - (b.sortierung || 0)); D.farben.forEach(f => { if (f.hex) FARBHEX[f.code] = f.hex; });
 }
@@ -999,6 +1000,26 @@ function vEinkaeufe() {
     <div class="filters" style="margin-bottom:12px"><input type="search" id="eq" value="${esc(UI.eq || "")}" placeholder="Suchen: Möbel, Quelle, Notiz…"></div>
     ${liste.length ? liste.map(karte).join("") : `<section class="card"><p class="empty">Keine Einkäufe gefunden.</p></section>`}`;
 }
+// Verkaufspreise je Einzelteil (brutto, gebraucht/verbaubar): Grundlage für Angebote, Marktwert im Lager und Margen
+function vVerkaufspreise() {
+  const q = (UI.vq || "").toLowerCase(), typName = c => ((D.typen || []).find(t => t.code === c) || {}).bezeichnung || c;
+  const rows = (D.vkp || []).filter(r => !q || (r.typ + " " + typName(r.typ) + " " + r.mass + " " + (r.quelle || "")).toLowerCase().includes(q))
+    .sort((a, b) => typName(a.typ).localeCompare(typName(b.typ)) || a.mass.localeCompare(b.mass, "de", { numeric: true }));
+  const quelleBadge = qq => /festgelegt/i.test(qq || "") ? `<span class="badge ok">${esc(qq)}</span>` : /eigenes inserat/i.test(qq || "") ? `<span class="badge">${esc(qq)}</span>` : `<span class="wo">${esc(qq || "")}</span>`;
+  const typOpt = (D.typen || []).slice().sort((a, b) => a.bezeichnung.localeCompare(b.bezeichnung)).map(t => `<option value="${esc(t.code)}">${esc(t.bezeichnung)} (${esc(t.code)})</option>`).join("");
+  return head("Verkaufspreise", "Was ihr für ein Einzelteil verlangt, brutto, Zustand verbaubar. Claude nimmt diese Preise automatisch für jedes Angebot. Ändern: Preis eintippen, fertig. Neuwertige Teile und Teile für die Beschichtung laufen über die Faktoren in den Firmendaten.") +
+    `${UI.flash ? `<div class="banner"><span>${esc(UI.flash)}</span></div>` : ""}<section class="card"><div class="card-head"><h2>Neuer Preis</h2></div><div class="filters">
+      <select id="vk-typ" aria-label="Teil"><option value="">Teil wählen…</option>${typOpt}</select>
+      <input id="vk-mass" type="search" placeholder="Maß, z. B. 750x350 (leer = alle)">
+      <input id="vk-preis" type="number" min="0" step="0.5" inputmode="decimal" placeholder="Preis €">
+      <button class="btn primary" data-vkneu="1">Speichern</button></div></section>
+    <section class="card"><div class="filters" style="margin-bottom:10px"><input type="search" id="vq" value="${esc(UI.vq || "")}" placeholder="Suchen: Tablar, Rohr, 750x350…"></div>
+    <div class="tablewrap"><table><thead><tr><th>Teil</th><th>Maß</th><th class="num">Preis brutto</th><th>Quelle</th><th>Stand</th></tr></thead><tbody>
+    ${rows.map(r => `<tr><td><b>${esc(typName(r.typ))}</b> <span class="code">${esc(r.typ)}</span></td><td>${r.mass === "*" ? `<span class="wo">alle Maße</span>` : esc(r.mass.replace("x", " × "))}</td>
+      <td class="num"><input class="vk-in" type="number" min="0" step="0.5" inputmode="decimal" value="${Number(r.preis)}" data-vktyp="${esc(r.typ)}" data-vkmass="${esc(r.mass)}" aria-label="Preis ${esc(typName(r.typ))} ${esc(r.mass)}"> €</td>
+      <td>${quelleBadge(r.quelle)}${r.spanne ? `<div class="wo">Markt: ${esc(r.spanne)}</div>` : ""}</td><td class="wo">${r.stand ? new Date(r.stand).toLocaleDateString("de-DE") : ""}</td></tr>`).join("")}
+    </tbody></table></div></section>`;
+}
 function vProtokoll() {
   return head("Protokoll", "Jede Inventur, jeder Einkauf und Verkauf mit Bestand und Durchschnittspreis danach.") +
     `<section class="card">${D.bew.length ? `<div class="tablewrap"><table><thead><tr><th>Zeit</th><th>Art</th><th>Teil</th><th class="num">Menge</th><th class="num">Preis/Stk</th><th class="num">Bestand</th><th class="num">Ø danach</th><th>Notiz</th></tr></thead><tbody>
@@ -1020,10 +1041,10 @@ function render() {
   document.getElementById("whobox").innerHTML = wb;
   document.getElementById("whobox-m").innerHTML = wb.replace('id="who"', 'id="who-m"');
   document.getElementById("mtitle").textContent = (VIEWS.find(v => v[0] === UI.view) || VIEWS[0])[1];
-  const fn = { start: vStart, auftraege: vAuftraege, produkte: vProdukte, moebel: vMoebel, beschichtung: vBeschichtung, auswertung: vAuswertung, finanzen: vFinanzen, steuer: vFinanzen, lager: vLager, planungen: vPlanungen, vorlagen: vVorlagen, katalog: vKatalog, regeln: vRegeln, protokoll: vProtokoll, einkaeufe: vEinkaeufe, social: vSocial }[UI.view] || (ROLLE.rolle === "social" ? vSocial : vStart);
+  const fn = { start: vStart, auftraege: vAuftraege, produkte: vProdukte, moebel: vMoebel, beschichtung: vBeschichtung, auswertung: vAuswertung, finanzen: vFinanzen, steuer: vFinanzen, lager: vLager, planungen: vPlanungen, vorlagen: vVorlagen, katalog: vKatalog, regeln: vRegeln, protokoll: vProtokoll, einkaeufe: vEinkaeufe, verkaufspreise: vVerkaufspreise, social: vSocial }[UI.view] || (ROLLE.rolle === "social" ? vSocial : vStart);
   const active = document.activeElement && document.activeElement.id, pos = active && document.activeElement.selectionStart;
   document.getElementById("view").innerHTML = fn();
-  if (active && /^(lf-q|kq|pq|sq|eq|ca-text|h-.+|ae-.+)$/.test(active) && document.getElementById(active)) { const el = document.getElementById(active); el.focus(); try { el.setSelectionRange(pos, pos); } catch {} }
+  if (active && /^(lf-q|kq|pq|sq|eq|vq|vk-mass|vk-preis|ca-text|h-.+|ae-.+)$/.test(active) && document.getElementById(active)) { const el = document.getElementById(active); el.focus(); try { el.setSelectionRange(pos, pos); } catch {} }
 }
 
 /* ---------- Ereignisse ---------- */
@@ -1035,6 +1056,7 @@ document.addEventListener("input", e => {
   if (e.target.id === "pq") { UI.p.q = e.target.value; render(); }
   if (e.target.id === "sq") { UI.sq = e.target.value; render(); }
   if (e.target.id === "eq") { UI.eq = e.target.value; render(); }
+  if (e.target.id === "vq") { UI.vq = e.target.value; render(); }
   if (/^h-/.test(e.target.id || "")) { UI.hand[e.target.id] = e.target.value; store.set(HAND_KEY, JSON.stringify(UI.hand)); }
   if (/^ae-/.test(e.target.id || "")) UI.aform[e.target.id.slice(3)] = e.target.value;
   if (e.target.id === "ca-text") { UI.caDraft = e.target.value; store.set(CA_KEY, e.target.value); }
@@ -1048,6 +1070,12 @@ document.addEventListener("input", e => {
   }
 });
 document.addEventListener("change", async e => {
+  if (e.target.classList && e.target.classList.contains("vk-in")) {
+    const t = e.target, v = Number(String(t.value).replace(",", "."));
+    if (!(v >= 0)) return;
+    const { error } = await sb.rpc("verkaufspreis_setzen", { p_typ: t.dataset.vktyp, p_mass: t.dataset.vkmass, p_preis: v, p_wer: me() || null });
+    UI.flash = error ? "Ging nicht: " + error.message : null; if (error) render(); else liveReload(); return;
+  }
   const t = e.target;
   if (/^h-/.test(t.id || "")) { UI.hand[t.id] = t.value; store.set(HAND_KEY, JSON.stringify(UI.hand)); }
   if (/^ae-/.test(t.id || "")) UI.aform[t.id.slice(3)] = t.value;
@@ -1084,6 +1112,12 @@ document.addEventListener("click", async e => {
     UI.flash = error ? "Freigabe ging nicht: " + error.message : null; liveReload();
   }
   else if (b.dataset.camic) { diktatUmschalten(); }
+  else if (b.dataset.vkneu) {
+    const typ = document.getElementById("vk-typ").value, mass = document.getElementById("vk-mass").value.trim().replace(/\s*[×x*]\s*/i, "x"), preis = Number(String(document.getElementById("vk-preis").value).replace(",", "."));
+    if (!typ || !(preis >= 0)) { UI.flash = "Bitte Teil und Preis angeben."; render(); return; }
+    b.disabled = true; const { error } = await sb.rpc("verkaufspreis_setzen", { p_typ: typ, p_mass: mass || "*", p_preis: preis, p_wer: me() || null });
+    UI.flash = error ? "Ging nicht: " + error.message : "Preis gespeichert."; liveReload();
+  }
   else if (b.dataset.casend) {
     if (DIKTAT.an) { DIKTAT.an = false; try { DIKTAT.rec.stop(); } catch {} }
     const ta = document.getElementById("ca-text"), t = ((ta && ta.value) || caEntwurf() || "").trim();
