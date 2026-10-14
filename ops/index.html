@@ -396,7 +396,7 @@ function vFinanzen() {
     `<div class="chips" role="tablist" style="margin:0 0 14px">${tabs.map(([k, t]) => `<button class="chip" data-fintab="${k}" aria-pressed="${UI.finTab === k}">${t}</button>`).join("")}</div>` +
     ({ steuer: vSteuer, ausgaben: vAusgaben })[UI.finTab]();
 }
-const AKAT = { "": "Noch offen", wareneinkauf: "Wareneinkauf (Lager)", betriebsausstattung: "Betriebsausstattung", it: "Internet, Website, Software, Telefon", material: "Material und Verpackung", fahrzeug: "Fahrzeug und Benzin", versand: "Versand", gebuehren: "Gebühren und Abos", sonstiges: "Sonstige Betriebskosten", unklar: "Unklar, bitte klären", privat: "Privat, nicht betrieblich" };
+const AKAT = { "": "Noch offen", wareneinkauf: "Wareneinkauf (Lager)", wareneinkauf_privat: "Wareneinkauf, privat ausgelegt", auslage_privat: "Betriebliche Ausgabe, privat ausgelegt", betriebsausstattung: "Betriebsausstattung", it: "Internet, Website, Software, Telefon", material: "Material und Verpackung", fahrzeug: "Fahrzeug und Benzin", versand: "Versand", gebuehren: "Gebühren und Abos", sonstiges: "Sonstige Betriebskosten", unklar: "Unklar, bitte klären", privat: "Rein privat, nicht betrieblich" };
 function zeitraum(k) {
   if (/^\d{4}-Q\d$/.test(k)) { const [j, q] = k.split("-Q").map(Number); return [new Date(j, (q - 1) * 3, 1), new Date(j, q * 3, 1)]; }
   if (/^\d{4}-\d{2}$/.test(k)) { const [j, m] = k.split("-").map(Number); return [new Date(j, m - 1, 1), new Date(j, m, 1)]; }
