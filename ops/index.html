@@ -54,6 +54,7 @@
 
 <script>
 const ICON = {
+  mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
   x: '<path d="M6 6l12 12M18 6L6 18"/>',
   start: '<path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/>',
   produkte: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 12h18M12 4v16"/>',
@@ -813,6 +814,27 @@ function vVerbindungen() {
 const CST = { offen: ["warn", "offen"], in_arbeit: ["new", "in Arbeit"], rueckfrage: ["bad", "Rückfrage"], erledigt: ["ok", "erledigt"], abgelehnt: ["", "nicht gemacht"] };
 // Entwurf im Feld „An Claude“ überlebt Live-Aktualisierungen (sonst leert jedes Neuzeichnen das Feld)
 const CA_KEY = "sdo_ca_entwurf";
+// Spracheingabe im Browser (Safari und Chrome, Deutsch), Text landet im Feld und kann vor dem Senden korrigiert werden
+const SPRACHE = window.SpeechRecognition || window.webkitSpeechRecognition;
+const DIKTAT = { an: false, rec: null, basis: "" };
+function diktatUmschalten() {
+  if (DIKTAT.an) { DIKTAT.an = false; try { DIKTAT.rec && DIKTAT.rec.stop(); } catch {} render(); return; }
+  const rec = new SPRACHE(); DIKTAT.rec = rec; DIKTAT.an = true;
+  rec.lang = "de-DE"; rec.continuous = true; rec.interimResults = true;
+  DIKTAT.basis = (caEntwurf() || "").replace(/\s+$/, "");
+  rec.onresult = ev => {
+    let fertig = "", vorlaeufig = "";
+    for (let i = ev.resultIndex; i < ev.results.length; i++) { const t = ev.results[i][0].transcript; if (ev.results[i].isFinal) fertig += t; else vorlaeufig += t; }
+    if (fertig) DIKTAT.basis = (DIKTAT.basis ? DIKTAT.basis + " " : "") + fertig.trim();
+    const text = (DIKTAT.basis + (vorlaeufig ? " " + vorlaeufig.trim() : "")).trim();
+    UI.caDraft = text; store.set(CA_KEY, DIKTAT.basis);
+    const ta = document.getElementById("ca-text"); if (ta) { ta.value = text; ta.scrollTop = ta.scrollHeight; }
+  };
+  rec.onerror = ev => { if (ev.error === "not-allowed" || ev.error === "service-not-allowed") { DIKTAT.an = false; UI.flash = "Mikrofon nicht erlaubt. Bitte in den Browser-Einstellungen für saleo-design.de freigeben."; render(); } };
+  rec.onend = () => { if (DIKTAT.an) { try { rec.start(); } catch { DIKTAT.an = false; render(); } } else render(); };
+  try { rec.start(); } catch { DIKTAT.an = false; }
+  render();
+}
 const caEntwurf = () => UI.caDraft != null ? UI.caDraft : (UI.caDraft = store.get(CA_KEY) || "");
 function vClaude() {
   const alle = D.claude || [], offen = alle.filter(c => ["offen", "in_arbeit", "rueckfrage"].includes(c.status)).length;
@@ -820,7 +842,7 @@ function vClaude() {
   const neu = alle.slice(0, 3), alt = alle.slice(3);
   const soc = ROLLE.rolle === "social";
   return `${soc && UI.flash ? `<div class="banner"><span>${esc(UI.flash)}</span></div>` : ""}<section class="card claude-box"><div class="card-head"><h2>${soc ? "Frag Claude" : "An Claude"}</h2><span class="note">${offen ? `${offen} offen · ` : ""}Antwort meist innerhalb von 10 Minuten, rund um die Uhr</span></div>
-    <div class="claude-form"><textarea id="ca-text" rows="2" placeholder="${soc ? "Frag mich alles zu Social Media. Zum Beispiel: Welche Reels liefen diesen Monat am besten? Oder: Schreib mir eine Caption für das grüne Sideboard." : "Was soll ich machen? Zum Beispiel: Rechnung für den Käufer vom grünen Konsolenregal schreiben und senden. Oder: Couchtisch ist verkauft, 180 € bar."}">${esc(caEntwurf())}</textarea><button class="btn primary" data-casend="1">Senden</button></div>
+    <div class="claude-form"><textarea id="ca-text" rows="2" placeholder="${soc ? "Frag mich alles zu Social Media. Zum Beispiel: Welche Reels liefen diesen Monat am besten? Oder: Schreib mir eine Caption für das grüne Sideboard." : "Was soll ich machen? Zum Beispiel: Rechnung für den Käufer vom grünen Konsolenregal schreiben und senden. Oder: Couchtisch ist verkauft, 180 € bar."}">${esc(caEntwurf())}</textarea><div class="ca-knoepfe">${SPRACHE ? `<button class="btn mic${DIKTAT.an ? " an" : ""}" data-camic="1" aria-pressed="${DIKTAT.an}" title="Sprechen statt tippen">${svg("mic")}<span>${DIKTAT.an ? "Stopp" : "Sprechen"}</span></button>` : ""}<button class="btn primary" data-casend="1">Senden</button></div></div>
     ${alle.length ? `<input id="ca-q" type="search" placeholder="Im Verlauf suchen (${alle.length} Einträge)" style="width:100%;margin:10px 0 4px">
     <div class="claude-list" id="ca-neu">${neu.map(item).join("")}</div>
     ${alt.length ? `<details id="ca-alt"><summary class="btn small" style="margin-top:8px">Ältere anzeigen (${alt.length})</summary><div class="claude-list">${alt.map(item).join("")}</div></details>` : ""}
@@ -1033,7 +1055,9 @@ document.addEventListener("click", async e => {
     const { error } = await sb.rpc("auftrag_freigeben", { p_id: b.dataset.afrei, p_wer: me() });
     UI.flash = error ? "Freigabe ging nicht: " + error.message : null; liveReload();
   }
+  else if (b.dataset.camic) { diktatUmschalten(); }
   else if (b.dataset.casend) {
+    if (DIKTAT.an) { DIKTAT.an = false; try { DIKTAT.rec.stop(); } catch {} }
     const ta = document.getElementById("ca-text"), t = ((ta && ta.value) || caEntwurf() || "").trim();
     if (!t) { UI.flash = "Das Feld ist leer. Bitte Text eingeben."; render(); return; }
     if (!me()) { UI.flash = "Bitte zuerst bei „Ich bin“ auswählen, wer schreibt."; render(); return; }
