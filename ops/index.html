@@ -444,7 +444,7 @@ function vAuswertung() {
 }
 
 const AST = { heiss: ["warn", "kurz vor Abschluss"], bezahlt: ["new", "bezahlt"], freigegeben: ["ok", "Label wird erstellt"], label: ["ok", "Label gedruckt"], versendet: ["", "versendet"], abgeholt: ["", "abgeholt"], storniert: ["bad", "storniert"] };
-const offeneAuftraege = () => D.auf.filter(a => a.status === "bezahlt");
+const offeneAuftraege = () => D.auf.filter(a => a.status === "bezahlt" && !a.archiviert_am);
 const ZART = { waren: "Waren und Dienstleistungen", freunde: "Freunde und Familie" };
 const ZQ = { paypal: "PayPal", bank: "Bank", bar: "bar", kleinanzeigen: "Kleinanzeigen", ueberweisung: "Überweisung" };
 function auftragKarte(a) {
@@ -472,7 +472,7 @@ function auftragKarte(a) {
     ${a.notiz ? `<p class="wo" style="white-space:pre-wrap;margin:.4rem 0 0">${esc(a.notiz)}</p>` : ""}
     ${a.chat_auszug ? `<details class="teile"><summary>Chat-Auszug</summary><p class="wo" style="white-space:pre-wrap">${esc(a.chat_auszug)}</p></details>` : ""}
     ${UI.aedit === a.id ? vAuftragEdit(a) : ""}
-    <div class="actions"${UI.aedit === a.id ? " hidden" : ""}>${a.status !== "storniert" ? `<button class="btn" data-aedit="${a.id}">Bearbeiten</button>` : ""}${planerLink(a) ? `<a class="btn" href="${planerLink(a)}">Möbel ansehen</a>` : ""}${a.rechnung_id && a.rechnung_status === "entwurf" ? `<a class="btn primary" href="rechnung.html?id=${a.rechnung_id}">Rechnung prüfen und senden</a>` : ""}${a.status === "heiss" ? `<button class="btn" data-abez="${a.id}" title="Backup, falls die Zahlung nicht automatisch erkannt wird">Zahlung ist da</button>` : ""}${a.status === "bezahlt" ? `<button class="btn primary" data-afrei="${a.id}">Label freigeben</button>` : ""}${a.status === "freigegeben" ? `<span class="wo">freigegeben von ${esc(a.freigabe_von || "")} ${a.freigabe_am ? when(a.freigabe_am) : ""}</span><button class="btn small" data-azurueck="${a.id}">Zurücknehmen</button>` : ""}${a.moebel_id ? `<a class="btn small" href="planer.html?moebel=${a.moebel_id}">Kalkulation</a>` : ""}${ins ? `<a class="btn small" href="${esc(ins.url)}" target="_blank" rel="noopener">Anzeige</a>` : ""}</div>
+    <div class="actions"${UI.aedit === a.id ? " hidden" : ""}>${a.status !== "storniert" ? `<button class="btn" data-aedit="${a.id}">Bearbeiten</button>` : ""}${planerLink(a) ? `<a class="btn" href="${planerLink(a)}">Möbel ansehen</a>` : ""}${a.rechnung_id && a.rechnung_status === "entwurf" ? `<a class="btn primary" href="rechnung.html?id=${a.rechnung_id}">Rechnung prüfen und senden</a>` : ""}${a.status === "heiss" ? `<button class="btn" data-abez="${a.id}" title="Backup, falls die Zahlung nicht automatisch erkannt wird">Zahlung ist da</button>` : ""}${a.status === "bezahlt" ? `<button class="btn primary" data-afrei="${a.id}">Label freigeben</button>` : ""}${a.status === "freigegeben" ? `<span class="wo">freigegeben von ${esc(a.freigabe_von || "")} ${a.freigabe_am ? when(a.freigabe_am) : ""}</span><button class="btn small" data-azurueck="${a.id}">Zurücknehmen</button>` : ""}${a.moebel_id ? `<a class="btn small" href="planer.html?moebel=${a.moebel_id}">Kalkulation</a>` : ""}${!a.archiviert_am && a.status !== "storniert" && a.bezahlt_am ? `<button class="btn small" data-aarch="${a.id}" title="Bezahlt und erledigt: ins Archiv verschieben">Abschließen</button>` : ""}${a.archiviert_am ? `<button class="btn small" data-areakt="${a.id}">Wieder öffnen</button>` : ""}${ins ? `<a class="btn small" href="${esc(ins.url)}" target="_blank" rel="noopener">Anzeige</a>` : ""}</div>
   </article>`;
 }
 const HF = (id, d = "") => esc(UI.hand[id] ?? d);
@@ -518,10 +518,19 @@ function vAuftragEdit(a) {
     <p class="note">Ein noch nicht gesendeter Rechnungsentwurf wird automatisch mit angepasst. Gesendete Rechnungen bleiben unverändert.</p>
     <div class="actions"><button class="btn primary" data-aspeichern="${a.id}">Speichern</button><button class="btn" data-aabbruch="1">Abbrechen</button></div>`;
 }
+function vArchiv(list) {
+  if (!list.length) return "";
+  const summe = list.filter(a => a.status !== "storniert").reduce((s, a) => s + Number(a.erloes || 0), 0), gew = list.filter(a => a.status !== "storniert").reduce((s, a) => s + Number(a.gewinn_vor_steuern || 0), 0);
+  const q = (UI.archQ || "").toLowerCase(), rows = list.filter(a => !q || [a.titel, a.kaeufer_name, a.rechnung_nummer].join(" ").toLowerCase().includes(q));
+  return `<details class="card fold archiv"${UI.archOffen ? " open" : ""}><summary>Archiv: abgeschlossen <span class="wo">${list.length} · ${eur(summe).replace(",00", "")} Umsatz · ${eur(gew).replace(",00", "")} Gewinn</span></summary>
+    <p class="note">Bezahlt und erledigt. Landet automatisch hier, sobald die Zahlung da ist und keine Rechnung mehr auf Freigabe wartet (bei DPD erst mit gedrucktem Label). Von Hand geht es über „Abschließen“ am Auftrag.</p>
+    <input type="search" id="arch-q" value="${esc(UI.archQ || "")}" placeholder="Suchen: Möbel, Käufer, Rechnungsnummer" style="margin-bottom:10px;width:100%">
+    <div class="tablewrap"><table><thead><tr><th>Abgeschlossen</th><th>Auftrag</th><th>Rechnung</th><th class="num">Erlös</th><th class="num">Gewinn</th><th></th></tr></thead><tbody>${rows.map(a => `<tr><td class="wo">${a.archiviert_am ? when(a.archiviert_am) : when(a.geaendert_am)}${a.archiviert_von && a.archiviert_von !== "Automatik" ? `<div class="wo">von ${esc(a.archiviert_von)}</div>` : ""}</td><td><b>${esc(a.titel || "")}</b>${a.status === "storniert" ? ` <span class="badge bad">storniert</span>` : ""}<div class="wo">${esc(a.kaeufer_name || "")}${a.versandart ? " · " + esc({ abholung: "Abholung", lieferung: "Lieferung", dpd: "DPD", spedition: "Spedition" }[a.versandart] || a.versandart) : ""}${a.bezahlt_am ? " · bezahlt " + when(a.bezahlt_am) : ""}</div></td><td>${a.rechnung_id ? `<a href="rechnung.html?id=${a.rechnung_id}">${esc(a.rechnung_nummer)}</a>` : `<span class="wo">keine</span>`}</td><td class="num">${eur(a.erloes)}</td><td class="num ${Number(a.gewinn_vor_steuern) >= 0 ? "good" : "neg"}">${a.gewinn_vor_steuern != null ? eur(a.gewinn_vor_steuern) : ""}</td><td>${a.archiviert_am ? `<button class="btn small" data-areakt="${a.id}">Wieder öffnen</button>` : ""}</td></tr>`).join("")}</tbody></table></div></details>`;
+}
 function vAuftraege() {
-  const g = s => D.auf.filter(a => s.includes(a.status));
+  const g = s => D.auf.filter(a => !a.archiviert_am && s.includes(a.status));
   const zein = D.zahl.filter(z => (z.richtung || "ein") === "ein"), zaus = D.zahl.filter(z => z.richtung === "aus" && !z.einkauf_id);
-  const bez = g(["bezahlt"]), heiss = g(["heiss"]), arbeit = g(["freigegeben", "label"]), fertig = g(["versendet", "abgeholt"]).slice(0, 20);
+  const bez = g(["bezahlt"]), heiss = g(["heiss"]), arbeit = g(["freigegeben", "label"]), archiv = D.auf.filter(a => a.archiviert_am || ["versendet", "abgeholt", "storniert"].includes(a.status)).sort((x, y) => String(y.archiviert_am || y.geaendert_am).localeCompare(String(x.archiviert_am || x.geaendert_am)));
   const umsatzOffen = [...heiss, ...bez, ...arbeit].reduce((s, a) => s + Number(a.erloes || 0), 0);
   const sec = (t, list, leer, note = "") => `<section class="order-sec"><div class="card-head"><h2>${t} <span class="wo">${list.length}</span></h2>${note ? `<span class="note">${note}</span>` : ""}</div>${list.length ? list.map(auftragKarte).join("") : `<p class="empty">${leer}</p>`}</section>`;
   return head("Aufträge", "Vom Chat über Rechnung und Zahlungseingang bis zum gedruckten DPD-Label. Schreibt ihr im Chat „Wir kümmern uns um die Rechnung“, bereite ich die Rechnung vor. Ihr sendet sie und gebt das Label frei.") +
@@ -533,7 +542,7 @@ function vAuftraege() {
     ${vClaude()}${vHandAuftrag()}
     ${zein.length ? `<section class="card"><div class="card-head"><h2>Eingänge ohne Zuordnung</h2><span class="note">Kurz sagen, wozu sie gehören</span></div><div class="tablewrap"><table><tbody>${zein.map(z => `<tr><td class="wo">${when(z.zeitpunkt)}</td><td>${ZQ[z.quelle] || z.quelle}</td><td><b>${esc(z.absender || "")}</b><div class="wo">${[z.art ? ZART[z.art] : "", z.nachricht || ""].filter(Boolean).map(esc).join(" · ")}</div></td><td class="num"><b>${eur(z.betrag)}</b>${z.gebuehr > 0 ? `<div class="wo">Gebühr ${eur(z.gebuehr)}</div>` : ""}</td></tr>`).join("")}</tbody></table></div></section>` : ""}
     ${zaus.length ? `<details class="card fold"><summary>Ausgaben ohne Zuordnung <span class="wo">${zaus.length}</span></summary><p class="note">Sag mir, was ihr damit gekauft habt, dann buche ich es als Einkauf ins Lager.</p><div class="tablewrap"><table><tbody>${zaus.map(z => `<tr><td class="wo">${when(z.zeitpunkt)}</td><td>${ZQ[z.quelle] || z.quelle}</td><td class="wo">${esc([z.absender, z.nachricht].filter(Boolean).join(" · "))}</td><td class="num"><b class="neg">− ${eur(z.betrag)}</b></td></tr>`).join("")}</tbody></table></div></details>` : ""}
-    ${fertig.length ? sec("Zuletzt versendet", fertig, "") : ""}`;
+    ${vArchiv(archiv)}`;
 }
 
 /* ---------- Ansichten ---------- */
@@ -649,7 +658,7 @@ function palModal(teile, pos) {
       <div class="kopf"><i class="dose${f.code === "CR" ? " chrom" : ""}"></i><span>${esc(f.name)}${f.sonder || f.code === "CR" ? ` <em class="sonder">Sonder</em>` : ""}<small class="ral">${esc(f.ral || "")}</small></span>${summe ? `<b>${summe}</b>` : ""}</div>
       ${hier.map(p => { const r = teile.find(t => t.code === p.teil) || {}; return `<div class="drin"><span>${p.menge} × ${katVon(p.teil) ? esc(katVon(p.teil).name) : esc(r.bezeichnung || p.teil)} ${esc((r.mass || "").replace("x", "×"))}${r.generation === "A" ? " <b class=\"gen alt\">alt</b>" : ""}${p.zweck === "auftrag" ? ` <em>für ${esc(p.kunde || "Auftrag")}</em>` : ""}</span><button data-palminus="${p.id || ""}" data-palteil="${esc(p.teil)}" data-palf="${f.code}" title="Eins zurück auf die Palette" aria-label="Eins zurück">−</button></div>`; }).join("")}</div>`;
   }).join("");
-  const aOpt = `<option value="">fürs Lager</option>` + (D.auf || []).filter(a => !["storniert", "versendet", "abgeholt", "abgeschlossen"].includes(a.status)).slice(0, 40).map(a => `<option value="${a.id}"${UI.palAuftrag === a.id ? " selected" : ""}>${esc((a.kaeufer_name ? a.kaeufer_name + ": " : "") + (a.titel || "").slice(0, 40))}</option>`).join("");
+  const aOpt = `<option value="">fürs Lager</option>` + (D.auf || []).filter(a => !a.archiviert_am && !["storniert", "versendet", "abgeholt"].includes(a.status)).slice(0, 40).map(a => `<option value="${a.id}"${UI.palAuftrag === a.id ? " selected" : ""}>${esc((a.kaeufer_name ? a.kaeufer_name + ": " : "") + (a.titel || "").slice(0, 40))}</option>`).join("");
   const nOffen = offen.reduce((s, r) => s + frei(r), 0);
   const anim = UI.palAnim ? " anim" : ""; UI.palAnim = false;
   return `<div class="pal-modal-bg${anim}" data-palclose="1"></div><div class="pal-modal${anim}" role="dialog" aria-label="Palette sortieren">
@@ -1051,7 +1060,7 @@ function render() {
 }
 
 /* ---------- Ereignisse ---------- */
-document.addEventListener("toggle", e => { if (e.target.classList && e.target.classList.contains("hand")) UI.handOffen = e.target.open; }, true);
+document.addEventListener("toggle", e => { if (e.target.classList && e.target.classList.contains("hand")) UI.handOffen = e.target.open; if (e.target.classList && e.target.classList.contains("archiv")) UI.archOffen = e.target.open; }, true);
 window.addEventListener("hashchange", () => { UI.view = location.hash.slice(1) || "start"; UI.sheet = false; render(); window.scrollTo(0, 0); });
 document.addEventListener("input", e => {
   if (e.target.id === "lf-q") { UI.f.q = e.target.value; render(); }
@@ -1060,6 +1069,7 @@ document.addEventListener("input", e => {
   if (e.target.id === "sq") { UI.sq = e.target.value; render(); }
   if (e.target.id === "eq") { UI.eq = e.target.value; render(); }
   if (e.target.id === "vq") { UI.vq = e.target.value; render(); }
+  if (e.target.id === "arch-q") { UI.archQ = e.target.value; render(); }
   if (/^h-/.test(e.target.id || "")) { UI.hand[e.target.id] = e.target.value; store.set(HAND_KEY, JSON.stringify(UI.hand)); }
   if (/^ae-/.test(e.target.id || "")) UI.aform[e.target.id.slice(3)] = e.target.value;
   if (e.target.id === "ca-text") { UI.caDraft = e.target.value; store.set(CA_KEY, e.target.value); }
@@ -1115,6 +1125,11 @@ document.addEventListener("click", async e => {
     UI.flash = error ? "Freigabe ging nicht: " + error.message : null; liveReload();
   }
   else if (b.dataset.camic) { diktatUmschalten(); }
+  else if (b.dataset.aarch || b.dataset.areakt) {
+    b.disabled = true;
+    const { error } = b.dataset.aarch ? await sb.rpc("auftrag_archivieren", { p_id: b.dataset.aarch, p_wer: me() || null }) : await sb.rpc("auftrag_reaktivieren", { p_id: b.dataset.areakt });
+    UI.flash = error ? "Ging nicht: " + error.message : b.dataset.aarch ? "Auftrag abgeschlossen und ins Archiv verschoben." : "Auftrag wieder geöffnet. Er wird nicht mehr automatisch archiviert."; liveReload();
+  }
   else if (b.dataset.kopier) {
     const t = b.parentElement.querySelector("pre").textContent;
     try { await navigator.clipboard.writeText(t); } catch (_) { const r = document.createRange(); r.selectNodeContents(b.parentElement.querySelector("pre")); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); document.execCommand("copy"); }
