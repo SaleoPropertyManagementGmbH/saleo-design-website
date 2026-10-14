@@ -811,13 +811,16 @@ function vVerbindungen() {
     ${v.map(zeile).join("")}${weg.length ? `<p class="note" style="margin:8px 0 0">Anmelden bitte am Mac in der Claude-App, dort wo diese Seite offen ist. Dann bleibt die Anmeldung für mich nutzbar.</p>` : ""}</details>`;
 }
 const CST = { offen: ["warn", "offen"], in_arbeit: ["new", "in Arbeit"], rueckfrage: ["bad", "Rückfrage"], erledigt: ["ok", "erledigt"], abgelehnt: ["", "nicht gemacht"] };
+// Entwurf im Feld „An Claude“ überlebt Live-Aktualisierungen (sonst leert jedes Neuzeichnen das Feld)
+const CA_KEY = "sdo_ca_entwurf";
+const caEntwurf = () => UI.caDraft != null ? UI.caDraft : (UI.caDraft = store.get(CA_KEY) || "");
 function vClaude() {
   const alle = D.claude || [], offen = alle.filter(c => ["offen", "in_arbeit", "rueckfrage"].includes(c.status)).length;
   const item = c => `<div class="claude-item" data-ctxt="${esc(((c.text || "") + " " + (c.antwort || "") + " " + (c.von || "")).toLowerCase())}"><div class="t"><span class="badge ${(CST[c.status] || [""])[0]}">${(CST[c.status] || ["", c.status])[1]}</span> <b>${esc(c.von || "")}</b> <span class="wo">${when(c.erstellt_am)}</span></div><div>${esc(c.text)}</div>${c.antwort ? `<div class="antwort">${esc(c.antwort)}</div>` : ""}</div>`;
   const neu = alle.slice(0, 3), alt = alle.slice(3);
   const soc = ROLLE.rolle === "social";
   return `${soc && UI.flash ? `<div class="banner"><span>${esc(UI.flash)}</span></div>` : ""}<section class="card claude-box"><div class="card-head"><h2>${soc ? "Frag Claude" : "An Claude"}</h2><span class="note">${offen ? `${offen} offen · ` : ""}Antwort meist innerhalb von 10 Minuten, rund um die Uhr</span></div>
-    <div class="claude-form"><textarea id="ca-text" rows="2" placeholder="${soc ? "Frag mich alles zu Social Media. Zum Beispiel: Welche Reels liefen diesen Monat am besten? Oder: Schreib mir eine Caption für das grüne Sideboard." : "Was soll ich machen? Zum Beispiel: Rechnung für den Käufer vom grünen Konsolenregal schreiben und senden. Oder: Couchtisch ist verkauft, 180 € bar."}"></textarea><button class="btn primary" data-casend="1">Senden</button></div>
+    <div class="claude-form"><textarea id="ca-text" rows="2" placeholder="${soc ? "Frag mich alles zu Social Media. Zum Beispiel: Welche Reels liefen diesen Monat am besten? Oder: Schreib mir eine Caption für das grüne Sideboard." : "Was soll ich machen? Zum Beispiel: Rechnung für den Käufer vom grünen Konsolenregal schreiben und senden. Oder: Couchtisch ist verkauft, 180 € bar."}">${esc(caEntwurf())}</textarea><button class="btn primary" data-casend="1">Senden</button></div>
     ${alle.length ? `<input id="ca-q" type="search" placeholder="Im Verlauf suchen (${alle.length} Einträge)" style="width:100%;margin:10px 0 4px">
     <div class="claude-list" id="ca-neu">${neu.map(item).join("")}</div>
     ${alt.length ? `<details id="ca-alt"><summary class="btn small" style="margin-top:8px">Ältere anzeigen (${alt.length})</summary><div class="claude-list">${alt.map(item).join("")}</div></details>` : ""}
@@ -971,7 +974,7 @@ function render() {
   const fn = { start: vStart, auftraege: vAuftraege, produkte: vProdukte, moebel: vMoebel, beschichtung: vBeschichtung, auswertung: vAuswertung, finanzen: vFinanzen, steuer: vFinanzen, lager: vLager, planungen: vPlanungen, vorlagen: vVorlagen, katalog: vKatalog, regeln: vRegeln, protokoll: vProtokoll, social: vSocial }[UI.view] || (ROLLE.rolle === "social" ? vSocial : vStart);
   const active = document.activeElement && document.activeElement.id, pos = active && document.activeElement.selectionStart;
   document.getElementById("view").innerHTML = fn();
-  if (active && /^(lf-q|kq|pq|sq|h-.+|ae-.+)$/.test(active) && document.getElementById(active)) { const el = document.getElementById(active); el.focus(); try { el.setSelectionRange(pos, pos); } catch {} }
+  if (active && /^(lf-q|kq|pq|sq|ca-text|h-.+|ae-.+)$/.test(active) && document.getElementById(active)) { const el = document.getElementById(active); el.focus(); try { el.setSelectionRange(pos, pos); } catch {} }
 }
 
 /* ---------- Ereignisse ---------- */
@@ -984,6 +987,7 @@ document.addEventListener("input", e => {
   if (e.target.id === "sq") { UI.sq = e.target.value; render(); }
   if (/^h-/.test(e.target.id || "")) { UI.hand[e.target.id] = e.target.value; store.set(HAND_KEY, JSON.stringify(UI.hand)); }
   if (/^ae-/.test(e.target.id || "")) UI.aform[e.target.id.slice(3)] = e.target.value;
+  if (e.target.id === "ca-text") { UI.caDraft = e.target.value; store.set(CA_KEY, e.target.value); }
   if (e.target.id === "ca-q") {
     const q = e.target.value.trim().toLowerCase(), box = e.target.closest(".claude-box");
     let n = 0;
@@ -1030,12 +1034,13 @@ document.addEventListener("click", async e => {
     UI.flash = error ? "Freigabe ging nicht: " + error.message : null; liveReload();
   }
   else if (b.dataset.casend) {
-    const ta = document.getElementById("ca-text"), t = (ta && ta.value || "").trim();
-    if (!t) return;
+    const ta = document.getElementById("ca-text"), t = ((ta && ta.value) || caEntwurf() || "").trim();
+    if (!t) { UI.flash = "Das Feld ist leer. Bitte Text eingeben."; render(); return; }
     if (!me()) { UI.flash = "Bitte zuerst bei „Ich bin“ auswählen, wer schreibt."; render(); return; }
     b.disabled = true; b.textContent = "wird gesendet…";
     const { error } = await sb.rpc("claude_auftrag_neu", { p_text: t, p_von: me() });
-    UI.flash = error ? "Ging nicht: " + error.message : "Ist bei mir angekommen. Ich melde mich hier mit der Antwort."; liveReload();
+    if (!error) { UI.caDraft = ""; store.set(CA_KEY, ""); }
+    UI.flash = error ? "Ging nicht: " + error.message + " Dein Text ist noch im Feld." : "Ist bei mir angekommen. Ich melde mich hier mit der Antwort."; liveReload();
   }
   else if (b.dataset.abez) {
     if (!me()) { UI.flash = "Bitte zuerst bei „Ich bin“ auswählen, wer die Zahlung bestätigt."; render(); return; }
