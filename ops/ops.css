@@ -543,3 +543,10 @@ details[open] > .ek-kopf { margin-bottom: 10px; }
 #ca-alt[open] .ca-alt-sum .auf { display: inline; }
 #ca-alt[open] > .ca-alt-sum { position: sticky; top: 8px; z-index: 15; box-shadow: 0 2px 10px rgba(0,0,0,.15); background: var(--surface); }
 @media (max-width: 760px) { #ca-alt[open] > .ca-alt-sum { top: 72px; } }
+.recht summary b { font-weight: 600; }
+.recht .recht-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0 6px; }
+.recht .recht-check { grid-column: 1 / -1; display: flex; gap: 8px; align-items: flex-start; font-size: .92em; }
+.recht .ed-f { display: flex; flex-direction: column; gap: 4px; }
+.recht .ed-f span { font-size: .82em; color: var(--muted, #6b7280); }
+.recht select, .recht input[type=text] { width: 100%; }
+@media (max-width: 640px) { .recht .recht-grid { grid-template-columns: 1fr; } }
