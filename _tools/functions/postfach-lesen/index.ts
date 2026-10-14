@@ -132,31 +132,37 @@ Deno.serve(async (req) => {
       lock.release();
     }
   }
-  // PayPal-Zahlungseingänge aus den Benachrichtigungs-Mails („… hat dir 75,00 € EUR gesendet“, Transaktionscode)
-  const zahlungen: string[] = [];
+  // PayPal-Zahlungen aus den Benachrichtigungs-Mails: Eingänge („… hat dir 75,00 € EUR gesendet“) und Ausgänge für Einkäufe („Du hast 150,00 € EUR an … gesendet“), jeweils mit Transaktionscode
+  const zahlungen: string[] = [], uebersprungen: string[] = [];
   for (const box of liste) {
     if (box.flags?.has("\\Noselect") || box.specialUse && /Sent|Drafts/.test(box.specialUse)) continue;
     const lock = await client.getMailboxLock(box.path);
     try {
       const tage = Number(new URL(req.url).searchParams.get("tage") || 2);
-      const uids = await client.search({ since: new Date(Date.now() - tage * 24 * 3600e3), from: "paypal", subject: "Zahlung erhalten" }, { uid: true }) || [];
+      const seit = new Date(Date.now() - tage * 24 * 3600e3);
+      const uids = [...new Set([...(await client.search({ since: seit, from: "paypal", subject: "Zahlung erhalten" }, { uid: true }) || []), ...(await client.search({ since: seit, from: "paypal", subject: "Zahlung gesendet" }, { uid: true }) || [])])];
+      if (uids.length) uebersprungen.push(`${box.path}: ${uids.length} PayPal-Mails`);
       for (const uid of uids) {
         const m = await client.fetchOne(String(uid), { source: true, envelope: true }, { uid: true });
         if (!/@paypal\.(de|com)$/i.test(m?.envelope?.from?.[0]?.address || "")) continue;
         const p = await simpleParser(m.source);
-        const t = (p.text || "").replace(/\r/g, "");
+        const t = (p.text || (p.html ? String(p.html).replace(/<[^>]+>/g, "\n") : "")).replace(/\r/g, "").replace(/[\u00a0\u202f\u2009]/g, " ").replace(/&nbsp;/g, " ");
         const code = (t.match(/Transaktionscode\s*\n?\s*([A-Z0-9]{12,20})/) || [])[1];
+        // Eingang: „X hat dir 75,00 € EUR gesendet“; Ausgang (Einkauf): „Du hast 150,00 € EUR an X gesendet“ bzw. „Sie haben … an X gesendet“
         const g = t.match(/\n\s*(.+?) hat dir ([\d.]+,\d{2}) € EUR gesendet/);
-        if (!code || !g) continue;
-        const betrag = Number(g[2].replace(/\./g, "").replace(",", "."));
+        const a = g ? null : t.match(/(?:Du hast|Sie haben) ([\d.]+,\d{2}) € EUR an (.+?) gesendet/);
+        if (!code || (!g && !a)) { uebersprungen.push(`${p.subject} | code ${code ? "ja" : "nein"} | ${(t.match(/[^\n]*gesendet[^\n]*/) || [""])[0].slice(0, 120)}`); continue; }
+        const betrag = Number((g ? g[2] : a![1]).replace(/\./g, "").replace(",", "."));
+        const partner = (g ? g[1] : a![2]).trim();
         const nachricht = (t.match(/Nachricht[^\n]*\n\s*(.{1,300})/) || [])[1] || null;
-        const { error } = await sb.from("zahlung").insert({ quelle: "paypal", ext_id: code, betrag, richtung: "ein", zeitpunkt: (p.date || new Date()).toISOString(),
-          absender: g[1].trim(), nachricht, status: "neu", roh: { quelle: "mail", betreff: p.subject } });
-        if (!error) zahlungen.push(`${g[1].trim()} ${betrag} €`);
+        const { error } = await sb.from("zahlung").insert({ quelle: "paypal", ext_id: code, betrag, richtung: g ? "ein" : "aus", zeitpunkt: (p.date || new Date()).toISOString(),
+          absender: partner, nachricht, status: "neu", roh: { quelle: "mail", betreff: p.subject } });
+        if (error && !/duplicate/i.test(error.message)) uebersprungen.push(`Fehler ${code}: ${error.message}`);
+        if (!error) zahlungen.push(`${g ? "" : "an "}${partner} ${g ? "" : "− "}${betrag} €`);
       }
     } finally { lock.release(); }
   }
   await client.logout();
   const abgleich = (await sb.rpc("zahlungen_abgleichen")).data;
-  return new Response(JSON.stringify({ neu: neu.length, betreffe: neu, verschoben, zahlungen, abgleich, ordner }), { headers: { ...cors, "content-type": "application/json" } });
+  return new Response(JSON.stringify({ neu: neu.length, betreffe: neu, verschoben, zahlungen, uebersprungen, abgleich, ordner }), { headers: { ...cors, "content-type": "application/json" } });
 });

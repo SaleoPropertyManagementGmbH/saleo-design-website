@@ -550,3 +550,5 @@ details[open] > .ek-kopf { margin-bottom: 10px; }
 .recht .ed-f span { font-size: .82em; color: var(--muted, #6b7280); }
 .recht select, .recht input[type=text] { width: 100%; }
 @media (max-width: 640px) { .recht .recht-grid { grid-template-columns: 1fr; } }
+.aus-zu { display: flex; gap: 6px; margin-top: 6px; }
+.aus-zu input { flex: 1; min-width: 0; }

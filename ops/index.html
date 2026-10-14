@@ -560,7 +560,7 @@ function vAuftraege() {
     ${arbeit.length ? sec("Label in Arbeit", arbeit, "") : ""}
     ${vClaude()}${vHandAuftrag()}
     ${zein.length ? `<section class="card"><div class="card-head"><h2>Eingänge ohne Zuordnung</h2><span class="note">Kurz sagen, wozu sie gehören</span></div><div class="tablewrap"><table><tbody>${zein.map(z => `<tr><td class="wo">${when(z.zeitpunkt)}</td><td>${ZQ[z.quelle] || z.quelle}</td><td><b>${esc(z.absender || "")}</b><div class="wo">${[z.art ? ZART[z.art] : "", z.nachricht || ""].filter(Boolean).map(esc).join(" · ")}</div></td><td class="num"><b>${eur(z.betrag)}</b>${z.gebuehr > 0 ? `<div class="wo">Gebühr ${eur(z.gebuehr)}</div>` : ""}</td></tr>`).join("")}</tbody></table></div></section>` : ""}
-    ${zaus.length ? `<details class="card fold"><summary>Ausgaben ohne Zuordnung <span class="wo">${zaus.length}</span></summary><p class="note">Sag mir, was ihr damit gekauft habt, dann buche ich es als Einkauf ins Lager.</p><div class="tablewrap"><table><tbody>${zaus.map(z => `<tr><td class="wo">${when(z.zeitpunkt)}</td><td>${ZQ[z.quelle] || z.quelle}</td><td class="wo">${esc([z.absender, z.nachricht].filter(Boolean).join(" · "))}</td><td class="num"><b class="neg">− ${eur(z.betrag)}</b></td></tr>`).join("")}</tbody></table></div></details>` : ""}
+    ${zaus.length ? `<details class="card fold" open><summary>Ausgaben ohne Zuordnung <span class="wo">${zaus.length}</span></summary><p class="note">Schreib kurz dazu, was ihr gekauft habt (Teile, Stückzahl, ggf. Benzin). Ich buche es als Einkauf ins Lager und ordne die Zahlung zu.</p><div class="tablewrap"><table><tbody>${zaus.map(z => `<tr><td class="wo">${when(z.zeitpunkt)}</td><td>${ZQ[z.quelle] || z.quelle}</td><td><b>${esc(z.absender || "")}</b>${z.nachricht ? `<div class="wo">${esc(z.nachricht)}</div>` : ""}<div class="aus-zu"><input type="text" data-auszu="${z.id}" placeholder="Was war das? z. B. 4 Tablare 75 × 35 schwarz, 20 € Benzin"><button class="btn small" data-auszusend="${z.id}">Zuordnen</button></div></td><td class="num"><b class="neg">− ${eur(z.betrag)}</b></td></tr>`).join("")}</tbody></table></div></details>` : ""}
     ${vArchiv(archiv)}`;
 }
 
@@ -1145,6 +1145,17 @@ document.addEventListener("click", async e => {
   }
   else if (b.dataset.camic) { diktatUmschalten(); }
   else if (b.dataset.caeinklappen) { const d = document.getElementById("ca-alt"); if (d) { d.open = false; UI.caAltOffen = false; const box = document.querySelector(".claude-box"); if (box) box.scrollIntoView({ block: "start" }); } }
+  else if (b.dataset.auszusend) {
+    const id = b.dataset.auszusend, inp = document.querySelector(`[data-auszu="${id}"]`), t = (inp && inp.value || "").trim();
+    if (!t) { inp && inp.focus(); return; }
+    const z = D.zahl.find(x => x.id === id) || {};
+    const wer = me() || ROLLE.name || "App";
+    const text = `EINKAUF ZUORDNEN: Ausgabe ${eur(z.betrag)} per ${ZQ[z.quelle] || z.quelle} an ${z.absender || "?"} am ${when(z.zeitpunkt)} (zahlung_id ${id}). Das war: ${t}`;
+    b.disabled = true;
+    const { error } = await sb.rpc("claude_auftrag_neu", { p_text: text, p_von: wer });
+    UI.flash = error ? "Ging nicht: " + error.message : "Ist angekommen. Ich buche den Einkauf und ordne die Zahlung zu.";
+    liveReload();
+  }
   else if (b.dataset.aarch || b.dataset.areakt) {
     b.disabled = true;
     const { error } = b.dataset.aarch ? await sb.rpc("auftrag_archivieren", { p_id: b.dataset.aarch, p_wer: me() || null }) : await sb.rpc("auftrag_reaktivieren", { p_id: b.dataset.areakt });
