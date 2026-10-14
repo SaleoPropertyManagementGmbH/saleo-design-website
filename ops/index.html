@@ -390,12 +390,61 @@ function steuerCsv() {
 }
 function vFinanzen() {
   if (UI.view === "steuer") UI.view = "finanzen";
-  const tabs = [["steuer", "Steuer § 25a"]];
+  const tabs = [["steuer", "Steuer § 25a"], ["ausgaben", "Ausgaben"]];
   UI.finTab = UI.finTab || "steuer";
   return head("Finanzen", "Steuer und alles rund ums Geld der Saleo Design UG.") +
     `<div class="chips" role="tablist" style="margin:0 0 14px">${tabs.map(([k, t]) => `<button class="chip" data-fintab="${k}" aria-pressed="${UI.finTab === k}">${t}</button>`).join("")}</div>` +
-    ({ steuer: vSteuer })[UI.finTab]();
+    ({ steuer: vSteuer, ausgaben: vAusgaben })[UI.finTab]();
 }
+const AKAT = { "": "Noch offen", wareneinkauf: "Wareneinkauf (Lager)", betriebsausstattung: "Betriebsausstattung", material: "Material und Verpackung", fahrzeug: "Fahrzeug und Benzin", versand: "Versand", gebuehren: "Gebühren und Abos", sonstiges: "Sonstiges (betrieblich)", privat: "Privat, nicht betrieblich" };
+function zeitraum(k) {
+  if (/^\d{4}-Q\d$/.test(k)) { const [j, q] = k.split("-Q").map(Number); return [new Date(j, (q - 1) * 3, 1), new Date(j, q * 3, 1)]; }
+  if (/^\d{4}-\d{2}$/.test(k)) { const [j, m] = k.split("-").map(Number); return [new Date(j, m - 1, 1), new Date(j, m, 1)]; }
+  const j = Number(k); return [new Date(j, 0, 1), new Date(j + 1, 0, 1)];
+}
+async function loadAusgaben() {
+  UI.agLaden = true;
+  const { data } = await sb.from("zahlung").select("*").eq("richtung", "aus").order("zeitpunkt", { ascending: false });
+  UI.agDaten = data || []; UI.agLaden = false; render();
+}
+function vAusgaben() {
+  if (!UI.agZ) { const h = new Date(); UI.agZ = `${h.getFullYear()}-Q${Math.floor(h.getMonth() / 3) + 1}`; }
+  if (!UI.agDaten && !UI.agLaden) setTimeout(loadAusgaben, 0);
+  const [von, bis] = zeitraum(UI.agZ);
+  const rows = (UI.agDaten || []).filter(z => { const d = new Date(z.zeitpunkt); return d >= von && d < bis; });
+  const kat = z => z.kategorie || (z.einkauf_id ? "wareneinkauf" : "");
+  const summe = k => rows.filter(z => kat(z) === k).reduce((a, z) => a + Number(z.betrag), 0);
+  const wahl = `<select id="ag-z" aria-label="Zeitraum">${stOptionen().map(([k, t]) => `<option value="${k}"${k === UI.agZ ? " selected" : ""}>${esc(t)}</option>`).join("")}</select>`;
+  const offen = rows.filter(z => !kat(z)).length;
+  return `<section class="card"><div class="card-head"><h2>Ausgaben</h2><span class="note">Alles, was rausgeht (PayPal automatisch, Bank und Bar nach Meldung). Mit Kategorie und Buchungstext, damit Maxim nichts mehr zuordnen muss.</span></div>
+    <div class="toolbar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">${wahl}<button class="btn small" data-agcsv="1">Liste für Maxim (CSV)</button>${offen ? `<span class="badge warn">${offen} noch ohne Kategorie</span>` : `<span class="badge ok">alles zugeordnet</span>`}</div>
+    <div class="stats">${Object.keys(AKAT).filter(k => k && summe(k)).map(k => stat(AKAT[k], eur(summe(k)))).join("") || stat("Ausgaben", eur(0))}</div>
+    ${UI.agLaden && !UI.agDaten ? `<p class="wo">Lädt …</p>` : rows.length ? `<div class="tablewrap"><table><thead><tr><th>Datum</th><th>An</th><th class="num">Betrag</th><th>Kategorie</th><th>Buchungstext für Maxim</th></tr></thead><tbody>${rows.map(z => `<tr><td class="wo">${when(z.zeitpunkt)}</td><td><b>${esc(z.absender || "")}</b><div class="wo">${ZQ[z.quelle] || z.quelle}${z.ext_id ? " · " + esc(z.ext_id) : ""}</div></td><td class="num"><b class="neg">− ${eur(z.betrag)}</b></td>
+      <td><select data-agkat="${z.id}">${Object.entries(AKAT).map(([k, t]) => `<option value="${k}"${kat(z) === k ? " selected" : ""}>${t}</option>`).join("")}</select>${z.einkauf_id ? `<div class="wo">mit Einkauf verknüpft</div>` : ""}</td>
+      <td><input type="text" data-agtext="${z.id}" value="${esc(z.buchungstext || "")}" placeholder="z. B. Benzin Abholung Frankfurt" style="width:100%"></td></tr>`).join("")}</tbody></table></div>` : `<p class="empty">Keine Ausgaben in diesem Zeitraum.</p>`}
+  </section>`;
+}
+async function agSpeichern(id, felder) {
+  const z = (UI.agDaten || []).find(x => x.id === id) || {};
+  const { data, error } = await sb.rpc("zahlung_kategorie", { p_id: id, p_kategorie: felder.kategorie ?? (z.kategorie || (z.einkauf_id ? "wareneinkauf" : "")), p_text: felder.text ?? z.buchungstext ?? null, p_wer: me() || null });
+  if (error) { UI.flash = "Ging nicht: " + error.message; render(); return; }
+  Object.assign(z, data || {}); render();
+}
+function agCsv() {
+  const [von, bis] = zeitraum(UI.agZ), n = x => Number(x || 0).toFixed(2).replace(".", ","), q = x => `"${String(x ?? "").replace(/"/g, '""')}"`;
+  const rows = (UI.agDaten || []).filter(z => { const d = new Date(z.zeitpunkt); return d >= von && d < bis; }).slice().sort((x, y) => String(x.zeitpunkt).localeCompare(String(y.zeitpunkt)));
+  const z = [`Ausgaben Saleo Design UG;Zeitraum ${UI.agZ}`, "", "Datum;Empfänger;Betrag;Zahlweg;Transaktion;Kategorie;Buchungstext;Wareneinkauf im Lager gebucht"];
+  rows.forEach(r => z.push([new Date(r.zeitpunkt).toLocaleDateString("de-DE"), q(r.absender), n(r.betrag), ZQ[r.quelle] || r.quelle, q(r.ext_id), q(AKAT[r.kategorie || (r.einkauf_id ? "wareneinkauf" : "")] || "Noch offen"), q(r.buchungstext), r.einkauf_id ? "ja" : ""].join(";")));
+  const blob = new Blob(["﻿" + z.join("\r\n")], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `Ausgaben_${UI.agZ}.csv`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.id === "ag-z") { UI.agZ = t.value; render(); }
+  else if (t.dataset && t.dataset.agkat) agSpeichern(t.dataset.agkat, { kategorie: t.value });
+  else if (t.dataset && t.dataset.agtext) agSpeichern(t.dataset.agtext, { text: t.value });
+});
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-agcsv]"); if (b) agCsv(); });
 function vSteuer() {
   if (!UI.stZ) { const h = new Date(); UI.stZ = `${h.getFullYear()}-Q${Math.floor(h.getMonth() / 3) + 1}`; }
   if (!UI.stLaden && UI.stFuer !== UI.stZ) setTimeout(loadSteuer, 0);
