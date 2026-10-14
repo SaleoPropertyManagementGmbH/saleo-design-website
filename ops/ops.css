@@ -535,3 +535,5 @@ details[open] > .ek-kopf { margin-bottom: 10px; }
 .kopierbox { margin: 8px 0; border: 1px solid var(--line, #ddd); border-radius: 10px; background: var(--card, #fff); padding: 10px; }
 .kopierbox pre { margin: 0 0 8px; white-space: pre-wrap; word-break: break-word; font: inherit; color: var(--fg); }
 .kopierbox .btn { width: 100%; }
+
+.vk-q { font-size: 11px; color: var(--muted, #888); font-weight: 400; }
