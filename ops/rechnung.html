@@ -114,9 +114,11 @@ function render() {
   const st = { entwurf: "Entwurf", gesendet: "gesendet " + (R.gesendet_am ? when(R.gesendet_am) : ""), bezahlt: "bezahlt", storniert: "storniert" }[R.status];
   document.getElementById("actions").innerHTML = `<span class="badge ${R.status === "bezahlt" ? "ok" : R.status === "entwurf" ? "warn" : ""}">${esc(st)}</span>
     ${R.status === "entwurf" ? `<button class="btn" id="bearbeiten">Bearbeiten</button>` : ""}<button class="btn primary" id="send">${R.status === "entwurf" ? "Freigeben und senden" : "Erneut senden"}</button><button class="btn" id="teilen">Teilen</button><button class="btn" id="pdf">PDF</button>`;
+  if (R.status !== "entwurf" && !R.kunde_email && !document.getElementById("msg").innerHTML) document.getElementById("msg").innerHTML = `<div class="banner warn"><span><b>Noch nicht beim Kunden.</b> Die Rechnung ging bisher nur an DATEV, weil keine E-Mail hinterlegt war. E-Mail-Adresse oben bei „An“ eintragen und auf „Erneut senden“ tippen.</span></div>`;
+  if (location.hash === "#an") setTimeout(() => { const f = document.getElementById("an"); if (f) { f.scrollIntoView({ block: "center" }); f.focus(); } }, 300);
   if (R.status === "entwurf" && !document.getElementById("msg").innerHTML) document.getElementById("msg").innerHTML = `<div class="banner info"><span><b>Entwurf.</b> Bitte prüfen. Die Rechnung geht erst raus, wenn ihr auf „Freigeben und senden“ tippt. Ändern geht über „Bearbeiten“.</span></div>`;
   if (E) return zeigeEditor();
-  document.getElementById("empf").innerHTML = R.status === "bezahlt" ? "" : `<label class="empf">An: <input type="email" id="an" value="${esc(R.kunde_email || "")}" placeholder="leer lassen, wenn der Kunde keine Mail möchte" autocomplete="off"></label><span class="note">DATEV bekommt die Rechnung immer, auch ohne Kunden-E-Mail. Kopie geht in euer Postfach.</span>`;
+  document.getElementById("empf").innerHTML = R.status === "bezahlt" && R.kunde_email ? "" : `<label class="empf">An: <input type="email" id="an" value="${esc(R.kunde_email || "")}" placeholder="leer lassen, wenn der Kunde keine Mail möchte" autocomplete="off"></label><span class="note">DATEV bekommt die Rechnung immer, auch ohne Kunden-E-Mail. Kopie geht in euer Postfach.</span>`;
 }
 function pdf() {
   const { jsPDF } = window.jspdf, d = new jsPDF({ unit: "mm", format: "a4" });
@@ -190,8 +192,9 @@ async function senden() {
       body: JSON.stringify({ rechnung_id: R.id, pdf_base64: pdfB64, an, ohne_kunde: !an, wer: me(), betreff: `Ihre Rechnung ${R.nummer} von Saleo Design`, text: mailText() }) });
     const out = await res.json().catch(() => ({}));
     if (!res.ok || !out.ok) throw new Error(out.error || out.message || ("Fehler " + res.status));
+    const warEntwurf = R.status === "entwurf";
     await laden();
-    document.getElementById("msg").innerHTML = `<div class="banner info"><span>${an ? `Rechnung an ${esc(an)} gesendet, Kopie an DATEV und an euer Postfach.` : "Rechnung freigegeben und an DATEV gesendet, Kopie in euer Postfach. Der Kunde bekommt keine Mail."} Sobald das Geld da ist, ordne ich die Zahlung zu.</span></div>`;
+    document.getElementById("msg").innerHTML = `<div class="banner info"><span>${an ? `Rechnung an ${esc(an)} gesendet, Kopie ${warEntwurf ? "an DATEV und " : ""}an euer Postfach.${warEntwurf ? "" : " DATEV hatte sie schon."}` : "Rechnung freigegeben und an DATEV gesendet, Kopie in euer Postfach. Der Kunde bekommt keine Mail."} Sobald das Geld da ist, ordne ich die Zahlung zu.</span></div>`;
   } catch (e) {
     btn.disabled = false; delete btn.dataset.sicher; btn.textContent = "Freigeben und senden";
     document.getElementById("msg").innerHTML = `<div class="banner"><span>Senden hat nicht geklappt: ${esc(e.message)}. Alternativ über „Teilen“ verschicken.</span></div>`;
