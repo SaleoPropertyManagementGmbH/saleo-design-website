@@ -1,8 +1,551 @@
 {
- "stand": "2026-10-12T05:57:08+00:00",
+ "stand": "2026-10-14T05:56:35+00:00",
  "quelle": "https://www.kleinanzeigen.de/pro/saleo-group",
  "sellerId": "151007875",
  "inserate": [
+  {
+   "id": "3435949838",
+   "titel": "USM Haller TV Board Sideboard Lowboard Schwarz",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-tv-board-sideboard-lowboard-schwarz/3435949838-88-4900",
+   "bilder": [
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/68/68a64675-6bb7-434a-ab75-d829ed643935?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/14/145a6f6d-f07e-4d83-af85-342bd70dbc77?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ec/ec7aa5bc-1050-4b5f-ad85-aa9c6dfb32a0?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/5f/5fbe3c3e-b564-4ea9-ad1d-39e79c01db14?rule=$_57.AUTO"
+   ],
+   "preis": 875,
+   "preisTyp": "SPECIFIED_AMOUNT",
+   "vb": false,
+   "erstellt": "2026-10-13T15:06:07.000Z",
+   "status": "ACTIVE",
+   "art": "moebel",
+   "farbe": "30",
+   "zustand": "G",
+   "zustandText": "Sehr Gut",
+   "masse": {
+    "h": 37,
+    "b": 150,
+    "t": 35
+   },
+   "klappen": 2,
+   "auszuege": 0,
+   "innenauszuege": 0,
+   "prospekt": 0,
+   "neupreis": 1350,
+   "beschreibung": "TV Board von USM Haller. Das Board ist in einem guten gebrauchten Zustand Farbe: Schwarz Höhe: 37cm Breite: 150cm Tiefe: 35cm 2x Klappe Neupreis 1350€ Brutto Preis / Sie erhalten...",
+   "gekuerzt": true,
+   "planer": {
+    "fields": [
+     {
+      "id": 1,
+      "x": 0,
+      "y": 0,
+      "w": 750,
+      "h": 350,
+      "front": "KL",
+      "back": "BL",
+      "inside": "",
+      "lock": "U",
+      "gen": "N",
+      "rahmen": false,
+      "openL": false,
+      "openR": false,
+      "col": {}
+     },
+     {
+      "id": 2,
+      "x": 750,
+      "y": 0,
+      "w": 750,
+      "h": 350,
+      "front": "KL",
+      "back": "BL",
+      "inside": "",
+      "lock": "U",
+      "gen": "N",
+      "rahmen": false,
+      "openL": false,
+      "openR": false,
+      "col": {}
+     }
+    ],
+    "depth": 350,
+    "color": "30",
+    "zustand": "G",
+    "base": "FU",
+    "sides": "BL",
+    "top": "BL",
+    "buyNew": {},
+    "price": 875,
+    "rabatt": 0,
+    "ertragsteuer": 30,
+    "neupreis": "1350"
+   },
+   "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
+   "zuerstGesehen": "2026-10-10T18:18:37+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-11",
+     472,
+     68,
+     9
+    ]
+   ],
+   "aufrufe": 472,
+   "gemerkt": 68,
+   "anfragen": 9
+  },
+  {
+   "id": "3435913489",
+   "titel": "USM Haller Highboard Konsole Regal Sideboard Schwarz",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-highboard-konsole-regal-sideboard-schwarz/3435913489-93-4900",
+   "bilder": [
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ef/efcdedc2-4b4d-4203-9a4b-1da15bb6965f?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/77/77c3c083-cf12-47bd-897c-1e7430a186dc?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/c8/c8a264e3-76c5-4e64-916b-72dde133d434?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/92/92119430-c464-4fe0-a392-751c0b58d3be?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/12/12a51761-e6e7-4dd7-8d07-0ea1dee8f1aa?rule=$_57.AUTO"
+   ],
+   "preis": 989,
+   "preisTyp": "SPECIFIED_AMOUNT",
+   "vb": false,
+   "erstellt": "2026-10-13T14:06:09.000Z",
+   "status": "ACTIVE",
+   "art": "moebel",
+   "farbe": "30",
+   "zustand": "G",
+   "zustandText": "Sehr Gut",
+   "masse": {
+    "h": 108,
+    "b": 75,
+    "t": 35
+   },
+   "klappen": 2,
+   "auszuege": 0,
+   "innenauszuege": 0,
+   "prospekt": 0,
+   "neupreis": null,
+   "beschreibung": "Highboard von USM Haller. Das Board ist in guten gebrauchten Zustand. Farbe: Schwarz Höhe: 108cm Breite: 75cm Tiefe: 35cm 2x Klappe Brutto Preis / Sie erhalten eine Rechnung <br...",
+   "gekuerzt": true,
+   "planer": {
+    "fields": [
+     {
+      "id": 1,
+      "x": 0,
+      "y": 0,
+      "w": 750,
+      "h": 350,
+      "front": "KL",
+      "back": "BL",
+      "inside": "",
+      "lock": "U",
+      "gen": "N",
+      "rahmen": false,
+      "openL": false,
+      "openR": false,
+      "col": {}
+     },
+     {
+      "id": 2,
+      "x": 0,
+      "y": 350,
+      "w": 750,
+      "h": 350,
+      "front": "KL",
+      "back": "BL",
+      "inside": "",
+      "lock": "U",
+      "gen": "N",
+      "rahmen": false,
+      "openL": false,
+      "openR": false,
+      "col": {}
+     },
+     {
+      "id": 3,
+      "x": 0,
+      "y": 700,
+      "w": 750,
+      "h": 350,
+      "front": "",
+      "back": "BL",
+      "inside": "",
+      "lock": "U",
+      "gen": "N",
+      "rahmen": false,
+      "openL": false,
+      "openR": false,
+      "col": {}
+     }
+    ],
+    "depth": 350,
+    "color": "30",
+    "zustand": "G",
+    "base": "FU",
+    "sides": "BL",
+    "top": "BL",
+    "buyNew": {},
+    "price": 989,
+    "rabatt": 0,
+    "ertragsteuer": 30,
+    "neupreis": ""
+   },
+   "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
+   "zuerstGesehen": "2026-10-10T18:18:37+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-11",
+     390,
+     38,
+     7
+    ]
+   ],
+   "aufrufe": 390,
+   "gemerkt": 38,
+   "anfragen": 7
+  },
+  {
+   "id": "3248684486",
+   "titel": "USM Haller Couchtisch Beistelltisch Nachttisch Mittelgrau",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-couchtisch-beistelltisch-nachttisch-mittelgrau/3248684486-88-4900",
+   "bilder": [
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/56/568263f1-a03b-4cc7-b1f5-fbec6bef4d6d?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/6a/6a5f0205-2287-4155-870b-1c915046d320?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/95/95d85ca1-17eb-45c2-a385-0ae6f5e659c1?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/80/80db8cc6-99fe-41ac-af63-f7d0bd03e1f6?rule=$_57.AUTO"
+   ],
+   "preis": 229,
+   "preisTyp": "SPECIFIED_AMOUNT",
+   "vb": false,
+   "erstellt": "2026-10-13T14:04:04.000Z",
+   "status": "ACTIVE",
+   "art": "moebel",
+   "farbe": "32",
+   "zustand": "G",
+   "zustandText": "Sehr Gut",
+   "masse": {
+    "h": 40,
+    "b": 35,
+    "t": 35
+   },
+   "klappen": 0,
+   "auszuege": 0,
+   "innenauszuege": 0,
+   "prospekt": 0,
+   "neupreis": null,
+   "beschreibung": "Couchtisch von USM Haller. Der Tisch ist in einem sehr guten Zustand und weist nur minimale Gebrauchsspuren auf. Farbe: Mittelgrau Höhe: 40cm Breite: 35cm Tiefe: 35cm Brutto Preis / Sie erhalten...",
+   "gekuerzt": true,
+   "planer": {
+    "fields": [
+     {
+      "id": 1,
+      "x": 0,
+      "y": 0,
+      "w": 350,
+      "h": 350,
+      "front": "",
+      "back": "",
+      "inside": "",
+      "lock": "U",
+      "gen": "N",
+      "rahmen": false,
+      "openL": false,
+      "openR": false,
+      "col": {}
+     }
+    ],
+    "depth": 350,
+    "color": "32",
+    "zustand": "G",
+    "base": "FU",
+    "sides": "",
+    "top": "BL",
+    "buyNew": {},
+    "price": 229,
+    "rabatt": 0,
+    "ertragsteuer": 30,
+    "neupreis": ""
+   },
+   "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
+   "zuerstGesehen": "2026-10-10T18:18:37+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-11",
+     1325,
+     109,
+     11
+    ]
+   ],
+   "aufrufe": 1325,
+   "gemerkt": 109,
+   "anfragen": 11
+  },
+  {
+   "id": "3436415182",
+   "titel": "USM Haller Tablare Bleche 75x35 750x350 Schwarz 60+ Verfügbar",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-tablare-bleche-75x35-750x350-schwarz-60-verfuegbar/3436415182-93-4900",
+   "bilder": [
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/a1/a17a7d53-c2e3-4af7-b666-f212f9d5ea57?rule=$_57.AUTO"
+   ],
+   "preis": 33,
+   "preisTyp": "SPECIFIED_AMOUNT",
+   "vb": false,
+   "erstellt": "2026-10-13T11:06:42.000Z",
+   "status": "ACTIVE",
+   "art": "teil",
+   "farbe": "30",
+   "zustand": "G",
+   "zustandText": "Gut",
+   "masse": null,
+   "klappen": 0,
+   "auszuege": 0,
+   "innenauszuege": 0,
+   "prospekt": 0,
+   "neupreis": null,
+   "beschreibung": "USM Haller Tablare in Schwarz im Maß 75x35 Gebraucht 60+ 75x35 in schwarz / gebraucht Preis pro Stück Brutto Preis / Sie erhalten eine Rechnung Versand ist für 15€ möglich! <br...",
+   "gekuerzt": true,
+   "planer": null,
+   "hinweis": null,
+   "zuerstGesehen": "2026-10-10T18:18:37+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-11",
+     735,
+     75,
+     13
+    ]
+   ],
+   "aufrufe": 735,
+   "gemerkt": 75,
+   "anfragen": 13
+  },
+  {
+   "id": "3435946492",
+   "titel": "USM Haller Regal Konsole Sideboard Schrank Schwarz",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-regal-konsole-sideboard-schrank-schwarz/3435946492-93-4900",
+   "bilder": [
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/dc/dc0f2fd7-c5ef-41d7-b3f6-ffa668bf550f?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/cc/cce02d1d-a19f-4822-8588-a234ccd92713?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/c9/c9b5b03d-3db6-4711-ac06-c3b0f62e50c8?rule=$_57.AUTO"
+   ],
+   "preis": 849,
+   "preisTyp": "SPECIFIED_AMOUNT",
+   "vb": false,
+   "erstellt": "2026-10-13T10:06:19.000Z",
+   "status": "ACTIVE",
+   "art": "moebel",
+   "farbe": "30",
+   "zustand": "G",
+   "zustandText": "Sehr Gut",
+   "masse": {
+    "h": 78,
+    "b": 75,
+    "t": 35
+   },
+   "klappen": 2,
+   "auszuege": 0,
+   "innenauszuege": 0,
+   "prospekt": 0,
+   "neupreis": null,
+   "beschreibung": "Highboard von USM Haller. Das Board ist in guten gebrauchten Zustand. Farbe: Schwarz Höhe: 78cm Breite: 75cm Tiefe: 35cm 2x Klappe Brutto Preis / Sie erhalten eine Rechnung <br...",
+   "gekuerzt": true,
+   "planer": {
+    "fields": [
+     {
+      "id": 1,
+      "x": 0,
+      "y": 0,
+      "w": 750,
+      "h": 395,
+      "front": "KL",
+      "back": "BL",
+      "inside": "",
+      "lock": "U",
+      "gen": "N",
+      "rahmen": false,
+      "openL": false,
+      "openR": false,
+      "col": {}
+     },
+     {
+      "id": 2,
+      "x": 0,
+      "y": 395,
+      "w": 750,
+      "h": 350,
+      "front": "KL",
+      "back": "BL",
+      "inside": "",
+      "lock": "U",
+      "gen": "N",
+      "rahmen": false,
+      "openL": false,
+      "openR": false,
+      "col": {}
+     }
+    ],
+    "depth": 350,
+    "color": "30",
+    "zustand": "G",
+    "base": "FU",
+    "sides": "BL",
+    "top": "BL",
+    "buyNew": {},
+    "price": 849,
+    "rabatt": 0,
+    "ertragsteuer": 30,
+    "neupreis": ""
+   },
+   "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
+   "zuerstGesehen": "2026-10-10T18:18:37+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-11",
+     236,
+     22,
+     6
+    ]
+   ],
+   "aufrufe": 236,
+   "gemerkt": 22,
+   "anfragen": 6
+  },
+  {
+   "id": "3435919216",
+   "titel": "USM Haller Sideboard Konsole Regal Schrank Schwarz",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-sideboard-konsole-regal-schrank-schwarz/3435919216-93-4900",
+   "bilder": [
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/d0/d072dbbe-d649-4b08-b60c-4e328cf3f172?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/e7/e7f570c7-f647-4701-9b4c-ae8c9670c5ca?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/f7/f7964aa4-e798-48a8-8073-4842123fde54?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/f2/f238e971-8c53-45e5-8ea1-d288fd1dbf8d?rule=$_57.AUTO"
+   ],
+   "preis": 1695,
+   "preisTyp": "SPECIFIED_AMOUNT",
+   "vb": false,
+   "erstellt": "2026-10-13T08:06:04.000Z",
+   "status": "ACTIVE",
+   "art": "moebel",
+   "farbe": "30",
+   "zustand": "G",
+   "zustandText": "Sehr Gut",
+   "masse": {
+    "h": 73,
+    "b": 150,
+    "t": 35
+   },
+   "klappen": 4,
+   "auszuege": 0,
+   "innenauszuege": 0,
+   "prospekt": 0,
+   "neupreis": 2600,
+   "beschreibung": "Sideboard von USM Haller. Das Board ist in guten gebrauchten Zustand. Farbe: Schwarz Höhe: 73cm Breite: 150cm Tiefe: 35cm 4x Klappe Neupreis 2600€ Brutto Preis / Sie erhalten...",
+   "gekuerzt": true,
+   "planer": {
+    "fields": [
+     {
+      "id": 1,
+      "x": 0,
+      "y": 0,
+      "w": 750,
+      "h": 350,
+      "front": "KL",
+      "back": "BL",
+      "inside": "",
+      "lock": "U",
+      "gen": "N",
+      "rahmen": false,
+      "openL": false,
+      "openR": false,
+      "col": {}
+     },
+     {
+      "id": 2,
+      "x": 750,
+      "y": 0,
+      "w": 750,
+      "h": 350,
+      "front": "KL",
+      "back": "BL",
+      "inside": "",
+      "lock": "U",
+      "gen": "N",
+      "rahmen": false,
+      "openL": false,
+      "openR": false,
+      "col": {}
+     },
+     {
+      "id": 3,
+      "x": 0,
+      "y": 350,
+      "w": 750,
+      "h": 350,
+      "front": "KL",
+      "back": "BL",
+      "inside": "",
+      "lock": "U",
+      "gen": "N",
+      "rahmen": false,
+      "openL": false,
+      "openR": false,
+      "col": {}
+     },
+     {
+      "id": 4,
+      "x": 750,
+      "y": 350,
+      "w": 750,
+      "h": 350,
+      "front": "KL",
+      "back": "BL",
+      "inside": "",
+      "lock": "U",
+      "gen": "N",
+      "rahmen": false,
+      "openL": false,
+      "openR": false,
+      "col": {}
+     }
+    ],
+    "depth": 350,
+    "color": "30",
+    "zustand": "G",
+    "base": "FU",
+    "sides": "BL",
+    "top": "BL",
+    "buyNew": {},
+    "price": 1695,
+    "rabatt": 0,
+    "ertragsteuer": 30,
+    "neupreis": "2600"
+   },
+   "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
+   "zuerstGesehen": "2026-10-10T18:18:37+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-11",
+     419,
+     28,
+     5
+    ]
+   ],
+   "aufrufe": 419,
+   "gemerkt": 28,
+   "anfragen": 5
+  },
   {
    "id": "3407534310",
    "titel": "USM Haller Befestigung Set Zwischen Tablar Boden Halterung",
@@ -30,7 +573,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -72,7 +615,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -119,7 +662,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -170,7 +713,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -253,7 +796,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -351,7 +894,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -450,7 +993,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -547,7 +1090,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -646,7 +1189,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -742,7 +1285,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -787,7 +1330,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -884,7 +1427,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -982,7 +1525,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1064,7 +1607,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1163,7 +1706,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1208,7 +1751,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1290,7 +1833,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1389,7 +1932,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1435,7 +1978,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1480,7 +2023,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1597,7 +2140,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1730,7 +2273,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1829,7 +2372,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1876,7 +2419,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1971,7 +2514,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2028,7 +2571,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2189,7 +2732,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2305,7 +2848,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2463,7 +3006,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2480,7 +3023,7 @@
   {
    "id": "3417892468",
    "titel": "USM Haller Regal Konsole Sideboard Schwarz",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-regal-konsole-sideboard-schwarz/3417892468-93-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-regal-konsole-sideboard-schwarz/3417892468-93-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/f4/f48af222-2e6d-4401-b55e-779616938f7d?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/c5/c5d05940-33ed-4c38-a175-d14d366fb91a?rule=$_57.AUTO",
@@ -2489,7 +3032,7 @@
    "preis": 385,
    "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
-   "erstellt": "2026-09-22T09:06:28.000Z",
+   "erstellt": "2026-09-22T09:06:29.000Z",
    "status": "ACTIVE",
    "art": "moebel",
    "farbe": "30",
@@ -2556,7 +3099,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2633,7 +3176,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2674,7 +3217,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2718,7 +3261,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2759,7 +3302,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2801,7 +3344,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2847,7 +3390,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2941,7 +3484,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3069,7 +3612,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3200,7 +3743,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3242,7 +3785,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
+   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3255,549 +3798,6 @@
    "aufrufe": 103,
    "gemerkt": 5,
    "anfragen": 0
-  },
-  {
-   "id": "3435949838",
-   "titel": "USM Haller TV Board Sideboard Lowboard Schwarz",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-tv-board-sideboard-lowboard-schwarz/3435949838-88-4900",
-   "bilder": [
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/68/68a64675-6bb7-434a-ab75-d829ed643935?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/14/145a6f6d-f07e-4d83-af85-342bd70dbc77?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ec/ec7aa5bc-1050-4b5f-ad85-aa9c6dfb32a0?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/5f/5fbe3c3e-b564-4ea9-ad1d-39e79c01db14?rule=$_57.AUTO"
-   ],
-   "preis": 875,
-   "preisTyp": "SPECIFIED_AMOUNT",
-   "vb": false,
-   "erstellt": "2026-09-13T15:06:39.000Z",
-   "status": "ACTIVE",
-   "art": "moebel",
-   "farbe": "30",
-   "zustand": "G",
-   "zustandText": "Sehr Gut",
-   "masse": {
-    "h": 37,
-    "b": 150,
-    "t": 35
-   },
-   "klappen": 2,
-   "auszuege": 0,
-   "innenauszuege": 0,
-   "prospekt": 0,
-   "neupreis": 1350,
-   "beschreibung": "TV Board von USM Haller. Das Board ist in einem guten gebrauchten Zustand Farbe: Schwarz Höhe: 37cm Breite: 150cm Tiefe: 35cm 2x Klappe Neupreis 1350€ Brutto Preis / Sie erhalten...",
-   "gekuerzt": true,
-   "planer": {
-    "fields": [
-     {
-      "id": 1,
-      "x": 0,
-      "y": 0,
-      "w": 750,
-      "h": 350,
-      "front": "KL",
-      "back": "BL",
-      "inside": "",
-      "lock": "U",
-      "gen": "N",
-      "rahmen": false,
-      "openL": false,
-      "openR": false,
-      "col": {}
-     },
-     {
-      "id": 2,
-      "x": 750,
-      "y": 0,
-      "w": 750,
-      "h": 350,
-      "front": "KL",
-      "back": "BL",
-      "inside": "",
-      "lock": "U",
-      "gen": "N",
-      "rahmen": false,
-      "openL": false,
-      "openR": false,
-      "col": {}
-     }
-    ],
-    "depth": 350,
-    "color": "30",
-    "zustand": "G",
-    "base": "FU",
-    "sides": "BL",
-    "top": "BL",
-    "buyNew": {},
-    "price": 875,
-    "rabatt": 0,
-    "ertragsteuer": 30,
-    "neupreis": "1350"
-   },
-   "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
-   "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
-   "aktiv": true,
-   "aufrufeVerlauf": [
-    [
-     "2026-10-11",
-     472,
-     68,
-     9
-    ]
-   ],
-   "aufrufe": 472,
-   "gemerkt": 68,
-   "anfragen": 9
-  },
-  {
-   "id": "3435913489",
-   "titel": "USM Haller Highboard Konsole Regal Sideboard Schwarz",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-highboard-konsole-regal-sideboard-schwarz/3435913489-93-4900",
-   "bilder": [
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ef/efcdedc2-4b4d-4203-9a4b-1da15bb6965f?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/77/77c3c083-cf12-47bd-897c-1e7430a186dc?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/c8/c8a264e3-76c5-4e64-916b-72dde133d434?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/92/92119430-c464-4fe0-a392-751c0b58d3be?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/12/12a51761-e6e7-4dd7-8d07-0ea1dee8f1aa?rule=$_57.AUTO"
-   ],
-   "preis": 989,
-   "preisTyp": "SPECIFIED_AMOUNT",
-   "vb": false,
-   "erstellt": "2026-09-13T14:06:42.000Z",
-   "status": "ACTIVE",
-   "art": "moebel",
-   "farbe": "30",
-   "zustand": "G",
-   "zustandText": "Sehr Gut",
-   "masse": {
-    "h": 108,
-    "b": 75,
-    "t": 35
-   },
-   "klappen": 2,
-   "auszuege": 0,
-   "innenauszuege": 0,
-   "prospekt": 0,
-   "neupreis": null,
-   "beschreibung": "Highboard von USM Haller. Das Board ist in guten gebrauchten Zustand. Farbe: Schwarz Höhe: 108cm Breite: 75cm Tiefe: 35cm 2x Klappe Brutto Preis / Sie erhalten eine Rechnung <br...",
-   "gekuerzt": true,
-   "planer": {
-    "fields": [
-     {
-      "id": 1,
-      "x": 0,
-      "y": 0,
-      "w": 750,
-      "h": 350,
-      "front": "KL",
-      "back": "BL",
-      "inside": "",
-      "lock": "U",
-      "gen": "N",
-      "rahmen": false,
-      "openL": false,
-      "openR": false,
-      "col": {}
-     },
-     {
-      "id": 2,
-      "x": 0,
-      "y": 350,
-      "w": 750,
-      "h": 350,
-      "front": "KL",
-      "back": "BL",
-      "inside": "",
-      "lock": "U",
-      "gen": "N",
-      "rahmen": false,
-      "openL": false,
-      "openR": false,
-      "col": {}
-     },
-     {
-      "id": 3,
-      "x": 0,
-      "y": 700,
-      "w": 750,
-      "h": 350,
-      "front": "",
-      "back": "BL",
-      "inside": "",
-      "lock": "U",
-      "gen": "N",
-      "rahmen": false,
-      "openL": false,
-      "openR": false,
-      "col": {}
-     }
-    ],
-    "depth": 350,
-    "color": "30",
-    "zustand": "G",
-    "base": "FU",
-    "sides": "BL",
-    "top": "BL",
-    "buyNew": {},
-    "price": 989,
-    "rabatt": 0,
-    "ertragsteuer": 30,
-    "neupreis": ""
-   },
-   "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
-   "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
-   "aktiv": true,
-   "aufrufeVerlauf": [
-    [
-     "2026-10-11",
-     390,
-     38,
-     7
-    ]
-   ],
-   "aufrufe": 390,
-   "gemerkt": 38,
-   "anfragen": 7
-  },
-  {
-   "id": "3248684486",
-   "titel": "USM Haller Couchtisch Beistelltisch Nachttisch Mittelgrau",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-couchtisch-beistelltisch-nachttisch-mittelgrau/3248684486-88-4900",
-   "bilder": [
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/56/568263f1-a03b-4cc7-b1f5-fbec6bef4d6d?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/6a/6a5f0205-2287-4155-870b-1c915046d320?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/95/95d85ca1-17eb-45c2-a385-0ae6f5e659c1?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/80/80db8cc6-99fe-41ac-af63-f7d0bd03e1f6?rule=$_57.AUTO"
-   ],
-   "preis": 229,
-   "preisTyp": "SPECIFIED_AMOUNT",
-   "vb": false,
-   "erstellt": "2026-09-13T14:04:20.000Z",
-   "status": "ACTIVE",
-   "art": "moebel",
-   "farbe": "32",
-   "zustand": "G",
-   "zustandText": "Sehr Gut",
-   "masse": {
-    "h": 40,
-    "b": 35,
-    "t": 35
-   },
-   "klappen": 0,
-   "auszuege": 0,
-   "innenauszuege": 0,
-   "prospekt": 0,
-   "neupreis": null,
-   "beschreibung": "Couchtisch von USM Haller. Der Tisch ist in einem sehr guten Zustand und weist nur minimale Gebrauchsspuren auf. Farbe: Mittelgrau Höhe: 40cm Breite: 35cm Tiefe: 35cm Brutto Preis / Sie erhalten...",
-   "gekuerzt": true,
-   "planer": {
-    "fields": [
-     {
-      "id": 1,
-      "x": 0,
-      "y": 0,
-      "w": 350,
-      "h": 350,
-      "front": "",
-      "back": "",
-      "inside": "",
-      "lock": "U",
-      "gen": "N",
-      "rahmen": false,
-      "openL": false,
-      "openR": false,
-      "col": {}
-     }
-    ],
-    "depth": 350,
-    "color": "32",
-    "zustand": "G",
-    "base": "FU",
-    "sides": "",
-    "top": "BL",
-    "buyNew": {},
-    "price": 229,
-    "rabatt": 0,
-    "ertragsteuer": 30,
-    "neupreis": ""
-   },
-   "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
-   "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
-   "aktiv": true,
-   "aufrufeVerlauf": [
-    [
-     "2026-10-11",
-     1325,
-     109,
-     11
-    ]
-   ],
-   "aufrufe": 1325,
-   "gemerkt": 109,
-   "anfragen": 11
-  },
-  {
-   "id": "3436415182",
-   "titel": "USM Haller Tablare Bleche 75x35 750x350 Schwarz 60+ Verfügbar",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-tablare-bleche-75x35-750x350-schwarz-60-verfuegbar/3436415182-93-4900",
-   "bilder": [
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/a1/a17a7d53-c2e3-4af7-b666-f212f9d5ea57?rule=$_57.AUTO"
-   ],
-   "preis": 33,
-   "preisTyp": "SPECIFIED_AMOUNT",
-   "vb": false,
-   "erstellt": "2026-09-13T11:07:18.000Z",
-   "status": "ACTIVE",
-   "art": "teil",
-   "farbe": "30",
-   "zustand": "G",
-   "zustandText": "Gut",
-   "masse": null,
-   "klappen": 0,
-   "auszuege": 0,
-   "innenauszuege": 0,
-   "prospekt": 0,
-   "neupreis": null,
-   "beschreibung": "USM Haller Tablare in Schwarz im Maß 75x35 Gebraucht 60+ 75x35 in schwarz / gebraucht Preis pro Stück Brutto Preis / Sie erhalten eine Rechnung Versand ist für 15€ möglich! <br...",
-   "gekuerzt": true,
-   "planer": null,
-   "hinweis": null,
-   "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
-   "aktiv": true,
-   "aufrufeVerlauf": [
-    [
-     "2026-10-11",
-     735,
-     75,
-     13
-    ]
-   ],
-   "aufrufe": 735,
-   "gemerkt": 75,
-   "anfragen": 13
-  },
-  {
-   "id": "3435946492",
-   "titel": "USM Haller Regal Konsole Sideboard Schrank Schwarz",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-regal-konsole-sideboard-schrank-schwarz/3435946492-93-4900",
-   "bilder": [
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/dc/dc0f2fd7-c5ef-41d7-b3f6-ffa668bf550f?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/cc/cce02d1d-a19f-4822-8588-a234ccd92713?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/c9/c9b5b03d-3db6-4711-ac06-c3b0f62e50c8?rule=$_57.AUTO"
-   ],
-   "preis": 849,
-   "preisTyp": "SPECIFIED_AMOUNT",
-   "vb": false,
-   "erstellt": "2026-09-13T10:06:49.000Z",
-   "status": "ACTIVE",
-   "art": "moebel",
-   "farbe": "30",
-   "zustand": "G",
-   "zustandText": "Sehr Gut",
-   "masse": {
-    "h": 78,
-    "b": 75,
-    "t": 35
-   },
-   "klappen": 2,
-   "auszuege": 0,
-   "innenauszuege": 0,
-   "prospekt": 0,
-   "neupreis": null,
-   "beschreibung": "Highboard von USM Haller. Das Board ist in guten gebrauchten Zustand. Farbe: Schwarz Höhe: 78cm Breite: 75cm Tiefe: 35cm 2x Klappe Brutto Preis / Sie erhalten eine Rechnung <br...",
-   "gekuerzt": true,
-   "planer": {
-    "fields": [
-     {
-      "id": 1,
-      "x": 0,
-      "y": 0,
-      "w": 750,
-      "h": 395,
-      "front": "KL",
-      "back": "BL",
-      "inside": "",
-      "lock": "U",
-      "gen": "N",
-      "rahmen": false,
-      "openL": false,
-      "openR": false,
-      "col": {}
-     },
-     {
-      "id": 2,
-      "x": 0,
-      "y": 395,
-      "w": 750,
-      "h": 350,
-      "front": "KL",
-      "back": "BL",
-      "inside": "",
-      "lock": "U",
-      "gen": "N",
-      "rahmen": false,
-      "openL": false,
-      "openR": false,
-      "col": {}
-     }
-    ],
-    "depth": 350,
-    "color": "30",
-    "zustand": "G",
-    "base": "FU",
-    "sides": "BL",
-    "top": "BL",
-    "buyNew": {},
-    "price": 849,
-    "rabatt": 0,
-    "ertragsteuer": 30,
-    "neupreis": ""
-   },
-   "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
-   "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
-   "aktiv": true,
-   "aufrufeVerlauf": [
-    [
-     "2026-10-11",
-     236,
-     22,
-     6
-    ]
-   ],
-   "aufrufe": 236,
-   "gemerkt": 22,
-   "anfragen": 6
-  },
-  {
-   "id": "3435919216",
-   "titel": "USM Haller Sideboard Konsole Regal Schrank Schwarz",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-sideboard-konsole-regal-schrank-schwarz/3435919216-93-4900",
-   "bilder": [
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/d0/d072dbbe-d649-4b08-b60c-4e328cf3f172?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/e7/e7f570c7-f647-4701-9b4c-ae8c9670c5ca?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/f7/f7964aa4-e798-48a8-8073-4842123fde54?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/f2/f238e971-8c53-45e5-8ea1-d288fd1dbf8d?rule=$_57.AUTO"
-   ],
-   "preis": 1695,
-   "preisTyp": "SPECIFIED_AMOUNT",
-   "vb": false,
-   "erstellt": "2026-09-13T08:06:41.000Z",
-   "status": "ACTIVE",
-   "art": "moebel",
-   "farbe": "30",
-   "zustand": "G",
-   "zustandText": "Sehr Gut",
-   "masse": {
-    "h": 73,
-    "b": 150,
-    "t": 35
-   },
-   "klappen": 4,
-   "auszuege": 0,
-   "innenauszuege": 0,
-   "prospekt": 0,
-   "neupreis": 2600,
-   "beschreibung": "Sideboard von USM Haller. Das Board ist in guten gebrauchten Zustand. Farbe: Schwarz Höhe: 73cm Breite: 150cm Tiefe: 35cm 4x Klappe Neupreis 2600€ Brutto Preis / Sie erhalten...",
-   "gekuerzt": true,
-   "planer": {
-    "fields": [
-     {
-      "id": 1,
-      "x": 0,
-      "y": 0,
-      "w": 750,
-      "h": 350,
-      "front": "KL",
-      "back": "BL",
-      "inside": "",
-      "lock": "U",
-      "gen": "N",
-      "rahmen": false,
-      "openL": false,
-      "openR": false,
-      "col": {}
-     },
-     {
-      "id": 2,
-      "x": 750,
-      "y": 0,
-      "w": 750,
-      "h": 350,
-      "front": "KL",
-      "back": "BL",
-      "inside": "",
-      "lock": "U",
-      "gen": "N",
-      "rahmen": false,
-      "openL": false,
-      "openR": false,
-      "col": {}
-     },
-     {
-      "id": 3,
-      "x": 0,
-      "y": 350,
-      "w": 750,
-      "h": 350,
-      "front": "KL",
-      "back": "BL",
-      "inside": "",
-      "lock": "U",
-      "gen": "N",
-      "rahmen": false,
-      "openL": false,
-      "openR": false,
-      "col": {}
-     },
-     {
-      "id": 4,
-      "x": 750,
-      "y": 350,
-      "w": 750,
-      "h": 350,
-      "front": "KL",
-      "back": "BL",
-      "inside": "",
-      "lock": "U",
-      "gen": "N",
-      "rahmen": false,
-      "openL": false,
-      "openR": false,
-      "col": {}
-     }
-    ],
-    "depth": 350,
-    "color": "30",
-    "zustand": "G",
-    "base": "FU",
-    "sides": "BL",
-    "top": "BL",
-    "buyNew": {},
-    "price": 1695,
-    "rabatt": 0,
-    "ertragsteuer": 30,
-    "neupreis": "2600"
-   },
-   "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
-   "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-12T05:57:08+00:00",
-   "aktiv": true,
-   "aufrufeVerlauf": [
-    [
-     "2026-10-11",
-     419,
-     28,
-     5
-    ]
-   ],
-   "aufrufe": 419,
-   "gemerkt": 28,
-   "anfragen": 5
   }
  ]
 }
