@@ -842,7 +842,8 @@ function diktatUmschalten() {
 const caEntwurf = () => UI.caDraft != null ? UI.caDraft : (UI.caDraft = store.get(CA_KEY) || "");
 function vClaude() {
   const alle = D.claude || [], offen = alle.filter(c => ["offen", "in_arbeit", "rueckfrage"].includes(c.status)).length;
-  const item = c => `<div class="claude-item" data-ctxt="${esc(((c.text || "") + " " + (c.antwort || "") + " " + (c.von || "")).toLowerCase())}"><div class="t"><span class="badge ${(CST[c.status] || [""])[0]}">${(CST[c.status] || ["", c.status])[1]}</span> <b>${esc(c.von || "")}</b> <span class="wo">${when(c.erstellt_am)}</span></div><div>${esc(c.text)}</div>${c.antwort ? `<div class="antwort">${esc(c.antwort)}</div>` : ""}</div>`;
+  const antwortHtml = a => String(a).split(/```[a-z]*\n?/i).map((t, i) => i % 2 ? `<div class="kopierbox"><pre>${esc(t.replace(/\n$/, ""))}</pre><button class="btn ghost" data-kopier="1">Kopieren</button></div>` : esc(t)).join("");
+  const item = c => `<div class="claude-item" data-ctxt="${esc(((c.text || "") + " " + (c.antwort || "") + " " + (c.von || "")).toLowerCase())}"><div class="t"><span class="badge ${(CST[c.status] || [""])[0]}">${(CST[c.status] || ["", c.status])[1]}</span> <b>${esc(c.von || "")}</b> <span class="wo">${when(c.erstellt_am)}</span></div><div>${esc(c.text)}</div>${c.antwort ? `<div class="antwort">${antwortHtml(c.antwort)}</div>` : ""}</div>`;
   const neu = alle.slice(0, 3), alt = alle.slice(3);
   const soc = ROLLE.rolle === "social";
   return `${soc && UI.flash ? `<div class="banner"><span>${esc(UI.flash)}</span></div>` : ""}<section class="card claude-box"><div class="card-head"><h2>${soc ? "Frag Claude" : "An Claude"}</h2><span class="note">${offen ? `${offen} offen · ` : ""}Antwort meist innerhalb von 10 Minuten, rund um die Uhr</span></div>
@@ -1112,6 +1113,11 @@ document.addEventListener("click", async e => {
     UI.flash = error ? "Freigabe ging nicht: " + error.message : null; liveReload();
   }
   else if (b.dataset.camic) { diktatUmschalten(); }
+  else if (b.dataset.kopier) {
+    const t = b.parentElement.querySelector("pre").textContent;
+    try { await navigator.clipboard.writeText(t); } catch (_) { const r = document.createRange(); r.selectNodeContents(b.parentElement.querySelector("pre")); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); document.execCommand("copy"); }
+    b.textContent = "Kopiert ✓"; setTimeout(() => { b.textContent = "Kopieren"; }, 2000);
+  }
   else if (b.dataset.vkneu) {
     const typ = document.getElementById("vk-typ").value, mass = document.getElementById("vk-mass").value.trim().replace(/\s*[×x*]\s*/i, "x"), preis = Number(String(document.getElementById("vk-preis").value).replace(",", "."));
     if (!typ || !(preis >= 0)) { UI.flash = "Bitte Teil und Preis angeben."; render(); return; }

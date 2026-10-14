@@ -531,3 +531,7 @@ details.hand summary::-webkit-details-marker { display: none; }
 details[open] > .ek-kopf { margin-bottom: 10px; }
 
 .vk-in { width: 80px; text-align: right; font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: inherit; }
+
+.kopierbox { margin: 8px 0; border: 1px solid var(--line, #ddd); border-radius: 10px; background: var(--card, #fff); padding: 10px; }
+.kopierbox pre { margin: 0 0 8px; white-space: pre-wrap; word-break: break-word; font: inherit; color: var(--fg); }
+.kopierbox .btn { width: 100%; }
