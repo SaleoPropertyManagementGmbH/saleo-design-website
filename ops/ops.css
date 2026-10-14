@@ -524,3 +524,8 @@ details.hand summary::-webkit-details-marker { display: none; }
 .plan-ab { border-top: 1px solid var(--line); padding: 12px 0; display: grid; gap: 6px; }
 .plan-ab h3 { font-size: 1rem; margin: 0; }
 .plan-ab input, .plan-ab textarea { width: 100%; }
+
+.ek-kopf { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; list-style: none; }
+.ek-kopf::-webkit-details-marker { display: none; }
+.ek-kopf .ek-summe { white-space: nowrap; font-size: 1.05rem; }
+details[open] > .ek-kopf { margin-bottom: 10px; }

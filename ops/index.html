@@ -54,6 +54,7 @@
 
 <script>
 const ICON = {
+  einkaeufe: '<path d="M4 7h16l-1.5 12h-13z"/><path d="M9 7a3 3 0 0 1 6 0"/><path d="M12 11v5M9.5 13.5 12 16l2.5-2.5"/>',
   mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
   x: '<path d="M6 6l12 12M18 6L6 18"/>',
   start: '<path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/>',
@@ -74,7 +75,7 @@ const ICON = {
   mehr: '<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>'
 };
 const svg = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICON[k]}</svg>`;
-const VIEWS = [["start", "Übersicht"], ["auftraege", "Aufträge"], ["produkte", "Produkte"], ["social", "Social Media"], ["moebel", "Fertige Möbel"], ["beschichtung", "Beschichtung"], ["planungen", "Planungen"], ["lager", "Lager"], ["auswertung", "Auswertung"], ["finanzen", "Finanzen"], ["vorlagen", "Vorlagen"], ["katalog", "Teilekatalog"], ["regeln", "USM-Regeln"], ["protokoll", "Protokoll"]];
+const VIEWS = [["start", "Übersicht"], ["auftraege", "Aufträge"], ["produkte", "Produkte"], ["social", "Social Media"], ["moebel", "Fertige Möbel"], ["beschichtung", "Beschichtung"], ["planungen", "Planungen"], ["lager", "Lager"], ["einkaeufe", "Einkäufe"], ["auswertung", "Auswertung"], ["finanzen", "Finanzen"], ["vorlagen", "Vorlagen"], ["katalog", "Teilekatalog"], ["regeln", "USM-Regeln"], ["protokoll", "Protokoll"]];
 const D = { lager: [], typen: [], farben: [], plan: [], vorlagen: [], vpos: [], std: [], regeln: [], bew: [], build: null, ins: [], insStand: null, moebel: [], mteile: [], ausw: [], verk: [], auf: [], zahl: [] };
 let ROLLE = { rolle: "voll", name: "" };
 const HAND_KEY = "sdo_hand_entwurf";
@@ -291,6 +292,8 @@ async function loadAll() {
   const opt = (t, s = "*", m) => fetchAll(t, s, m).catch(() => []);
   const [moebel, mteile, ausw, verk, auf, zahl, verb, besch, beschK, einkaeufe, claude] = await Promise.all([opt("moebel", "*", q => q.order("erstellt_am", { ascending: false })), opt("moebel_teil"), opt("auswertung_kategorie"), opt("marge_je_verkauf", "*", q => q.order("datum", { ascending: false })),
     opt("auftrag_uebersicht", "*", q => q.order("erstellt_am", { ascending: false })), opt("zahlung", "*", q => q.eq("status", "neu").order("zeitpunkt", { ascending: false })), opt("verbindung", "*", q => q.order("reihenfolge")), opt("beschichtung_uebersicht", "*", q => q.order("erstellt_am", { ascending: false })), opt("beschichtung_kandidat"), opt("ka_einkauf", "*", q => q.order("geaendert_am", { ascending: false })), opt("claude_auftrag", "*", q => q.order("erstellt_am", { ascending: false }))]);
+  const [weinkauf, wepos] = await Promise.all([opt("einkauf", "*", q => q.order("datum", { ascending: false })), opt("einkauf_position")]);
+  D.weinkauf = weinkauf; D.wepos = wepos;
   Object.assign(D, { lager, typen, farben, plan, vorlagen, vpos, std, regeln, bew, ins: ins.inserate || [], insStand: ins.stand, moebel, mteile, ausw, verk, auf, zahl, verb, besch, beschK, einkaeufe, claude });
   D.farben.sort((a, b) => (a.sortierung || 0) - (b.sortierung || 0)); D.farben.forEach(f => { if (f.hex) FARBHEX[f.code] = f.hex; });
 }
@@ -972,6 +975,30 @@ const BEW_ART = { einkauf: ["ok", "Einkauf"], verkauf: ["warn", "Verkauf"], inve
 const bewArt = a => { const x = BEW_ART[a] || ["", a ? a[0].toUpperCase() + a.slice(1) : ""]; return `<span class="badge ${x[0]}">${esc(x[1])}</span>`; };
 // Teil im Protokoll mit demselben Etikett wie im Lager (Gruppe, Farbe, Maß, Eigenschaften), Code klein darunter
 const bewTeil = code => { const r = (D.lager || []).find(x => x.code === code); return r ? `${teilEtikett(r)}<div class="code">${esc(code)}</div>` : `<span class="code">${esc(code)}</span>`; };
+// Wareneingang: jeder gebuchte Einkauf mit Teileliste, Stückpreis und Summe
+function vEinkaeufe() {
+  const E = D.weinkauf || [], P = D.wepos || [], q = (UI.eq || "").toLowerCase();
+  const posVon = id => P.filter(p => p.einkauf_id === id).sort((a, b) => Number(b.preis_gesamt) - Number(a.preis_gesamt));
+  const mVon = id => (D.moebel || []).find(m => m.einkauf_id === id);
+  const summe = id => posVon(id).reduce((a, p) => a + Number(p.preis_gesamt || 0), 0);
+  const titel = e => { const m = mVon(e.id); return m ? m.name : String(e.notiz || "").replace(/^Fertigmöbel: /, "").split(" · ")[0] || e.quelle || "Einkauf"; };
+  const liste = E.filter(e => !q || (titel(e) + " " + (e.quelle || "") + " " + (e.notiz || "")).toLowerCase().includes(q));
+  const ges = E.reduce((a, e) => a + summe(e.id), 0);
+  const karte = (e, i) => {
+    const pos = posVon(e.id), m = mVon(e.id), neben = Number(e.kosten_benzin || 0) + Number(e.kosten_fahrzeug || 0) + Number(e.kosten_sonstige || 0), stk = pos.reduce((a, p) => a + p.menge, 0);
+    const rest = String(e.notiz || "").split(" · ").slice(1).join(" · ");
+    return `<section class="card"><details${i === 0 && !q ? " open" : ""}><summary class="ek-kopf"><div class="grow"><div class="t"><b>${esc(titel(e))}</b></div>
+      <div class="wo">${new Date(e.datum).toLocaleDateString("de-DE")} · ${esc(e.quelle || "")} · ${pos.length} Positionen, ${num(stk)} Teile${m ? ` · <a href="planer.html?moebel=${m.id}">Möbel ansehen</a>` : ""}</div></div><b class="ek-summe">${eur(summe(e.id) + neben)}</b></summary>
+      ${rest ? `<p class="note">${esc(rest)}</p>` : ""}
+      <div class="tablewrap"><table><thead><tr><th>Teil</th><th class="num">Menge</th><th class="num">Stückpreis</th>${neben ? `<th class="num">inkl. Nebenkosten</th>` : ""}<th class="num">Gesamt</th></tr></thead><tbody>
+      ${pos.map(p => `<tr><td>${bewTeil(p.teil)}</td><td class="num">${p.menge}</td><td class="num">${eur(Number(p.preis_gesamt) / p.menge)}</td>${neben ? `<td class="num">${eur(p.einstandspreis_stueck)}</td>` : ""}<td class="num">${eur(p.preis_gesamt)}</td></tr>`).join("")}
+      <tr class="grp"><td>Summe</td><td class="num">${num(stk)}</td><td></td>${neben ? `<td class="num">+ ${eur(neben)} Nebenkosten</td>` : ""}<td class="num">${eur(summe(e.id))}</td></tr></tbody></table></div></details></section>`;
+  };
+  return head("Einkäufe", "Jeder Wareneingang mit Teileliste und Stückpreis. Bei Fertigmöbeln ist der Kaufpreis nach den Durchschnittspreisen auf die Teile umgelegt.") +
+    `<div class="stats">${stat("Einkäufe", E.length)}${stat("Summe Einkauf", eur(ges).replace(",00", ""))}</div>
+    <div class="filters" style="margin-bottom:12px"><input type="search" id="eq" value="${esc(UI.eq || "")}" placeholder="Suchen: Möbel, Quelle, Notiz…"></div>
+    ${liste.length ? liste.map(karte).join("") : `<section class="card"><p class="empty">Keine Einkäufe gefunden.</p></section>`}`;
+}
 function vProtokoll() {
   return head("Protokoll", "Jede Inventur, jeder Einkauf und Verkauf mit Bestand und Durchschnittspreis danach.") +
     `<section class="card">${D.bew.length ? `<div class="tablewrap"><table><thead><tr><th>Zeit</th><th>Art</th><th>Teil</th><th class="num">Menge</th><th class="num">Preis/Stk</th><th class="num">Bestand</th><th class="num">Ø danach</th><th>Notiz</th></tr></thead><tbody>
@@ -993,10 +1020,10 @@ function render() {
   document.getElementById("whobox").innerHTML = wb;
   document.getElementById("whobox-m").innerHTML = wb.replace('id="who"', 'id="who-m"');
   document.getElementById("mtitle").textContent = (VIEWS.find(v => v[0] === UI.view) || VIEWS[0])[1];
-  const fn = { start: vStart, auftraege: vAuftraege, produkte: vProdukte, moebel: vMoebel, beschichtung: vBeschichtung, auswertung: vAuswertung, finanzen: vFinanzen, steuer: vFinanzen, lager: vLager, planungen: vPlanungen, vorlagen: vVorlagen, katalog: vKatalog, regeln: vRegeln, protokoll: vProtokoll, social: vSocial }[UI.view] || (ROLLE.rolle === "social" ? vSocial : vStart);
+  const fn = { start: vStart, auftraege: vAuftraege, produkte: vProdukte, moebel: vMoebel, beschichtung: vBeschichtung, auswertung: vAuswertung, finanzen: vFinanzen, steuer: vFinanzen, lager: vLager, planungen: vPlanungen, vorlagen: vVorlagen, katalog: vKatalog, regeln: vRegeln, protokoll: vProtokoll, einkaeufe: vEinkaeufe, social: vSocial }[UI.view] || (ROLLE.rolle === "social" ? vSocial : vStart);
   const active = document.activeElement && document.activeElement.id, pos = active && document.activeElement.selectionStart;
   document.getElementById("view").innerHTML = fn();
-  if (active && /^(lf-q|kq|pq|sq|ca-text|h-.+|ae-.+)$/.test(active) && document.getElementById(active)) { const el = document.getElementById(active); el.focus(); try { el.setSelectionRange(pos, pos); } catch {} }
+  if (active && /^(lf-q|kq|pq|sq|eq|ca-text|h-.+|ae-.+)$/.test(active) && document.getElementById(active)) { const el = document.getElementById(active); el.focus(); try { el.setSelectionRange(pos, pos); } catch {} }
 }
 
 /* ---------- Ereignisse ---------- */
@@ -1007,6 +1034,7 @@ document.addEventListener("input", e => {
   if (e.target.id === "kq") { UI.kq = e.target.value; render(); }
   if (e.target.id === "pq") { UI.p.q = e.target.value; render(); }
   if (e.target.id === "sq") { UI.sq = e.target.value; render(); }
+  if (e.target.id === "eq") { UI.eq = e.target.value; render(); }
   if (/^h-/.test(e.target.id || "")) { UI.hand[e.target.id] = e.target.value; store.set(HAND_KEY, JSON.stringify(UI.hand)); }
   if (/^ae-/.test(e.target.id || "")) UI.aform[e.target.id.slice(3)] = e.target.value;
   if (e.target.id === "ca-text") { UI.caDraft = e.target.value; store.set(CA_KEY, e.target.value); }
