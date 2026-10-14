@@ -361,6 +361,8 @@ function weight(typ, mass) {
 const GLASS = ["GL", "GA", "GT", "ZG"];
 const ALT_HW = ["SCALT", "DG", "SLALT", "KRALT", "SLA", "HM", "KLE", "BSALT", "ASALT", "BWALT", "TWALT"];
 const tablarWeg = p => !!(p.owner && (p.ownerKey === "boden" ? p.owner.noBoden : p.owner.noDeckel));
+// Vorne unten offen: das vordere Rohr unter diesem Fach fehlt (z. B. Sockel zum Saugen), nur das hintere Rohr ist da
+const vorneWeg = p => !!(p.owner && p.ownerKey === "boden" && p.owner.vorneOffen && !state.doppel);
 const seitenTyp = p => (p.owner && (p.leftSide ? p.owner.bpL : p.owner.bpR)) ? "BP" : state.sides;
 function bom(geo) {
   const map = new Map(), d = state.depth;
@@ -380,8 +382,9 @@ function bom(geo) {
   const P = state.doppel ? 3 : 2, M = state.doppel ? 2 : 1;
   const rahmen = geo.hP.length + geo.vP.length;
   add("KU", "", null, geo.nodes.length * P);
-  add("CO", "", null, (rahmen * P + geo.nodes.length * (P - 1)) * 2);
-  geo.hP.forEach(p => add("RO", p.len, null, P));
+  const ohneVorne = geo.hP.filter(vorneWeg).length;
+  add("CO", "", null, (rahmen * P - ohneVorne + geo.nodes.length * (P - 1)) * 2);
+  geo.hP.forEach(p => add("RO", p.len, null, P - (vorneWeg(p) ? 1 : 0), vorneWeg(p) ? "vorne unten offen" : undefined));
   geo.vP.forEach(p => add("RO", p.len, null, P));
   add("RO", d, null, geo.nodes.length * (P - 1));
   const special = new Map();
@@ -629,7 +632,8 @@ function drawing(geo) {
   geo.hP.forEach(p => {
     const glas = deckelGlas(p), tc = tablarColor(p);
     if (!tablarWeg(p)) g += `<rect x="${X(p.x1) + 4}" y="${Y(p.y) - 4.5}" width="${(p.x2 - p.x1) * S - 8}" height="9" fill="${glas ? "#a9d4e2" : colorHex(tc)}" stroke="#00000033" stroke-width=".6"><title>${p.top ? "Deckel" : "Boden"}: ${glas ? "Glas" : colorName(tc)}</title></rect>`;
-    g += `<rect x="${X(p.x1)}" y="${Y(p.y) - 1.6}" width="${(p.x2 - p.x1) * S}" height="3.2" fill="url(#tubeH)" ${TUBES.includes(p.len) ? "" : 'stroke="var(--bad)" stroke-width="1.5"'}/>`;
+    if (vorneWeg(p)) g += `<line x1="${X(p.x1) + 6}" x2="${X(p.x2) - 6}" y1="${Y(p.y)}" y2="${Y(p.y)}" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 3"><title>Vorne unten offen: kein vorderes Rohr</title></line>`;
+    else g += `<rect x="${X(p.x1)}" y="${Y(p.y) - 1.6}" width="${(p.x2 - p.x1) * S}" height="3.2" fill="url(#tubeH)" ${TUBES.includes(p.len) ? "" : 'stroke="var(--bad)" stroke-width="1.5"'}/>`;
   });
   geo.vP.filter(p => p.outer && (p.open || !state.sides)).forEach(p => g += `<line x1="${X(p.x) + (p.leftSide ? 6 : -6)}" x2="${X(p.x) + (p.leftSide ? 6 : -6)}" y1="${Y(p.y2) + 6}" y2="${Y(p.y1) - 6}" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 3"><title>Seite offen</title></line>`);
   geo.vP.forEach(p => g += `<rect x="${X(p.x) - 2.2}" y="${Y(p.y2)}" width="4.4" height="${(p.y2 - p.y1) * S}" fill="url(#tubeV)" ${TUBES.includes(p.len) ? "" : 'stroke="var(--bad)" stroke-width="1.5"'}/>`);
@@ -702,6 +706,7 @@ function renderEditor() {
     <div class="group"><span>Seitenelement</span><div class="chips"><button class="chip" data-flag="bpL" aria-pressed="${list.every(q => q.bpL)}">Links gelocht</button><button class="chip" data-flag="bpR" aria-pressed="${list.every(q => q.bpR)}">Rechts gelocht</button></div></div>
     ${list.every(q => q.w === 750) && state.depth === 500 ? `<div class="group"><span>Schwerlast</span><div class="chips"><button class="chip" data-flag="schwerlast" aria-pressed="${list.every(q => q.schwerlast)}">Boden als Schwerlasttablar</button></div></div>` : ""}
     <div class="group"><span>Tablare</span><div class="chips"><button class="chip" data-flag="noBoden" aria-pressed="${list.every(q => q.noBoden)}">Ohne Boden</button><button class="chip" data-flag="noDeckel" aria-pressed="${list.every(q => q.noDeckel)}">Ohne Deckel</button><button class="chip" data-flag="glasDeckel" aria-pressed="${list.every(q => q.glasDeckel)}">Deckel aus Glas</button></div></div>
+    <div class="group"><span>Rahmen</span><div class="chips"><button class="chip" data-flag="vorneOffen" aria-pressed="${list.every(q => q.vorneOffen)}" title="Vorderes Rohr unten fehlt, z. B. Sockel vorne offen zum Saugen">Vorne unten offen (ohne Vorderrohr)</button></div></div>
     <div class="group"><span>Rückwand</span><div class="chips">${chips(BACKS, "back", "back")}</div></div>
     <div class="group"><span>Einbau</span><div class="chips">${chips(INSIDES, "inside", "inside")}</div></div>`;
   pbox.innerHTML = `<div class="editor"><div class="editor-head"><h3>Farben</h3><span class="note">Standard: ganzes Möbel in der Grundfarbe</span></div>
