@@ -859,7 +859,7 @@ function vClaude() {
     <div class="claude-form"><textarea id="ca-text" rows="2" placeholder="${soc ? "Frag mich alles zu Social Media. Zum Beispiel: Welche Reels liefen diesen Monat am besten? Oder: Schreib mir eine Caption für das grüne Sideboard." : "Was soll ich machen? Zum Beispiel: Rechnung für den Käufer vom grünen Konsolenregal schreiben und senden. Oder: Couchtisch ist verkauft, 180 € bar."}">${esc(caEntwurf())}</textarea><div class="ca-knoepfe">${SPRACHE ? `<button class="btn mic${DIKTAT.an ? " an" : ""}" data-camic="1" aria-pressed="${DIKTAT.an}" title="Sprechen statt tippen">${svg("mic")}<span>${DIKTAT.an ? "Stopp" : "Sprechen"}</span></button>` : ""}<button class="btn primary" data-casend="1">Senden</button></div></div>
     ${alle.length ? `<input id="ca-q" type="search" placeholder="Im Verlauf suchen (${alle.length} Einträge)" style="width:100%;margin:10px 0 4px">
     <div class="claude-list" id="ca-neu">${neu.map(item).join("")}</div>
-    ${alt.length ? `<details id="ca-alt"><summary class="btn small" style="margin-top:8px">Ältere anzeigen (${alt.length})</summary><div class="claude-list">${alt.map(item).join("")}</div></details>` : ""}
+    ${alt.length ? `<details id="ca-alt"${UI.caAltOffen ? " open" : ""}><summary class="btn small ca-alt-sum"><span class="zu">Ältere anzeigen (${alt.length})</span><span class="auf">▲ Verlauf einklappen</span></summary><div class="claude-list">${alt.map(item).join("")}</div><button class="btn small" data-caeinklappen="1" style="margin-top:8px">▲ Verlauf einklappen</button></details>` : ""}
     <p class="note" id="ca-leer" hidden>Nichts gefunden.</p>` : ""}
   </section>`;
 }
@@ -1060,7 +1060,7 @@ function render() {
 }
 
 /* ---------- Ereignisse ---------- */
-document.addEventListener("toggle", e => { if (e.target.classList && e.target.classList.contains("hand")) UI.handOffen = e.target.open; if (e.target.classList && e.target.classList.contains("archiv")) UI.archOffen = e.target.open; }, true);
+document.addEventListener("toggle", e => { if (e.target.classList && e.target.classList.contains("hand")) UI.handOffen = e.target.open; if (e.target.classList && e.target.classList.contains("archiv")) UI.archOffen = e.target.open; if (e.target.id === "ca-alt") { UI.caAltOffen = e.target.open; const box = document.querySelector(".claude-box"); if (!e.target.open && box && box.getBoundingClientRect().top < 0) box.scrollIntoView({ block: "start" }); } }, true);
 window.addEventListener("hashchange", () => { UI.view = location.hash.slice(1) || "start"; UI.sheet = false; render(); window.scrollTo(0, 0); });
 document.addEventListener("input", e => {
   if (e.target.id === "lf-q") { UI.f.q = e.target.value; render(); }
@@ -1125,6 +1125,7 @@ document.addEventListener("click", async e => {
     UI.flash = error ? "Freigabe ging nicht: " + error.message : null; liveReload();
   }
   else if (b.dataset.camic) { diktatUmschalten(); }
+  else if (b.dataset.caeinklappen) { const d = document.getElementById("ca-alt"); if (d) { d.open = false; UI.caAltOffen = false; const box = document.querySelector(".claude-box"); if (box) box.scrollIntoView({ block: "start" }); } }
   else if (b.dataset.aarch || b.dataset.areakt) {
     b.disabled = true;
     const { error } = b.dataset.aarch ? await sb.rpc("auftrag_archivieren", { p_id: b.dataset.aarch, p_wer: me() || null }) : await sb.rpc("auftrag_reaktivieren", { p_id: b.dataset.areakt });
