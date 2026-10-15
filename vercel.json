@@ -3,7 +3,23 @@
     {
       "source": "/rechtliches/(.*)",
       "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "*" }
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    },
+    {
+      "source": "/social/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
       ]
     }
   ]

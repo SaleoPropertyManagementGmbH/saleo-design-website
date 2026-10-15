@@ -2,3 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /ops/
 Sitemap: https://saleo-design.de/sitemap.xml
+
+User-agent: *
+Disallow: /social/
