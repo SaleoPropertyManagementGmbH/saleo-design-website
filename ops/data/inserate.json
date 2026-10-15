@@ -1,23 +1,286 @@
 {
- "stand": "2026-10-14T18:17:46+00:00",
+ "stand": "2026-10-15T05:57:11+00:00",
  "quelle": "https://www.kleinanzeigen.de/pro/saleo-group",
  "sellerId": "151007875",
  "inserate": [
+  {
+   "id": "3437083363",
+   "titel": "USM Haller Konsole Regal Sideboard Flur Grün",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-konsole-regal-sideboard-flur-gruen/3437083363-88-4900",
+   "bilder": [
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/2c/2c273099-bb53-4167-8cf3-d78c6aea9262?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/c0/c0e69cdb-202f-4a37-9cda-ceef434b0580?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/45/45576731-b5b3-4d5f-bbd6-309f401a9542?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/04/04b6ac8c-17cf-451c-add7-ad5a5ca47ce9?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/f0/f0a43064-7d0c-4db4-b9e4-1f24399efcd1?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/d1/d1d05c53-e099-4b43-ae8b-ba857da27149?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/71/717be4cc-20f5-4aac-a4c6-f7b1ebab8bb7?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ae/ae8cdd6b-faae-4e42-b4b9-6eac7b6087ad?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/42/4274b2e3-e1fc-4e66-a321-4be38fc91a17?rule=$_57.AUTO"
+   ],
+   "preis": 925,
+   "preisTyp": "SPECIFIED_AMOUNT",
+   "vb": false,
+   "erstellt": "2026-10-14T18:06:39.000Z",
+   "status": "ACTIVE",
+   "art": "moebel",
+   "farbe": "28",
+   "zustand": "G",
+   "zustandText": "Sehr Gut",
+   "masse": {
+    "h": 88,
+    "b": 125,
+    "t": 35
+   },
+   "klappen": 2,
+   "auszuege": 0,
+   "innenauszuege": 0,
+   "prospekt": 0,
+   "neupreis": null,
+   "beschreibung": "Konsole von USM Haller. Die Konsole ist in einem sehr guten Zustand und weist nur leichte Gebrauchsspuren auf. Farben: Grün Höhe: 88cm ( Auch höher oder niedriger möglich ) Breite: 125cm Tiefe: 35cm 2x Klappe Die dargestellte Variante kann auch auf Wunsch abgeändert werden zu einem Lowboard zum Beispiel. Brutto Preis / Sie erhalten eine Rechnung Optional kann es ausgeliefert werden. Preislich abhängig von der Entfernung. Versand ist nur mit einer Spedition möglich! Senden Sie uns auch gerne Ihre Wunschkonfiguration zu und wir erstellen Ihnen ein individuelles Angebot! Bei Fragen oder Interesse gerne melden!",
+   "gekuerzt": false,
+   "planer": {
+    "fields": [
+     {
+      "id": 1,
+      "x": 0,
+      "y": 0,
+      "w": 750,
+      "h": 500,
+      "front": "",
+      "back": "BL",
+      "inside": "",
+      "lock": "U",
+      "gen": "N",
+      "rahmen": false,
+      "openL": false,
+      "openR": false,
+      "col": {}
+     },
+     {
+      "id": 2,
+      "x": 750,
+      "y": 0,
+      "w": 500,
+      "h": 500,
+      "front": "",
+      "back": "BL",
+      "inside": "",
+      "lock": "U",
+      "gen": "N",
+      "rahmen": false,
+      "openL": false,
+      "openR": false,
+      "col": {}
+     },
+     {
+      "id": 3,
+      "x": 0,
+      "y": 500,
+      "w": 750,
+      "h": 350,
+      "front": "KL",
+      "back": "BL",
+      "inside": "",
+      "lock": "U",
+      "gen": "N",
+      "rahmen": false,
+      "openL": false,
+      "openR": false,
+      "col": {}
+     },
+     {
+      "id": 4,
+      "x": 750,
+      "y": 500,
+      "w": 500,
+      "h": 350,
+      "front": "KL",
+      "back": "BL",
+      "inside": "",
+      "lock": "U",
+      "gen": "N",
+      "rahmen": false,
+      "openL": false,
+      "openR": false,
+      "col": {}
+     }
+    ],
+    "depth": 350,
+    "color": "28",
+    "zustand": "G",
+    "base": "FU",
+    "sides": "BL",
+    "top": "BL",
+    "buyNew": {},
+    "price": 925,
+    "rabatt": 0,
+    "ertragsteuer": 30,
+    "neupreis": ""
+   },
+   "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
+   "zuerstGesehen": "2026-10-10T18:18:37+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-11",
+     582,
+     35,
+     0
+    ]
+   ],
+   "aufrufe": 582,
+   "gemerkt": 35,
+   "anfragen": 0
+  },
+  {
+   "id": "3540872897",
+   "titel": "USM Haller Nachttisch Beistelltisch Dekotisch Gelb",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-nachttisch-beistelltisch-dekotisch-gelb/3540872897-81-4904",
+   "bilder": [
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/00/00ff42ec-3fec-4dbd-8417-13a467ccf0db?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/90/907b7d7f-c809-4060-a1b2-365e1c4d692a?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/64/641cbab6-b385-4db4-b784-b63004f01c6f?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/35/358900d0-ed6b-47ea-9450-3c1249cacd3b?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/a2/a2657262-f333-4dad-83a8-ea89a0e70f46?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/48/48a14086-675b-48e7-a917-d09c7c720708?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/74/743f7f95-52ee-4cab-8050-4374419c2000?rule=$_57.AUTO"
+   ],
+   "preis": 549,
+   "preisTyp": "SPECIFIED_AMOUNT",
+   "vb": false,
+   "erstellt": "2026-10-14T14:16:37.000Z",
+   "status": "ACTIVE",
+   "art": "moebel",
+   "farbe": "25",
+   "zustand": "G",
+   "zustandText": "",
+   "masse": {
+    "h": 62,
+    "b": 50,
+    "t": 35
+   },
+   "klappen": 1,
+   "auszuege": 0,
+   "innenauszuege": 0,
+   "prospekt": 0,
+   "neupreis": null,
+   "beschreibung": "Nachttisch von USM Haller.\n\nDer Tisch ist in einem sehr guten gebrauchten Zustand.\n\nFarbe: Gelb ( Goldgelb )\nHöhe: 62cm\nBreite: 50cm\nTiefe: 35cm\n1x Klappe\n\n\nBrutto Preis / Sie erhalten eine Rechnung\n\n\nOptional kann es ausgeliefert werden. Preislich abhängig von der Entfernung.\n\n\nVersand ist nur mit einer Spedition möglich!\n\nSenden Sie uns auch gerne Ihre Wunschkonfiguration zu und wir erstellen Ihnen ein individuelles Angebot!\n\n\nBei Fragen oder Interesse gerne melden!",
+   "gekuerzt": false,
+   "planer": {
+    "fields": [
+     {
+      "id": 1,
+      "x": 0,
+      "y": 0,
+      "w": 500,
+      "h": 350,
+      "front": "KL",
+      "back": "BL",
+      "inside": "",
+      "lock": "U",
+      "gen": "N",
+      "rahmen": false,
+      "openL": false,
+      "openR": false,
+      "col": {}
+     },
+     {
+      "id": 2,
+      "x": 0,
+      "y": 350,
+      "w": 500,
+      "h": 250,
+      "front": "",
+      "back": "BL",
+      "inside": "",
+      "lock": "U",
+      "gen": "N",
+      "rahmen": false,
+      "openL": false,
+      "openR": false,
+      "col": {}
+     }
+    ],
+    "depth": 350,
+    "color": "25",
+    "zustand": "G",
+    "base": "FU",
+    "sides": "BL",
+    "top": "BL",
+    "buyNew": {},
+    "price": 549,
+    "rabatt": 0,
+    "ertragsteuer": 30,
+    "neupreis": ""
+   },
+   "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
+   "zuerstGesehen": "2026-10-14T18:17:46+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null,
+   "gemerkt": null,
+   "anfragen": null
+  },
+  {
+   "id": "3512907743",
+   "titel": "USM Haller Prospekt Klappen Tablar Zeitschriften 3x Schwarz",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-prospekt-klappen-tablar-zeitschriften-3x-schwarz/3512907743-93-4900",
+   "bilder": [
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/b8/b8ed79de-8ebd-474b-815f-8832bcd99e0f?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/cd/cd095e72-6339-483b-aa09-299b23056ca9?rule=$_57.AUTO"
+   ],
+   "preis": 45,
+   "preisTyp": "SPECIFIED_AMOUNT",
+   "vb": false,
+   "erstellt": "2026-10-14T13:08:37.000Z",
+   "status": "ACTIVE",
+   "art": "teil",
+   "farbe": "30",
+   "zustand": "G",
+   "zustandText": "Gut",
+   "masse": null,
+   "klappen": 0,
+   "auszuege": 0,
+   "innenauszuege": 0,
+   "prospekt": 0,
+   "neupreis": null,
+   "beschreibung": "Der Halter ist gebraucht und befindet sich insgesamt in einem guten gebrauchten Zustand. Es sind leichte Gebrauchsspuren vorhanden, die dem Alter und der Nutzung entsprechen. Bitte beachten Sie hierzu die Fotos. Der Zeitschriftenhalter...",
+   "gekuerzt": true,
+   "planer": null,
+   "hinweis": null,
+   "zuerstGesehen": "2026-10-10T18:18:37+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-11",
+     103,
+     5,
+     0
+    ]
+   ],
+   "aufrufe": 103,
+   "gemerkt": 5,
+   "anfragen": 0
+  },
   {
    "id": "3540698365",
    "titel": "USM Haller Sideboard Kommode Konsole Regal Anthrazit",
    "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-sideboard-kommode-konsole-regal-anthrazit/3540698365-93-4904",
    "bilder": [
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/aa/aaba8d3d-382d-4207-bc1f-d9c551d10e62?rule=$_59.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/a8/a8d4c9fa-11c1-4698-84fc-6fa9510f220c?rule=$_59.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ae/ae39e45f-f67c-4a21-b243-61afddc135e1?rule=$_59.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/12/12963b61-4583-492f-ad7a-aa430e72ea9a?rule=$_59.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/bb/bb5ccf18-e8d0-4aff-bd37-cc8403be175b?rule=$_59.AUTO"
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/aa/aaba8d3d-382d-4207-bc1f-d9c551d10e62?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/a8/a8d4c9fa-11c1-4698-84fc-6fa9510f220c?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ae/ae39e45f-f67c-4a21-b243-61afddc135e1?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/12/12963b61-4583-492f-ad7a-aa430e72ea9a?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/bb/bb5ccf18-e8d0-4aff-bd37-cc8403be175b?rule=$_57.AUTO"
    ],
    "preis": 1899,
-   "preisTyp": "FIXED",
+   "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
-   "erstellt": "2026-10-14T11:28:00.000Z",
+   "erstellt": "2026-10-14T11:28:17.000Z",
    "status": "ACTIVE",
    "art": "moebel",
    "farbe": "33",
@@ -148,97 +411,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-14T18:17:46+00:00",
-   "zuletztGesehen": "2026-10-14T18:17:46+00:00",
-   "aktiv": true,
-   "aufrufeVerlauf": [],
-   "aufrufe": null,
-   "gemerkt": null,
-   "anfragen": null
-  },
-  {
-   "id": "3540872897",
-   "titel": "USM Haller Nachttisch Beistelltisch Dekotisch Gelb",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-nachttisch-beistelltisch-dekotisch-gelb/3540872897-81-4904",
-   "bilder": [
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/00/00ff42ec-3fec-4dbd-8417-13a467ccf0db?rule=$_59.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/90/907b7d7f-c809-4060-a1b2-365e1c4d692a?rule=$_59.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/64/641cbab6-b385-4db4-b784-b63004f01c6f?rule=$_59.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/35/358900d0-ed6b-47ea-9450-3c1249cacd3b?rule=$_59.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/a2/a2657262-f333-4dad-83a8-ea89a0e70f46?rule=$_59.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/48/48a14086-675b-48e7-a917-d09c7c720708?rule=$_59.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/74/743f7f95-52ee-4cab-8050-4374419c2000?rule=$_59.AUTO"
-   ],
-   "preis": 549,
-   "preisTyp": "FIXED",
-   "vb": false,
-   "erstellt": "2026-10-14T14:16:00.000Z",
-   "status": "ACTIVE",
-   "art": "moebel",
-   "farbe": "25",
-   "zustand": "G",
-   "zustandText": "",
-   "masse": {
-    "h": 62,
-    "b": 50,
-    "t": 35
-   },
-   "klappen": 1,
-   "auszuege": 0,
-   "innenauszuege": 0,
-   "prospekt": 0,
-   "neupreis": null,
-   "beschreibung": "Nachttisch von USM Haller.\n\nDer Tisch ist in einem sehr guten gebrauchten Zustand.\n\nFarbe: Gelb ( Goldgelb )\nHöhe: 62cm\nBreite: 50cm\nTiefe: 35cm\n1x Klappe\n\n\nBrutto Preis / Sie erhalten eine Rechnung\n\n\nOptional kann es ausgeliefert werden. Preislich abhängig von der Entfernung.\n\n\nVersand ist nur mit einer Spedition möglich!\n\nSenden Sie uns auch gerne Ihre Wunschkonfiguration zu und wir erstellen Ihnen ein individuelles Angebot!\n\n\nBei Fragen oder Interesse gerne melden!",
-   "gekuerzt": false,
-   "planer": {
-    "fields": [
-     {
-      "id": 1,
-      "x": 0,
-      "y": 0,
-      "w": 500,
-      "h": 350,
-      "front": "KL",
-      "back": "BL",
-      "inside": "",
-      "lock": "U",
-      "gen": "N",
-      "rahmen": false,
-      "openL": false,
-      "openR": false,
-      "col": {}
-     },
-     {
-      "id": 2,
-      "x": 0,
-      "y": 350,
-      "w": 500,
-      "h": 250,
-      "front": "",
-      "back": "BL",
-      "inside": "",
-      "lock": "U",
-      "gen": "N",
-      "rahmen": false,
-      "openL": false,
-      "openR": false,
-      "col": {}
-     }
-    ],
-    "depth": 350,
-    "color": "25",
-    "zustand": "G",
-    "base": "FU",
-    "sides": "BL",
-    "top": "BL",
-    "buyNew": {},
-    "price": 549,
-    "rabatt": 0,
-    "ertragsteuer": 30,
-    "neupreis": ""
-   },
-   "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
-   "zuerstGesehen": "2026-10-14T18:17:46+00:00",
-   "zuletztGesehen": "2026-10-14T18:17:46+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [],
    "aufrufe": null,
@@ -258,7 +431,7 @@
    "preis": 875,
    "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
-   "erstellt": "2026-10-13T15:06:07.000Z",
+   "erstellt": "2026-10-13T15:06:08.000Z",
    "status": "ACTIVE",
    "art": "moebel",
    "farbe": "30",
@@ -325,7 +498,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -436,7 +609,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -514,7 +687,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -555,7 +728,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -581,7 +754,7 @@
    "preis": 849,
    "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
-   "erstellt": "2026-10-13T10:06:19.000Z",
+   "erstellt": "2026-10-13T10:06:20.000Z",
    "status": "ACTIVE",
    "art": "moebel",
    "farbe": "30",
@@ -648,7 +821,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -675,7 +848,7 @@
    "preis": 1695,
    "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
-   "erstellt": "2026-10-13T08:06:04.000Z",
+   "erstellt": "2026-10-13T08:06:05.000Z",
    "status": "ACTIVE",
    "art": "moebel",
    "farbe": "30",
@@ -774,7 +947,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -815,7 +988,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -857,7 +1030,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -887,7 +1060,7 @@
    "preis": 5,
    "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
-   "erstellt": "2026-10-09T16:05:44.000Z",
+   "erstellt": "2026-10-09T16:05:45.000Z",
    "status": "ACTIVE",
    "art": "teil",
    "farbe": "30",
@@ -904,7 +1077,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -934,7 +1107,7 @@
    "preis": 289,
    "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
-   "erstellt": "2026-10-09T16:05:44.000Z",
+   "erstellt": "2026-10-09T16:05:45.000Z",
    "status": "ACTIVE",
    "art": "tisch",
    "farbe": "30",
@@ -955,7 +1128,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -987,7 +1160,7 @@
    "preis": 180,
    "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
-   "erstellt": "2026-10-07T14:07:07.000Z",
+   "erstellt": "2026-10-07T14:07:08.000Z",
    "status": "ACTIVE",
    "art": "moebel",
    "farbe": "32",
@@ -1038,7 +1211,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1069,7 +1242,7 @@
    "preis": 549,
    "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
-   "erstellt": "2026-10-06T17:07:19.000Z",
+   "erstellt": "2026-10-06T17:07:20.000Z",
    "status": "ACTIVE",
    "art": "moebel",
    "farbe": "30",
@@ -1136,7 +1309,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1168,7 +1341,7 @@
    "preis": 895,
    "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
-   "erstellt": "2026-10-06T17:07:19.000Z",
+   "erstellt": "2026-10-06T17:07:20.000Z",
    "status": "ACTIVE",
    "art": "moebel",
    "farbe": "30",
@@ -1235,7 +1408,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1332,7 +1505,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1431,7 +1604,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1527,7 +1700,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1572,7 +1745,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1602,7 +1775,7 @@
    "preis": 525,
    "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
-   "erstellt": "2026-10-05T13:41:50.000Z",
+   "erstellt": "2026-10-05T13:41:51.000Z",
    "status": "ACTIVE",
    "art": "moebel",
    "farbe": "28",
@@ -1669,7 +1842,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1700,7 +1873,7 @@
    "preis": 595,
    "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
-   "erstellt": "2026-10-05T13:35:39.000Z",
+   "erstellt": "2026-10-05T13:35:40.000Z",
    "status": "ACTIVE",
    "art": "moebel",
    "farbe": "30",
@@ -1767,7 +1940,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1849,7 +2022,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1948,7 +2121,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1976,7 +2149,7 @@
    "preis": 14,
    "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
-   "erstellt": "2026-10-04T10:05:37.000Z",
+   "erstellt": "2026-10-04T10:05:38.000Z",
    "status": "ACTIVE",
    "art": "teil",
    "farbe": null,
@@ -1993,7 +2166,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2075,7 +2248,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2174,7 +2347,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2220,7 +2393,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2248,7 +2421,7 @@
    "preis": 25,
    "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
-   "erstellt": "2026-10-01T10:51:01.000Z",
+   "erstellt": "2026-10-01T10:51:02.000Z",
    "status": "ACTIVE",
    "art": "teil",
    "farbe": null,
@@ -2265,7 +2438,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2299,7 +2472,7 @@
    "preis": 1590,
    "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
-   "erstellt": "2026-10-01T10:48:08.000Z",
+   "erstellt": "2026-10-01T10:48:09.000Z",
    "status": "ACTIVE",
    "art": "moebel",
    "farbe": "28",
@@ -2382,7 +2555,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2416,7 +2589,7 @@
    "preis": 1290,
    "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
-   "erstellt": "2026-10-01T10:39:19.000Z",
+   "erstellt": "2026-10-01T10:39:20.000Z",
    "status": "ACTIVE",
    "art": "moebel",
    "farbe": "30",
@@ -2515,7 +2688,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2547,7 +2720,7 @@
    "preis": 549,
    "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
-   "erstellt": "2026-09-29T14:05:48.000Z",
+   "erstellt": "2026-09-29T14:05:49.000Z",
    "status": "ACTIVE",
    "art": "moebel",
    "farbe": "30",
@@ -2614,7 +2787,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2644,7 +2817,7 @@
    "preis": 189,
    "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
-   "erstellt": "2026-09-28T15:04:01.000Z",
+   "erstellt": "2026-09-28T15:04:02.000Z",
    "status": "ACTIVE",
    "art": "tisch",
    "farbe": "33",
@@ -2661,7 +2834,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2689,7 +2862,7 @@
    "preis": 575,
    "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
-   "erstellt": "2026-09-26T18:06:50.000Z",
+   "erstellt": "2026-09-26T18:06:51.000Z",
    "status": "ACTIVE",
    "art": "moebel",
    "farbe": "30",
@@ -2756,7 +2929,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2813,7 +2986,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2974,7 +3147,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3090,7 +3263,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3117,7 +3290,7 @@
    "preis": 2290,
    "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
-   "erstellt": "2026-09-22T17:07:15.000Z",
+   "erstellt": "2026-09-22T17:07:16.000Z",
    "status": "ACTIVE",
    "art": "moebel",
    "farbe": "30",
@@ -3248,7 +3421,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3341,7 +3514,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3418,7 +3591,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3442,7 +3615,7 @@
    "preis": null,
    "preisTyp": "PLEASE_CONTACT",
    "vb": false,
-   "erstellt": "2026-09-18T15:05:39.000Z",
+   "erstellt": "2026-09-18T15:05:40.000Z",
    "status": "ACTIVE",
    "art": "teil",
    "farbe": null,
@@ -3459,7 +3632,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3503,7 +3676,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3544,7 +3717,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3586,7 +3759,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3632,7 +3805,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3726,7 +3899,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3854,7 +4027,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
+   "zuletztGesehen": "2026-10-15T05:57:11+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3865,179 +4038,6 @@
     ]
    ],
    "aufrufe": 180,
-   "gemerkt": 5,
-   "anfragen": 0
-  },
-  {
-   "id": "3437083363",
-   "titel": "USM Haller Konsole Regal Sideboard Flur Grün",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-konsole-regal-sideboard-flur-gruen/3437083363-88-4900",
-   "bilder": [
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/2c/2c273099-bb53-4167-8cf3-d78c6aea9262?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/c0/c0e69cdb-202f-4a37-9cda-ceef434b0580?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/45/45576731-b5b3-4d5f-bbd6-309f401a9542?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/04/04b6ac8c-17cf-451c-add7-ad5a5ca47ce9?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/f0/f0a43064-7d0c-4db4-b9e4-1f24399efcd1?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/d1/d1d05c53-e099-4b43-ae8b-ba857da27149?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/71/717be4cc-20f5-4aac-a4c6-f7b1ebab8bb7?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ae/ae8cdd6b-faae-4e42-b4b9-6eac7b6087ad?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/42/4274b2e3-e1fc-4e66-a321-4be38fc91a17?rule=$_57.AUTO"
-   ],
-   "preis": 925,
-   "preisTyp": "SPECIFIED_AMOUNT",
-   "vb": false,
-   "erstellt": "2026-09-14T18:07:24.000Z",
-   "status": "ACTIVE",
-   "art": "moebel",
-   "farbe": "28",
-   "zustand": "G",
-   "zustandText": "Sehr Gut",
-   "masse": {
-    "h": 88,
-    "b": 125,
-    "t": 35
-   },
-   "klappen": 2,
-   "auszuege": 0,
-   "innenauszuege": 0,
-   "prospekt": 0,
-   "neupreis": null,
-   "beschreibung": "Konsole von USM Haller. Die Konsole ist in einem sehr guten Zustand und weist nur leichte Gebrauchsspuren auf. Farben: Grün Höhe: 88cm ( Auch höher oder niedriger möglich ) Breite: 125cm Tiefe: 35cm 2x Klappe Die dargestellte Variante kann auch auf Wunsch abgeändert werden zu einem Lowboard zum Beispiel. Brutto Preis / Sie erhalten eine Rechnung Optional kann es ausgeliefert werden. Preislich abhängig von der Entfernung. Versand ist nur mit einer Spedition möglich! Senden Sie uns auch gerne Ihre Wunschkonfiguration zu und wir erstellen Ihnen ein individuelles Angebot! Bei Fragen oder Interesse gerne melden!",
-   "gekuerzt": false,
-   "planer": {
-    "fields": [
-     {
-      "id": 1,
-      "x": 0,
-      "y": 0,
-      "w": 750,
-      "h": 500,
-      "front": "",
-      "back": "BL",
-      "inside": "",
-      "lock": "U",
-      "gen": "N",
-      "rahmen": false,
-      "openL": false,
-      "openR": false,
-      "col": {}
-     },
-     {
-      "id": 2,
-      "x": 750,
-      "y": 0,
-      "w": 500,
-      "h": 500,
-      "front": "",
-      "back": "BL",
-      "inside": "",
-      "lock": "U",
-      "gen": "N",
-      "rahmen": false,
-      "openL": false,
-      "openR": false,
-      "col": {}
-     },
-     {
-      "id": 3,
-      "x": 0,
-      "y": 500,
-      "w": 750,
-      "h": 350,
-      "front": "KL",
-      "back": "BL",
-      "inside": "",
-      "lock": "U",
-      "gen": "N",
-      "rahmen": false,
-      "openL": false,
-      "openR": false,
-      "col": {}
-     },
-     {
-      "id": 4,
-      "x": 750,
-      "y": 500,
-      "w": 500,
-      "h": 350,
-      "front": "KL",
-      "back": "BL",
-      "inside": "",
-      "lock": "U",
-      "gen": "N",
-      "rahmen": false,
-      "openL": false,
-      "openR": false,
-      "col": {}
-     }
-    ],
-    "depth": 350,
-    "color": "28",
-    "zustand": "G",
-    "base": "FU",
-    "sides": "BL",
-    "top": "BL",
-    "buyNew": {},
-    "price": 925,
-    "rabatt": 0,
-    "ertragsteuer": 30,
-    "neupreis": ""
-   },
-   "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
-   "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
-   "aktiv": true,
-   "aufrufeVerlauf": [
-    [
-     "2026-10-11",
-     582,
-     35,
-     0
-    ]
-   ],
-   "aufrufe": 582,
-   "gemerkt": 35,
-   "anfragen": 0
-  },
-  {
-   "id": "3512907743",
-   "titel": "USM Haller Prospekt Klappen Tablar Zeitschriften 3x Schwarz",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-prospekt-klappen-tablar-zeitschriften-3x-schwarz/3512907743-93-4900",
-   "bilder": [
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/b8/b8ed79de-8ebd-474b-815f-8832bcd99e0f?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/cd/cd095e72-6339-483b-aa09-299b23056ca9?rule=$_57.AUTO"
-   ],
-   "preis": 45,
-   "preisTyp": "SPECIFIED_AMOUNT",
-   "vb": false,
-   "erstellt": "2026-09-14T15:27:09.000Z",
-   "status": "ACTIVE",
-   "art": "teil",
-   "farbe": "30",
-   "zustand": "G",
-   "zustandText": "Gut",
-   "masse": null,
-   "klappen": 0,
-   "auszuege": 0,
-   "innenauszuege": 0,
-   "prospekt": 0,
-   "neupreis": null,
-   "beschreibung": "Der Halter ist gebraucht und befindet sich insgesamt in einem guten gebrauchten Zustand. Es sind leichte Gebrauchsspuren vorhanden, die dem Alter und der Nutzung entsprechen. Bitte beachten Sie hierzu die Fotos. Der Zeitschriftenhalter...",
-   "gekuerzt": true,
-   "planer": null,
-   "hinweis": null,
-   "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-14T05:56:35+00:00",
-   "aktiv": true,
-   "aufrufeVerlauf": [
-    [
-     "2026-10-11",
-     103,
-     5,
-     0
-    ]
-   ],
-   "aufrufe": 103,
    "gemerkt": 5,
    "anfragen": 0
   }
