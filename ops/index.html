@@ -171,14 +171,24 @@ async function loadSocial() {
     fetch("data/inserate.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : { inserate: [] }).catch(() => ({ inserate: [] })),
     sb.rpc("social_funnel", { p_von: von, p_bis: bis }).then(r => r.data || {}, () => ({}))]);
   Object.assign(SOC, { plan, ins: (ins.inserate || []), insStand: ins.stand, sellerId: ins.sellerId, funnel, funnelZeit: UI.szeit || 30 });
-  const [konten, tage, beitraege, ideen] = await Promise.all([opt("social_konto", q => q.order("plattform")), opt("social_tag", q => q.gte("datum", new Date(Date.now() - 120 * 864e5).toISOString().slice(0, 10)).order("datum")),
-    opt("social_beitrag", q => q.order("veroeffentlicht_am", { ascending: false })), opt("social_idee", q => q.neq("status", "archiv").order("erstellt_am", { ascending: false }))]);
-  Object.assign(SOC, { konten, tage, beitraege, ideen });
+  const [konten, tage, beitraege, ideen, ikomm] = await Promise.all([opt("social_konto", q => q.order("plattform")), opt("social_tag", q => q.gte("datum", new Date(Date.now() - 120 * 864e5).toISOString().slice(0, 10)).order("datum")),
+    opt("social_beitrag", q => q.order("veroeffentlicht_am", { ascending: false })), opt("social_idee", q => q.neq("status", "archiv").order("erstellt_am", { ascending: false })), opt("social_idee_kommentar", q => q.order("erstellt_am"))]);
+  Object.assign(SOC, { konten, tage, beitraege, ideen, ikomm });
   if (ROLLE.rolle === "social") D.claude = await opt("claude_auftrag", q => q.order("erstellt_am", { ascending: false }));
 }
 const PLATT = { website: ["Website", "#2b6cb0"], kleinanzeigen: ["Kleinanzeigen", "#86b817"], instagram: ["Instagram", "#c13584"], tiktok: ["TikTok", "#111"], youtube: ["YouTube", "#e00"], facebook: ["Facebook", "#1877f2"], pinterest: ["Pinterest", "#e60023"], linkedin: ["LinkedIn", "#0a66c2"] };
 const zahl = n => n == null ? "–" : Number(n) >= 10000 ? (Number(n) / 1000).toLocaleString("de-DE", { maximumFractionDigits: 1 }) + " Tsd." : Number(n).toLocaleString("de-DE");
 const IDEE_ST = [["idee", "Idee"], ["geplant", "Geplant"], ["gedreht", "Gedreht"], ["online", "Online"]];
+UI.sdisk = UI.sdisk || {};
+function ideeKarte(i, st) {
+  const ko = (SOC.ikomm || []).filter(k => k.idee_id === i.id), offen = !!UI.sdisk[i.id];
+  const zeit = d => new Date(d).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+  return `<div class="soc-idee${i.trend ? " trend" : ""}">${i.trend ? `<span class="soc-trend">Trend: ${esc(i.trend)}</span>` : ""}<b>${esc(i.titel)}</b>${i.notiz ? `<div class="wo" style="white-space:pre-wrap">${esc(i.notiz)}</div>` : ""}<div class="wo">${(i.plattformen || []).map(x => (PLATT[x] || [x])[0]).join(", ")}${i.geplant_am ? " · " + new Date(i.geplant_am).toLocaleDateString("de-DE") : ""}${i.wer ? " · " + esc(i.wer) : ""}${i.quelle ? ` · <a href="${esc(i.quelle)}" target="_blank" rel="noopener">Quelle</a>` : ""}</div>
+    <button class="chip soc-disk-btn" aria-pressed="${offen}" data-sdisk="${i.id}">Diskussion${ko.length ? " (" + ko.length + ")" : ""}</button>
+    ${offen ? `<div class="soc-disk">${ko.map(k => `<div class="soc-k${k.wer === "Claude" ? " claude" : ""}"><span class="wo">${esc(k.wer || "?")} · ${zeit(k.erstellt_am)}</span><div style="white-space:pre-wrap">${esc(k.text)}</div></div>`).join("") || `<p class="wo">Noch keine Beiträge. Schreib "Claude" in den Text, dann antwortet die Automatik.</p>`}
+      <textarea id="sk-${i.id}" rows="2" placeholder="Meinung, Änderung, Frage an Claude ...">${esc((UI.skdraft || {})[i.id] || "")}</textarea><button class="btn small primary" data-skomm="${i.id}">Senden</button></div>` : ""}
+    <div class="soc-akt">${IDEE_ST.filter(([s2]) => s2 !== st).map(([s2, n2]) => `<button class="chip" data-sstatus="${s2}" data-sid="${i.id}">${n2}</button>`).join("")}<button class="chip" data-sstatus="archiv" data-sid="${i.id}" title="Ins Archiv">Archiv</button></div></div>`;
+}
 function sparkline(werte, farbe) {
   const v = werte.filter(x => x != null); if (v.length < 2) return "";
   const min = Math.min(...v), max = Math.max(...v), w = 160, h = 36, d = max - min || 1;
@@ -268,8 +278,7 @@ function vSocial() {
       ${UI.sneu ? `<div class="soc-neu"><input id="si-titel" placeholder="Idee, z. B. Reel: Sideboard in Schwarz aufbauen im Zeitraffer"><textarea id="si-notiz" rows="2" placeholder="Notiz (optional): Hook, Musik, welches Möbel"></textarea>
         <div class="chips"><label><input type="checkbox" id="si-ig" checked> Instagram</label><label><input type="checkbox" id="si-tt" checked> TikTok</label><label>geplant am <input type="date" id="si-datum"></label></div>
         <div style="display:flex;gap:8px"><button class="btn primary small" data-sspeichern="1">Speichern</button><button class="btn small" data-sneu="0">Abbrechen</button></div></div>` : ""}
-      <div class="soc-board">${IDEE_ST.map(([st, n]) => { const l = ideen.filter(i => i.status === st); return `<div class="soc-spalte"><h3>${n} <span class="wo">${l.length}</span></h3>${l.map(i => `<div class="soc-idee"><b>${esc(i.titel)}</b>${i.notiz ? `<div class="wo" style="white-space:pre-wrap">${esc(i.notiz)}</div>` : ""}<div class="wo">${(i.plattformen || []).map(x => (PLATT[x] || [x])[0]).join(", ")}${i.geplant_am ? " · " + new Date(i.geplant_am).toLocaleDateString("de-DE") : ""}${i.wer ? " · " + esc(i.wer) : ""}</div>
-          <div class="soc-akt">${IDEE_ST.filter(([s2]) => s2 !== st).map(([s2, n2]) => `<button class="chip" data-sstatus="${s2}" data-sid="${i.id}">${n2}</button>`).join("")}<button class="chip" data-sstatus="archiv" data-sid="${i.id}" title="Ins Archiv">Archiv</button></div></div>`).join("") || `<p class="wo">leer</p>`}</div>`; }).join("")}</div>
+      <div class="soc-board">${IDEE_ST.map(([st, n]) => { const l = ideen.filter(i => i.status === st); return `<div class="soc-spalte"><h3>${n} <span class="wo">${l.length}</span></h3>${l.map(i => ideeKarte(i, st)).join("") || `<p class="wo">leer</p>`}</div>`; }).join("")}</div>
     </section>` + vPlan();
 }
 async function ideeSpeichern() {
@@ -1330,7 +1339,7 @@ document.addEventListener("click", e => {
 });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && UI.sheet) { UI.sheet = false; render(); } });
 document.addEventListener("click", async e => {
-  const t = e.target.closest && e.target.closest("[data-ssort],[data-szeit],[data-sneu],[data-sspeichern],[data-sstatus],[data-pneu],[data-pedit],[data-pspeichern]"); if (!t) return;
+  const t = e.target.closest && e.target.closest("[data-ssort],[data-szeit],[data-sneu],[data-sspeichern],[data-sstatus],[data-sdisk],[data-skomm],[data-pneu],[data-pedit],[data-pspeichern]"); if (!t) return;
   const wer = ROLLE.rolle === "social" ? (ROLLE.name || "Social") : (me() || "App");
   if (t.dataset.pneu) { const { data } = await sb.from("social_plan").insert({ titel: "Neuer Abschnitt", inhalt: "", reihenfolge: ((SOC.plan || []).slice(-1)[0]?.reihenfolge || 0) + 10, geaendert_von: wer }).select().single(); await loadSocial(); UI.pedit = data ? data.id : null; render(); return; }
   if (t.dataset.pedit != null && t.dataset.pedit !== undefined && t.hasAttribute("data-pedit")) { UI.pedit = t.dataset.pedit || null; render(); return; }
@@ -1339,8 +1348,13 @@ document.addEventListener("click", async e => {
   else if (t.dataset.szeit) { UI.szeit = Number(t.dataset.szeit); render(); await loadSocial(); render(); }
   else if (t.dataset.sneu) { UI.sneu = t.dataset.sneu === "1"; render(); if (UI.sneu) document.getElementById("si-titel")?.focus(); }
   else if (t.dataset.sspeichern) ideeSpeichern();
+  else if (t.dataset.sdisk) { UI.sdisk[t.dataset.sdisk] = !UI.sdisk[t.dataset.sdisk]; render(); if (UI.sdisk[t.dataset.sdisk]) document.getElementById("sk-" + t.dataset.sdisk)?.focus(); }
+  else if (t.dataset.skomm) { const f = document.getElementById("sk-" + t.dataset.skomm), text = (f?.value || "").trim(); if (!text) return; t.disabled = true;
+    const { error } = await sb.from("social_idee_kommentar").insert({ idee_id: t.dataset.skomm, text, wer }); if (error) { alert("Ging nicht: " + error.message); t.disabled = false; return; }
+    delete (UI.skdraft || {})[t.dataset.skomm]; await loadSocial(); render(); }
   else if (t.dataset.sstatus) { await sb.from("social_idee").update({ status: t.dataset.sstatus, geaendert_am: new Date().toISOString() }).eq("id", t.dataset.sid); await loadSocial(); render(); }
 });
+document.addEventListener("input", e => { if (e.target.id && e.target.id.startsWith("sk-")) (UI.skdraft = UI.skdraft || {})[e.target.id.slice(3)] = e.target.value; });
 /* Palette: öffnen, ziehen, antippen */
 document.addEventListener("click", e => {
   const t = e.target;
@@ -1396,7 +1410,7 @@ async function start() {
     VIEWS.splice(0, VIEWS.length, ["social", "Social Media"]); UI.view = "social";
     if (ROLLE.name && !me()) store.set("sdo_wer", ROLLE.name);
     await loadSocial(); render();
-    sb.channel("ops-social").on("postgres_changes", { event: "*", schema: "public", table: "claude_auftrag" }, liveReload).on("postgres_changes", { event: "*", schema: "public", table: "social_tag" }, liveReload).on("postgres_changes", { event: "*", schema: "public", table: "social_beitrag" }, liveReload).on("postgres_changes", { event: "*", schema: "public", table: "social_idee" }, liveReload)
+    sb.channel("ops-social").on("postgres_changes", { event: "*", schema: "public", table: "claude_auftrag" }, liveReload).on("postgres_changes", { event: "*", schema: "public", table: "social_tag" }, liveReload).on("postgres_changes", { event: "*", schema: "public", table: "social_beitrag" }, liveReload).on("postgres_changes", { event: "*", schema: "public", table: "social_idee" }, liveReload).on("postgres_changes", { event: "*", schema: "public", table: "social_idee_kommentar" }, liveReload)
       .subscribe(s => { const el = document.getElementById("live"); el.textContent = s === "SUBSCRIBED" ? "live verbunden" : "offline"; el.classList.toggle("on", s === "SUBSCRIBED"); });
     return;
   }
@@ -1418,7 +1432,7 @@ async function start() {
     .on("postgres_changes", { event: "*", schema: "public", table: "claude_auftrag" }, liveReload)
     .on("postgres_changes", { event: "*", schema: "public", table: "social_tag" }, liveReload)
     .on("postgres_changes", { event: "*", schema: "public", table: "social_beitrag" }, liveReload)
-    .on("postgres_changes", { event: "*", schema: "public", table: "social_idee" }, liveReload)
+    .on("postgres_changes", { event: "*", schema: "public", table: "social_idee" }, liveReload).on("postgres_changes", { event: "*", schema: "public", table: "social_idee_kommentar" }, liveReload)
     .subscribe(s => { const el = document.getElementById("live"); el.textContent = s === "SUBSCRIBED" ? "live verbunden" : "offline"; el.classList.toggle("on", s === "SUBSCRIBED"); });
 }
 start();

@@ -552,3 +552,12 @@ details[open] > .ek-kopf { margin-bottom: 10px; }
 @media (max-width: 640px) { .recht .recht-grid { grid-template-columns: 1fr; } }
 .aus-zu { display: flex; gap: 6px; margin-top: 6px; }
 .aus-zu input { flex: 1; min-width: 0; }
+
+.soc-idee.trend { border-left: 3px solid #c13584; }
+.soc-trend { align-self: flex-start; font-size: .72rem; font-weight: 600; color: #c13584; background: #c1358414; border-radius: 999px; padding: 1px 8px; }
+.soc-disk-btn { align-self: flex-start; }
+.soc-disk { display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--line); padding-top: 6px; }
+.soc-disk textarea { width: 100%; font: inherit; }
+.soc-disk .btn { align-self: flex-end; }
+.soc-k { background: var(--bg, #f6f5f2); border-radius: 6px; padding: 4px 8px; }
+.soc-k.claude { background: #c1358410; }
