@@ -180,14 +180,26 @@ const PLATT = { website: ["Website", "#2b6cb0"], kleinanzeigen: ["Kleinanzeigen"
 const zahl = n => n == null ? "–" : Number(n) >= 10000 ? (Number(n) / 1000).toLocaleString("de-DE", { maximumFractionDigits: 1 }) + " Tsd." : Number(n).toLocaleString("de-DE");
 const IDEE_ST = [["idee", "Idee"], ["geplant", "Geplant"], ["gedreht", "Gedreht"], ["online", "Online"]];
 UI.sdisk = UI.sdisk || {};
-function ideeKarte(i, st) {
-  const ko = (SOC.ikomm || []).filter(k => k.idee_id === i.id), offen = !!UI.sdisk[i.id];
-  const zeit = d => new Date(d).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
-  return `<div class="soc-idee${i.trend ? " trend" : ""}">${i.trend ? `<span class="soc-trend">Trend: ${esc(i.trend)}</span>` : ""}<b>${esc(i.titel)}</b>${i.notiz ? `<div class="wo" style="white-space:pre-wrap">${esc(i.notiz)}</div>` : ""}<div class="wo">${(i.plattformen || []).map(x => (PLATT[x] || [x])[0]).join(", ")}${i.geplant_am ? " · " + new Date(i.geplant_am).toLocaleDateString("de-DE") : ""}${i.wer ? " · " + esc(i.wer) : ""}${i.quelle ? ` · <a href="${esc(i.quelle)}" target="_blank" rel="noopener">Quelle</a>` : ""}</div>
-    <button class="chip soc-disk-btn" aria-pressed="${offen}" data-sdisk="${i.id}">Diskussion${ko.length ? " (" + ko.length + ")" : ""}</button>
-    ${offen ? `<div class="soc-disk">${ko.map(k => `<div class="soc-k${k.wer === "Claude" ? " claude" : ""}"><span class="wo">${esc(k.wer || "?")} · ${zeit(k.erstellt_am)}</span><div style="white-space:pre-wrap">${esc(k.text)}</div></div>`).join("") || `<p class="wo">Noch keine Beiträge. Schreib "Claude" in den Text, dann antwortet die Automatik.</p>`}
-      <textarea id="sk-${i.id}" rows="2" placeholder="Meinung, Änderung, Frage an Claude ...">${esc((UI.skdraft || {})[i.id] || "")}</textarea><button class="btn small primary" data-skomm="${i.id}">Senden</button></div>` : ""}
-    <div class="soc-akt">${IDEE_ST.filter(([s2]) => s2 !== st).map(([s2, n2]) => `<button class="chip" data-sstatus="${s2}" data-sid="${i.id}">${n2}</button>`).join("")}<button class="chip" data-sstatus="archiv" data-sid="${i.id}" title="Ins Archiv">Archiv</button></div></div>`;
+const ZEIT_K = d => new Date(d).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+function ideeKachel(i) {
+  const ko = (SOC.ikomm || []).filter(k => k.idee_id === i.id).length, st = (IDEE_ST.find(x => x[0] === i.status) || [, i.status])[1];
+  return `<button class="soc-kachel${i.trend ? " trend" : ""}" data-sopen="${i.id}">
+    <span class="soc-k-kopf">${(i.plattformen || []).map(x => `<i class="dot" style="background:${(PLATT[x] || [, "#888"])[1]}" title="${esc((PLATT[x] || [x])[0])}"></i>`).join("")}${UI.sfilter === "alle" ? `<span class="soc-k-st">${esc(st)}</span>` : ""}</span>
+    ${i.trend ? `<span class="soc-trend">${esc(i.trend)}</span>` : ""}<span class="soc-k-titel">${esc(i.titel)}</span>
+    <span class="soc-k-fuss">${i.geplant_am ? new Date(i.geplant_am).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" }) : esc(i.wer || "")}${ko ? `<span class="soc-k-ko" title="Diskussion">💬 ${ko}</span>` : ""}</span></button>`;
+}
+function ideeDetail(i) {
+  const ko = (SOC.ikomm || []).filter(k => k.idee_id === i.id);
+  return `<div class="soc-ov" data-sclose="1"><div class="soc-detail${UI.sanim ? " anim" : ""}" role="dialog" aria-modal="true" aria-label="${esc(i.titel)}">
+    <button class="soc-x" data-sclose="1" aria-label="Schließen">✕</button>
+    ${i.trend ? `<span class="soc-trend">Trend: ${esc(i.trend)}</span>` : ""}<h3>${esc(i.titel)}</h3>
+    <div class="wo">${(i.plattformen || []).map(x => (PLATT[x] || [x])[0]).join(", ")}${i.geplant_am ? " · geplant " + new Date(i.geplant_am).toLocaleDateString("de-DE") : ""}${i.wer ? " · von " + esc(i.wer) : ""}${i.quelle ? ` · <a href="${esc(i.quelle)}" target="_blank" rel="noopener">Quelle</a>` : ""}</div>
+    ${i.notiz ? `<div class="soc-notiz">${esc(i.notiz)}</div>` : ""}
+    <div class="soc-akt"><span class="wo">Status:</span>${IDEE_ST.map(([s2, n2]) => `<button class="chip" aria-pressed="${i.status === s2}" data-sstatus="${s2}" data-sid="${i.id}">${n2}</button>`).join("")}<button class="chip" data-sstatus="archiv" data-sid="${i.id}" title="Ins Archiv">Archiv</button></div>
+    <h4>Diskussion${ko.length ? ` <span class="wo">${ko.length}</span>` : ""}</h4>
+    <div class="soc-disk">${ko.map(k => `<div class="soc-k${k.wer === "Claude" ? " claude" : ""}"><span class="wo">${esc(k.wer || "?")} · ${ZEIT_K(k.erstellt_am)}</span><div style="white-space:pre-wrap">${esc(k.text)}</div></div>`).join("") || `<p class="wo">Noch keine Beiträge. Schreib "Claude" in den Text, dann antwortet die Automatik.</p>`}
+      <textarea id="sk-${i.id}" rows="2" placeholder="Meinung, Änderung, Frage an Claude ...">${esc((UI.skdraft || {})[i.id] || "")}</textarea><button class="btn small primary" data-skomm="${i.id}">Senden</button></div>
+  </div></div>`;
 }
 function sparkline(werte, farbe) {
   const v = werte.filter(x => x != null); if (v.length < 2) return "";
@@ -278,7 +290,9 @@ function vSocial() {
       ${UI.sneu ? `<div class="soc-neu"><input id="si-titel" placeholder="Idee, z. B. Reel: Sideboard in Schwarz aufbauen im Zeitraffer"><textarea id="si-notiz" rows="2" placeholder="Notiz (optional): Hook, Musik, welches Möbel"></textarea>
         <div class="chips"><label><input type="checkbox" id="si-ig" checked> Instagram</label><label><input type="checkbox" id="si-tt" checked> TikTok</label><label>geplant am <input type="date" id="si-datum"></label></div>
         <div style="display:flex;gap:8px"><button class="btn primary small" data-sspeichern="1">Speichern</button><button class="btn small" data-sneu="0">Abbrechen</button></div></div>` : ""}
-      <div class="soc-board">${IDEE_ST.map(([st, n]) => { const l = ideen.filter(i => i.status === st); return `<div class="soc-spalte"><h3>${n} <span class="wo">${l.length}</span></h3>${l.map(i => ideeKarte(i, st)).join("") || `<p class="wo">leer</p>`}</div>`; }).join("")}</div>
+      ${(() => { const f = UI.sfilter || "idee", l = f === "alle" ? ideen : ideen.filter(i => i.status === f), o = ideen.find(i => i.id === UI.soffen);
+        return `<div class="chips soc-tabs">${[...IDEE_ST, ["alle", "Alle"]].map(([s2, n2]) => `<button class="chip" aria-pressed="${f === s2}" data-sfilter="${s2}">${n2} <span class="wo">${s2 === "alle" ? ideen.length : ideen.filter(i => i.status === s2).length}</span></button>`).join("")}</div>
+        <div class="soc-kacheln">${l.map(ideeKachel).join("") || `<p class="wo">leer</p>`}</div>${o ? ideeDetail(o) : ""}`; })()}
     </section>` + vPlan();
 }
 async function ideeSpeichern() {
@@ -1337,13 +1351,16 @@ document.addEventListener("click", e => {
   // Tipp auf die Seite, auf der man schon ist: Menü trotzdem schließen (hashchange feuert dann nicht)
   const a = e.target.closest(".sheet .nav a"); if (a && a.getAttribute("href") === location.hash) { UI.sheet = false; render(); }
 });
-document.addEventListener("keydown", e => { if (e.key === "Escape" && UI.sheet) { UI.sheet = false; render(); } });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && UI.soffen) { UI.soffen = null; document.body.classList.remove("soc-modal"); render(); return; } if (e.key === "Escape" && UI.sheet) { UI.sheet = false; render(); } });
 document.addEventListener("click", async e => {
-  const t = e.target.closest && e.target.closest("[data-ssort],[data-szeit],[data-sneu],[data-sspeichern],[data-sstatus],[data-sdisk],[data-skomm],[data-pneu],[data-pedit],[data-pspeichern]"); if (!t) return;
+  const t = e.target.closest && e.target.closest("[data-ssort],[data-szeit],[data-sneu],[data-sspeichern],[data-sstatus],[data-sdisk],[data-skomm],[data-sopen],[data-sclose],[data-sfilter],[data-pneu],[data-pedit],[data-pspeichern]"); if (!t) return;
   const wer = ROLLE.rolle === "social" ? (ROLLE.name || "Social") : (me() || "App");
   if (t.dataset.pneu) { const { data } = await sb.from("social_plan").insert({ titel: "Neuer Abschnitt", inhalt: "", reihenfolge: ((SOC.plan || []).slice(-1)[0]?.reihenfolge || 0) + 10, geaendert_von: wer }).select().single(); await loadSocial(); UI.pedit = data ? data.id : null; render(); return; }
   if (t.dataset.pedit != null && t.dataset.pedit !== undefined && t.hasAttribute("data-pedit")) { UI.pedit = t.dataset.pedit || null; render(); return; }
   if (t.dataset.pspeichern) { await sb.from("social_plan").update({ titel: (document.getElementById("pl-titel").value || "").trim() || "Abschnitt", inhalt: document.getElementById("pl-inhalt").value, geaendert_von: wer, geaendert_am: new Date().toISOString() }).eq("id", t.dataset.pspeichern); UI.pedit = null; await loadSocial(); render(); return; }
+  if (t.dataset.sopen) { UI.soffen = t.dataset.sopen; UI.sanim = true; render(); UI.sanim = false; document.body.classList.add("soc-modal"); return; }
+  if (t.dataset.sclose) { if (e.target !== t && !e.target.closest(".soc-x")) return; const d = document.querySelector(".soc-detail"); if (d) { d.classList.add("zu"); document.querySelector(".soc-ov")?.classList.add("zu"); await new Promise(r => setTimeout(r, 160)); } UI.soffen = null; document.body.classList.remove("soc-modal"); render(); return; }
+  if (t.dataset.sfilter) { UI.sfilter = t.dataset.sfilter; render(); return; }
   if (t.dataset.ssort) { UI.ssort = t.dataset.ssort; render(); }
   else if (t.dataset.szeit) { UI.szeit = Number(t.dataset.szeit); render(); await loadSocial(); render(); }
   else if (t.dataset.sneu) { UI.sneu = t.dataset.sneu === "1"; render(); if (UI.sneu) document.getElementById("si-titel")?.focus(); }
@@ -1352,7 +1369,7 @@ document.addEventListener("click", async e => {
   else if (t.dataset.skomm) { const f = document.getElementById("sk-" + t.dataset.skomm), text = (f?.value || "").trim(); if (!text) return; t.disabled = true;
     const { error } = await sb.from("social_idee_kommentar").insert({ idee_id: t.dataset.skomm, text, wer }); if (error) { alert("Ging nicht: " + error.message); t.disabled = false; return; }
     delete (UI.skdraft || {})[t.dataset.skomm]; await loadSocial(); render(); }
-  else if (t.dataset.sstatus) { await sb.from("social_idee").update({ status: t.dataset.sstatus, geaendert_am: new Date().toISOString() }).eq("id", t.dataset.sid); await loadSocial(); render(); }
+  else if (t.dataset.sstatus) { if (t.dataset.sstatus === "archiv") { UI.soffen = null; document.body.classList.remove("soc-modal"); } await sb.from("social_idee").update({ status: t.dataset.sstatus, geaendert_am: new Date().toISOString() }).eq("id", t.dataset.sid); await loadSocial(); render(); }
 });
 document.addEventListener("input", e => { if (e.target.id && e.target.id.startsWith("sk-")) (UI.skdraft = UI.skdraft || {})[e.target.id.slice(3)] = e.target.value; });
 /* Palette: öffnen, ziehen, antippen */
