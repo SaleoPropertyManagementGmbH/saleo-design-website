@@ -1,0 +1,27 @@
+{
+  "id": "trig_01XJnCknMaPQjXxZ8VdFDkYM",
+  "name": "Saleo rechnungen monatlich",
+  "cron_expression": "CRON_TZ=Europe/Berlin 0 9 28 * *",
+  "enabled": true,
+  "persist_session": false,
+  "notifications": null,
+  "model": "",
+  "permission_mode": "auto",
+  "prompt": "Aufgabe: Neue Firmen-Rechnungen für die SALEO OS App aus Apple Mail sichern und einsortieren. Antworte auf Deutsch.\n\nKontext: Die Belege kommen als E-Mail mit zwei echten PDF-Anhängen von Anthropic (Claude-Abo), Vercel, Supabase und ggf. Apple Developer. Stripe-Download-Links NICHT verwenden (Domain gesperrt) – nur die PDF-Anhänge der Mails.\n\nWICHTIGE REGEL zur Sortierung (vom Nutzer so gewünscht):\n- \"Receipt-*.pdf\" = Zahlungsbestätigung mit \"Amount paid\". DAS ist der Buchungsbeleg → kommt in den HAUPTORDNER des Anbieters.\n- \"Invoice-*.pdf\" = reine Zahlungsaufforderung mit \"Amount due\" / \"Pay online\". Wird NICHT gelöscht, sondern kommt in den Unterordner \"Zahlungsaufforderungen\" des jeweiligen Anbieters.\n\nZielordner (Basis): /Users/samuelseel/Library/Mobile Documents/com~apple~CloudDocs/SALEO/SALEO Property Management GmbH/03_Dokumente/05_Rechnungen\n- Anthropic: .../Anthropic-Rechnungen  (Zahlungsaufforderungen: .../Anthropic-Rechnungen/Zahlungsaufforderungen)\n- Vercel: .../Vercel-Rechnungen  (Zahlungsaufforderungen: .../Vercel-Rechnungen/Zahlungsaufforderungen)\n- Supabase: .../Supabase-Rechnungen\n- Apple Developer: .../Apple-Developer-Rechnungen\n\nVorgehen:\n1. Per request_access Zugriff auf \"Mail\" UND \"Finder\" anfordern, Mail in den Vordergrund holen.\n2. Im Suchfeld oben rechts nacheinander suchen: \"receipt from Anthropic\", \"receipt from Vercel\", \"receipt from Supabase\". Für Apple zusätzlich \"Apple Developer\" bzw. \"Auftragsbestätigung\".\n3. Nur Mails berücksichtigen, deren Belege noch nicht abgelegt sind (vorhandene Dateien in den Zielordnern prüfen, nichts doppelt speichern).\n4. Pro Mail: Mail anklicken, die Büroklammer rechts im Nachrichtenkopf anklicken, im erscheinenden Menü \"Alles sichern\" wählen. Im Speichern-Dialog mit Cmd+Shift+G den Hauptordner des Anbieters eingeben, Enter, \"Sichern\".\n5. Danach die \"Invoice-*.pdf\" in den Unterordner \"Zahlungsaufforderungen\" verschieben (per Bash mv, falls der Linux-Workspace läuft, sonst per Finder).\n6. Umbenennen: Datum aus dem PDF lesen (pdftotext -layout DATEI - | grep -iE \"Date paid|Date of issue\"). Schema im Hauptordner: <Service>-Beleg-JJJJ-MM-TT.pdf; im Unterordner: <Service>-Zahlungsaufforderung-JJJJ-MM-TT.pdf. Bei mehreren am selben Tag eine kurze Nummer anhängen. Hinweis: Der iCloud-Ordner ist in Bash unter /sessions/<id>/mnt/05_Rechnungen erreichbar; Löschen ist dort nicht erlaubt, Umbenennen (mv) und Schreiben schon.\n7. Zum Schluss kurz auf Deutsch berichten: welche neuen Belege (Anbieter, Datum, Betrag) abgelegt wurden bzw. dass nichts Neues da war.",
+  "folders": [
+    "/Users/samuelseel/Library/Mobile Documents/com~apple~CloudDocs/SALEO/SALEO Property Management GmbH/03_Dokumente/05_Rechnungen",
+    "/Users/samuelseel/Dropbox/Mein Mac (Samuels iMac)/Downloads"
+  ],
+  "connector_names": [
+    "MT_Newswires",
+    "Claude_Docs",
+    "Plaud",
+    "Supabase",
+    "Parquet",
+    "Claude_Code_Remote",
+    "Vercel",
+    "WordPress_com",
+    "Kleinanzeigen"
+  ],
+  "last_run_status": "ROUTINE_RUN_STATUS_SUCCEEDED"
+}

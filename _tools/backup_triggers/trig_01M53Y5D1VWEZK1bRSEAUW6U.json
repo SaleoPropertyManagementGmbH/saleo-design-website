@@ -1,0 +1,24 @@
+{
+  "id": "trig_01M53Y5D1VWEZK1bRSEAUW6U",
+  "name": "Daily morning briefing",
+  "cron_expression": "CRON_TZ=Europe/Berlin 0 7,16 * * *",
+  "enabled": true,
+  "persist_session": false,
+  "notifications": null,
+  "model": "",
+  "permission_mode": null,
+  "prompt": "Du bist Claude und aktualisierst das Cowork-Artefakt mit der ID `2026-04-23-morning-briefing-dashboard` für Stephan (seel@seel-consulting.de). Dashboard heißt \"LordSeels Depot · Live\".\n\n## KRITISCH — folgende Sektionen MÜSSEN bei jedem Update erhalten bleiben (Liste vollständig)\nSie sind Teil des Funktionsumfangs und dürfen NIE entfernt werden:\n1. `#overview` — Hero (Depotwert + Cash + Health-Score)\n2. `#allocation` — Sektor- + Regions-Donuts\n3. `#risk` — Risiko-Heatmap\n4. `#actions` — Daily Tasks (Checkboxen)\n5. `#calculator` — Allocation-Kalkulator (mit Cash-Coverage + After-Trade)\n6. `#tax` — **STEUERLAST-SEKTION** (Yield-Stats: Steuer YTD + Realisierte Gewinne + Latente Steuer; Aufschlüsselung Steuerpflichtig vs. Steuerfrei; Pauschbetrag-Progress; Optimierungs-Tipps; Disclaimer) — **DARF UNTER KEINEN UMSTÄNDEN ENTFERNT WERDEN**\n7. `#holdings` — Holdings-Tabelle mit Gesamt-P/L-Spalte\n8. `#journal` — Trade-Journal aus Parqet-Activities\n9. `#live` — Live-Kurse Aktien + Krypto\n10. `#dividends` — Dividenden mit Tab-Toggle Monat/Jahr\n11. `#div-opt` — Dividenden-Optimierung\n12. Fear&Greed + VIX\n\nIm Sticky-Nav muss `<a href=\"#tax\">Steuer</a>` enthalten sein.\nIm JS muss eine `loadTaxData()` Funktion vorhanden sein, die parqet_get_activities aufruft und die Tax-Felder befüllt.\nIm CSS müssen die Tax-Klassen (`.tax-summary`, `.tax-stat`, `.tax-bd-card`, `.tax-progress`, etc.) und die `--tax`-Color-Variable enthalten sein.\n\n## Parqet als Single-Source-of-Truth\n1. `parqet_get_user` → Portfolio-ID `63c5b9f4eef5e58448a9e610`\n2. `parqet_get_performance` mit intervalType=\"relative\", intervalValue=\"1d\"\n3. `parqet_get_activities` mit limit=100 für Cash + Steuer + Journal\n\n## Cash-Auto-Berechnung\n```js\nconst CASH_BASE_DATE = new Date('2026-04-24T23:59:59.999Z');\nconst CASH_BASE = 11500;\n// Alle activities mit datetime > CASH_BASE_DATE:\n//   buy/transfer_out/fees_taxes/withdrawal → cash -= amountNet\n//   sell/dividend/interest/transfer_in/deposit → cash += amountNet\n// currentCash = CASH_BASE + adjustment, in Hero, Net-Worth, Calculator nutzen.\n```\n\n## Steuer-Berechnung (in loadTaxData())\n```js\nconst TAX_RATE = 0.26375; // Abgeltung + Soli\nconst ALLOWANCE = 1000;\n// YTD-activities (year === CURRENT_YEAR):\n//   sell mit holdingAssetType=security → stockGains += realizedGainsNet\n//   sell mit holdingAssetType=commodity → metalGains += realizedGainsNet (steuerfrei)\n//   dividend → dividends += amount\n// taxable = stockGains + dividends\n// netTaxable = max(0, taxable - ALLOWANCE)\n// taxDue = netTaxable * TAX_RATE\n// latentTax aus unrealisierten Gewinnen aller Holdings (außer commodity) * TAX_RATE\n// Update: #tax-due, #tax-realized, #tax-stock-gains, #tax-dividends, #tax-taxable-sum,\n//   #tax-net-taxable, #tax-metal-gains, #tax-used-pct, #tax-remaining,\n//   #tax-progress-fill width, #tax-latent, #tax-gold-value\n```\n\n## Aktive Investment-Pläne\n**Plan A (3.000 €):** VHYL 2.000 € (31×, A1T8FV) + Realty Income 1.000 € (18×, 899744)\n**Plan B (4.500 €):** + Allianz 1.500 € (5×, 840400)\n**Plan B+ (5.500 €):** + Verizon 1.000 € (24×, 868402)\n\n## Trade-Log\n- 23.04.: +27 Shell @ 38 € (-1.026 € Cash)\n- 24.04.: -50 Intel @ ~69 € (+22 % realisiert, +630 €)\n\n## Risikoprofil\nMäßig offensiv, klare Stop-Levels.\n\n## Apple-Style-Design\nSF-Pro-Display Headlines mit -0.04em Letter-Spacing, iOS-System-Colors, weiche Schatten, 18-22px Radien, .icon-wrap Container für Icons, iOS-Segmented-Control für Tabs.\n\n## Ablauf\n1. list_artifacts → Read aktuelles HTML.\n2. Parqet-Performance + Activities laden.\n3. Cash dynamisch + Steuer berechnen.\n4. Makro via WebSearch (Indizes, Rohstoffe, VIX, Fear&Greed, News, Termine).\n5. update_artifact mit allen 5 mcp_tools, ALLE Sektionen erhalten (besonders #tax!).\n\nStatus am Ende: \"LordSeels Briefing aktualisiert · Depot X € · Cash Y € · Steuer Z €\".",
+  "folders": [],
+  "connector_names": [
+    "MT_Newswires",
+    "Claude_Docs",
+    "Plaud",
+    "Supabase",
+    "Parquet",
+    "Claude_Code_Remote",
+    "Vercel",
+    "WordPress_com",
+    "Kleinanzeigen"
+  ],
+  "last_run_status": "ROUTINE_RUN_STATUS_SUCCEEDED"
+}

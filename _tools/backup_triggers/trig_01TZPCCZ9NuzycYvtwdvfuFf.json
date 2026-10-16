@@ -1,0 +1,30 @@
+{
+  "id": "trig_01TZPCCZ9NuzycYvtwdvfuFf",
+  "name": "Kleinanzeigen-Sync Saleo Design Ops",
+  "cron_expression": "CRON_TZ=Europe/Berlin 55 7,18 * * *",
+  "enabled": true,
+  "persist_session": false,
+  "notifications": {
+    "channel": {
+      "push": false,
+      "email": false
+    }
+  },
+  "model": "claude-opus-5-5",
+  "permission_mode": "auto",
+  "prompt": "Gleiche die Kleinanzeigen-Inserate der Saleo Design UG mit der App Saleo Design Ops ab (https://saleo-design.de/ops). Arbeite selbstständig, ohne Rückfragen. Das Kleinanzeigen-Konto bei kleinanzeigen-agent.de läuft im kostenlosen Tarif: Rufe NIE include_views=true auf und hole Inseratdetails nur für neue, gekürzte Anzeigen.\n\n1. Hänge das Repo SaleoPropertyManagementGmbH/saleo-design-website mit Schreibzugriff an (add_repo, access push) und klone es nach /home/claude/saleo-design-website.\n2. Hole alle Anzeigen des Verkäufers: Kleinanzeigen-Tool get_kleinanzeigen_seller_ads mit seller_id 151007875, size 100 (bei has_next_page weitere Seiten holen und die ads zusammenführen). Speichere die vollständige Antwort als JSON-Datei, z. B. /tmp/roh.json, im Format {\"data\":{\"ads\":[...]}}.\n3. Für jede Anzeige, deren ad_id noch nicht in ops/data/inserate.json steht und deren description mit \"...\" endet: get_kleinanzeigen_ad mit dieser ad_id aufrufen (ohne include_views) und {\"ad_id\": \"...\", \"description\": \"<volle Beschreibung>\"} als _tools/ads/<ad_id>.json speichern. Höchstens 3 solcher Abrufe pro Lauf, den Rest beim nächsten Lauf.\n4. Führe im Repo-Ordner aus: python3 _tools/sync_inserate.py /tmp/roh.json. Das Skript schreibt ops/data/inserate.json, ergänzt neue Inserate mit Planer-Vorlage, behält den bisherigen Aufrufe-Verlauf und markiert verschwundene Inserate als nicht mehr aktiv.\n5. Nur wenn sich ops/data/inserate.json oder _tools/ads inhaltlich geändert haben (die Felder \"stand\" und \"zuletztGesehen\" allein zählen nicht): committen (Nachricht \"ops: Kleinanzeigen-Abgleich <Datum>\"), vorher git fetch origin main und rebase, dann nach main pushen. Danach mit dem Vercel-Tool create_deployment veröffentlichen: Team-Slug saleo-property-management-gmb-h, name und project saleo-design-website, target production, gitSource {type: github, org: SaleoPropertyManagementGmbH, repo: saleo-design-website, ref: main, sha: <gepushter Commit>}. Mit get_deployment prüfen, bis der Status READY ist.\n6. Wenn sich nur Zeitstempel geändert haben, nichts committen.\n7. Meldet ein Kleinanzeigen-Tool INSUFFICIENT_CREDITS, sofort aufhören, nichts committen und im Ergebnis sagen, dass das Tagesguthaben aufgebraucht ist und der nächste Lauf es erneut versucht.\n8. Ergebnis kurz auf Deutsch zusammenfassen: wie viele Inserate aktiv sind, welche neu dazugekommen sind (Titel und Preis), welche nicht mehr online sind und ob veröffentlicht wurde. Keine anderen Dateien der Website ändern.",
+  "folders": [],
+  "connector_names": [
+    "MT_Newswires",
+    "Claude_Docs",
+    "Plaud",
+    "Supabase",
+    "Parquet",
+    "Claude_Code_Remote",
+    "Crypto_com",
+    "Vercel",
+    "WordPress_com",
+    "Kleinanzeigen"
+  ],
+  "last_run_status": "ROUTINE_RUN_STATUS_SUCCEEDED"
+}

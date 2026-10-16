@@ -1,0 +1,32 @@
+{
+  "id": "trig_01QJxdRrR5LjDxNEwZKJ5TTU",
+  "name": "Kleinanzeigen-Inserate abgleichen (Mac, ohne Guthaben)",
+  "cron_expression": "CRON_TZ=Europe/Berlin 25 8-22 * * *",
+  "enabled": true,
+  "persist_session": false,
+  "notifications": {
+    "channel": {
+      "push": false,
+      "email": false
+    }
+  },
+  "model": "claude-opus-5-5",
+  "permission_mode": "auto",
+  "prompt": "Gleiche die Kleinanzeigen-Inserate der Saleo Design UG mit der App Saleo Design Ops ab, kostenlos über den eingebauten Browser auf Samuels Mac (Tools mcp__remote-devices__Claude_Browser__*). Selbstständig, ohne Rückfragen, auf Deutsch, still wenn nichts neu ist.\n\nSTRENGE GRENZEN: Öffne NIE Kleinanzeigen-Chats oder Nachrichten (keine /m-nachrichten, keine /portal/nachrichten, keine messagebox-API), damit sie für Leon ungelesen bleiben. Klicke auf Kleinanzeigen nichts, was etwas ändert (kein Bearbeiten, Hochschieben, Löschen, Deaktivieren). Nur öffentliche Seiten lesen. Keine Passwörter, keine Tokens. Nichts kaufen. Kein kleinanzeigen-agent.de (kein Guthaben).\n\n1. Ist der eingebaute Browser nicht erreichbar (Mac aus oder App zu): sofort still beenden.\n2. In einem Tab https://www.kleinanzeigen.de/pro/saleo-group öffnen, kurz warten. Mit javascript_tool alle Inseratnummern sammeln: [...document.querySelectorAll('a[href*=\"/s-anzeige/\"]')] → aus dem href die Zahl vor -NN-NNNN am Ende, dazu je Inserat Titel und Preis aus der Kachel. In der Seiten-Navigation (nav mit „Seiten-Navigation“) auf Seite 2 (und weitere) klicken und ebenso sammeln. Ergebnis: alle Inseratnummern, die online sind, und je Nummer den Preis als Zahl.\n3. Repo SaleoPropertyManagementGmbH/saleo-design-website mit Schreibzugriff anhängen (add_repo, access push) und nach /home/claude/saleo-design-website klonen. Inseratnummern, die noch nicht in ops/data/inserate.json stehen, sind neu.\n4. Für jedes neue Inserat die öffentliche Anzeigenseite im Tab öffnen und auslesen: Titel (h1), Preis, Beschreibung als HTML (Element mit der Beschreibung, Zeilenumbrüche als <br>), Bilder der Galerie (nur img ohne alt-Text mit prod-ads in der URL, auf ?rule=$_59.AUTO normiert, Reihenfolge behalten; keine Vorschaubilder anderer Anzeigen), Zustand falls angegeben, Link. Daraus Einträge im Format {\"ad_id\",\"title\",\"ad_url\",\"images\":[],\"price\":{\"amount\":n,\"price_type\":\"FIXED\",\"negotiable\":false},\"created_at\":\"<jetzt ISO>\",\"status\":\"ACTIVE\",\"description\":\"...\",\"details\":{\"Zustand\":\"...\"}}.\n5. Datei /tmp/browser.json schreiben: {\"ids\":[alle Nummern aus 2], \"neu\":[Einträge aus 4], \"preise\":{\"<nummer>\": preis}} und im Repo-Ordner ausführen: python3 _tools/sync_browser.py /tmp/browser.json. Das Skript bricht ab, wenn zu wenige Inserate gelesen wurden; dann nichts committen.\n6. Nur wenn das Skript \"geaendert\": true meldet: committen (Nachricht \"ops: Kleinanzeigen-Abgleich <Datum Uhrzeit> (Browser)\"), vorher git fetch origin main und rebase, nach main pushen, dann mit dem Vercel-Tool create_deployment veröffentlichen (Team-Slug saleo-property-management-gmb-h, name saleo-design-website, target production, gitSource {type: github, org: SaleoPropertyManagementGmbH, repo: saleo-design-website, ref: main, sha: <Commit>}) und mit get_deployment prüfen, bis READY.\n7. Gab es neue Möbel-Inserate: in Supabase (Projekt uqcropugtdtrzaumjbby) mit select claude_auftrag_neu('Neue Inserate in der App: <Titel kurz>. Die Automatik legt sie als Möbel an.', 'Automatik') kurz Bescheid geben (vorher select set_config('request.jwt.claims','{\"email\":\"info@saleo-group.de\"}',true)). Das Anlegen der Möbel macht die Cloud-Automatik nach ihrer Anleitung.\n8. Ergebnis in einem Satz: neu, nicht mehr online, Preisänderungen, veröffentlicht ja/nein.",
+  "folders": [],
+  "connector_names": [
+    "MT_Newswires",
+    "Metricool_Social_Media_Management",
+    "Claude_Docs",
+    "Plaud",
+    "Supabase",
+    "PayPal",
+    "Parquet",
+    "Claude_Code_Remote",
+    "Crypto_com",
+    "Vercel",
+    "WordPress_com",
+    "Kleinanzeigen"
+  ],
+  "last_run_status": "ROUTINE_RUN_STATUS_SUCCEEDED"
+}
