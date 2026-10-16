@@ -902,10 +902,10 @@ function vBeschichtung() {
     ${fertig.length ? `<h3 style="margin:22px 0 8px;font-size:1rem">Erledigt</h3>` + fertig.slice(0, 10).map(karte).join("") : ""}`;
 }
 const typVon = code => (D.typen || []).filter(t => code === t.code || code.startsWith(t.code + "-")).sort((a, b) => b.code.length - a.code.length)[0];
-function vEinkaeufe() {
+function vUnterwegs() {
   const E = (D.einkaeufe || []).filter(e => ["bezahlt", "erhalten"].includes(e.status));
   if (!E.length) return "";
-  return `<section class="card"><div class="card-head"><h2>Einkäufe unterwegs</h2><span class="note">privater Kleinanzeigen-Account</span></div>
+  return `<section class="card"><div class="card-head"><h2>Einkäufe unterwegs</h2><span class="note">bezahlt, noch nicht angekommen</span></div>
     ${E.map(e => `<div class="verb-row"><span class="dot ${e.status === "erhalten" ? "ok" : "na"}"></span><div class="verb-t"><b>${esc(e.titel || "Einkauf")}</b><span>${esc(e.verkaeufer || "")} · ${eur(Number(e.preis || 0) + Number(e.versand || 0))}${Number(e.versand) ? " inkl. " + eur(e.versand) + " Versand" : ""}${e.abholung ? " · Abholung" : ""} · ${e.status === "erhalten" ? "angekommen, Teile per Plaud diktieren" : "bezahlt " + (e.bezahlt_am ? new Date(e.bezahlt_am).toLocaleDateString("de-DE") : "") + ", unterwegs"}</span>${(e.daten?.teile || []).length ? `<span class="wo">${e.daten.teile.map(t => t.menge + "× " + esc(t.teil)).join(", ")}</span>` : ""}${(e.daten?.sendungen || []).length ? `<span class="wo">Sendung: ${e.daten.sendungen.map(n => `<a href="https://tracking.dpd.de/status/de_DE/parcel/${encodeURIComponent(n)}" target="_blank" rel="noopener">${esc(n)}</a>`).join(", ")}</span>` : ""}</div>${e.status === "bezahlt" ? `<button class="btn small" data-ekerhalten="${esc(e.id)}" title="${(e.daten?.teile || []).length ? "Bucht die erfassten Teile direkt ins Lager" : ""}">${(e.daten?.teile || []).length ? "Angekommen, Teile einbuchen" : "Angekommen"}</button>` : ""}</div>`).join("")}</section>`;
 }
 function vVerbindungen() {
@@ -965,7 +965,7 @@ function vStart() {
     `<div class="stats">${stat("Inserate online", aktiv.length, `zusammen ${eur(insWert).replace(",00", "")}`)}${stat("Aufträge offen", offeneAuftraege().length, offeneAuftraege().length ? "Label freigeben" : "nichts zu tun", offeneAuftraege().length ? "neg" : "")}${stat("Fertige Möbel", verfuegbareMoebel().length, "sofort verfügbar")}${stat("Offene Planungen", offen.length, `${D.plan.filter(p => p.status === "angebot").length} im Angebot`)}${stat("Lagerwert", eur(wert).replace(",00", ""), `${num(teile)} Teile`)}${stat("Unter Mindestbestand", low.length, low.length ? "nachkaufen prüfen" : "alles im grünen Bereich", low.length ? "neg" : "good")}</div>
     ${offeneAuftraege().length ? `<div class="banner"><span><b>${offeneAuftraege().length} bezahlte${offeneAuftraege().length > 1 ? "" : "r"} Auftrag${offeneAuftraege().length > 1 ? "e" : ""}</b> warte${offeneAuftraege().length > 1 ? "n" : "t"} auf die Label-Freigabe.</span><a class="btn primary small" href="#auftraege">Ansehen</a></div>` : ""}
     ${empty ? `<div class="banner info"><span>Das Lager ist noch leer. Inventur einfach per Plaud an Klaus diktieren, pro Regalfach: Anzahl, Teil, Maß, Farbe, Zustand, Preis. Ich buche ein, danach rechnen Planer und Übersicht mit echten Zahlen.</span></div>` : ""}
-    ${vClaude()}${vEinkaeufe()}${vVerbindungen()}
+    ${vClaude()}${vUnterwegs()}${vVerbindungen()}
     <div class="grid-2">
       ${verfuegbareMoebel().length ? `<section class="card"><div class="card-head"><h2>Fertige Möbel, sofort verfügbar</h2><a href="#moebel">Alle</a></div>
         ${verfuegbareMoebel().slice(0, 6).map(m => `<div class="list-row"><div class="grow"><div class="t"><a href="planer.html?moebel=${m.id}">${esc(m.name)}</a></div><div class="wo">${[m.masse ? m.masse + " cm" : "", m.lagerort ? "Lagerort " + m.lagerort : "", "Warenwert " + eur(moebelWert(m)).replace(",00", "")].filter(Boolean).join(" · ")}</div></div><span class="badge ${(MST[m.status] || [""])[0]}">${(MST[m.status] || ["", m.status])[1]}</span></div>`).join("")}</section>` : ""}
@@ -1098,7 +1098,7 @@ function vEinkaeufe() {
       ${pos.map(p => `<tr><td>${bewTeil(p.teil)}</td><td class="num">${p.menge}</td><td class="num">${eur(Number(p.preis_gesamt) / p.menge)}</td>${neben ? `<td class="num">${eur(p.einstandspreis_stueck)}</td>` : ""}<td class="num">${eur(p.preis_gesamt)}</td></tr>`).join("")}
       <tr class="grp"><td>Summe</td><td class="num">${num(stk)}</td><td></td>${neben ? `<td class="num">+ ${eur(neben)} Nebenkosten</td>` : ""}<td class="num">${eur(summe(e.id))}</td></tr></tbody></table></div></details></section>`;
   };
-  return head("Einkäufe", "Jeder Wareneingang mit Teileliste und Stückpreis. Bei Fertigmöbeln ist der Kaufpreis nach den Durchschnittspreisen auf die Teile umgelegt.") +
+  return head("Einkäufe", "Jeder Wareneingang mit Teileliste und Stückpreis. Bei Fertigmöbeln ist der Kaufpreis nach den Durchschnittspreisen auf die Teile umgelegt.") + vUnterwegs() +
     `<div class="stats">${stat("Einkäufe", E.length)}${stat("Summe Einkauf", eur(ges).replace(",00", ""))}</div>
     <div class="filters" style="margin-bottom:12px"><input type="search" id="eq" value="${esc(UI.eq || "")}" placeholder="Suchen: Möbel, Quelle, Notiz…"></div>
     ${liste.length ? liste.map(karte).join("") : `<section class="card"><p class="empty">Keine Einkäufe gefunden.</p></section>`}`;
