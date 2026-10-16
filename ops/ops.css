@@ -587,3 +587,9 @@ body.soc-modal { overflow: hidden; }
 @keyframes socFade { from { opacity: 0; } } @keyframes socFadeOut { to { opacity: 0; } }
 @media (max-width: 520px) { .soc-kacheln { grid-template-columns: 1fr 1fr; } .soc-ov { align-items: flex-end; padding: 0; } .soc-detail { width: 100%; max-height: 88vh; border-radius: 16px 16px 0 0; } }
 @media (prefers-reduced-motion: reduce) { .soc-ov, .soc-detail.anim, .soc-kachel { animation: none; transition: none; } }
+
+.am { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.am-liste { margin: 0; padding-left: 18px; } .am-liste li { margin: 2px 0; }
+.am-edit { margin-top: 8px; padding: 10px; border: 1px dashed var(--line-strong, #ccc); border-radius: 10px; display: flex; flex-direction: column; gap: 6px; }
+.am-row { display: flex; gap: 6px; align-items: center; } .am-row .grow { flex: 1; min-width: 0; } .am-row input { width: 110px; }
+.btn.danger { background: #b42318; color: #fff; border-color: #b42318; }

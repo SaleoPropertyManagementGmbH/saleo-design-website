@@ -559,12 +559,30 @@ function auftragKarte(a) {
     ${a.wareneinsatz != null ? `<div class="kalk"><div><span class="lbl">Erlös</span><b>${eur(a.erloes)}</b></div><div><span class="lbl">Material</span>${eur(a.wareneinsatz)}</div><div><span class="lbl">Gewinn vor Steuern</span><b class="${Number(a.gewinn_vor_steuern) >= 0 ? "good" : "neg"}">${eur(a.gewinn_vor_steuern)}</b></div><div><span class="lbl">Marge</span><b>${a.erloes > 0 ? Math.round(Number(a.gewinn_vor_steuern) / Number(a.erloes) * 100) + " %" : "–"}</b></div></div>` : (a.status === "heiss" ? `<p class="wo neg">Noch kein Möbel und keine Teile zugeordnet. Sag mir kurz, was verkauft wird, dann rechne ich die Marge vor.</p>` : "")}
     ${(a.teile_liste || []).length ? `<details class="teile"><summary>Was aus dem Lager geht (${a.teile_liste.reduce((s, x) => s + Number(x.menge), 0)} Teile)</summary><ul>${a.teile_liste.map(x => `<li>${x.menge} × ${esc((typVon(x.teil) || {}).bezeichnung || x.teil)} <span class="code">${esc(x.teil)}</span></li>`).join("")}</ul></details>` : ""}
     ${(a.kalkulation || []).length ? `<details class="teile" open><summary>Kalkulation (nur Rechnung, nichts wird ausgebucht)</summary><ul>${a.kalkulation.map(x => `<li>${x.menge} × ${esc(x.text || x.teil)} à ${eur(x.preis)} = <b>${eur(x.menge * x.preis)}</b>${x.teil ? ` <span class="code">${esc(x.teil)}</span>` : ""}</li>`).join("")}</ul><p class="wo">Summe ${eur(a.kalkulation.reduce((s, x) => s + x.menge * x.preis, 0))}</p></details>` : ""}
+    ${vAuftragMoebel(a)}
     ${a.notiz ? `<p class="wo" style="white-space:pre-wrap;margin:.4rem 0 0">${esc(a.notiz)}</p>` : ""}
     ${a.chat_auszug ? `<details class="teile"><summary>Chat-Auszug</summary><p class="wo" style="white-space:pre-wrap">${esc(a.chat_auszug)}</p></details>` : ""}
     ${a.status !== "storniert" ? vRecht(a) : ""}
     ${UI.aedit === a.id ? vAuftragEdit(a) : ""}
-    <div class="actions"${UI.aedit === a.id ? " hidden" : ""}>${a.status !== "storniert" ? `<button class="btn" data-aedit="${a.id}">Bearbeiten</button>` : ""}${planerLink(a) ? `<a class="btn" href="${planerLink(a)}">Möbel ansehen</a>` : ""}${a.rechnung_id && a.rechnung_status === "entwurf" ? `<a class="btn primary" href="rechnung.html?id=${a.rechnung_id}">Rechnung prüfen und senden</a>` : ""}${a.rechnung_id && ["gesendet", "bezahlt"].includes(a.rechnung_status) && !a.rechnung_an_kunde ? `<a class="btn primary" href="rechnung.html?id=${a.rechnung_id}#an">Rechnung an Kunden schicken</a>` : ""}${a.status === "heiss" ? `<button class="btn" data-abez="${a.id}" title="Backup, falls die Zahlung nicht automatisch erkannt wird">Zahlung ist da</button>` : ""}${a.status === "bezahlt" ? `<button class="btn primary" data-afrei="${a.id}">Label freigeben</button>` : ""}${a.status === "freigegeben" ? `<span class="wo">freigegeben von ${esc(a.freigabe_von || "")} ${a.freigabe_am ? when(a.freigabe_am) : ""}</span><button class="btn small" data-azurueck="${a.id}">Zurücknehmen</button>` : ""}${a.moebel_id ? `<a class="btn small" href="planer.html?moebel=${a.moebel_id}">Kalkulation</a>` : ""}${!a.archiviert_am && a.status !== "storniert" && a.bezahlt_am ? `<button class="btn small" data-aarch="${a.id}" title="Bezahlt und erledigt: ins Archiv verschieben">Abschließen</button>` : ""}${a.archiviert_am ? `<button class="btn small" data-areakt="${a.id}">Wieder öffnen</button>` : ""}${ins ? `<a class="btn small" href="${esc(ins.url)}" target="_blank" rel="noopener">Anzeige</a>` : ""}</div>
+    <div class="actions"${UI.aedit === a.id ? " hidden" : ""}>${a.status !== "storniert" ? `<button class="btn" data-aedit="${a.id}">Bearbeiten</button>` : ""}${planerLink(a) ? `<a class="btn" href="${planerLink(a)}">Möbel ansehen</a>` : ""}${a.rechnung_id && a.rechnung_status === "entwurf" ? `<a class="btn primary" href="rechnung.html?id=${a.rechnung_id}">Rechnung prüfen und senden</a>` : ""}${a.rechnung_id && ["gesendet", "bezahlt"].includes(a.rechnung_status) && !a.rechnung_an_kunde ? `<a class="btn primary" href="rechnung.html?id=${a.rechnung_id}#an">Rechnung an Kunden schicken</a>` : ""}${a.status === "heiss" ? `<button class="btn" data-abez="${a.id}" title="Backup, falls die Zahlung nicht automatisch erkannt wird">Zahlung ist da</button>` : ""}${a.status !== "storniert" && !a.bezahlt_am && !a.verkauf_id ? (UI.akein === a.id ? `<button class="btn danger" data-akeinok="${a.id}">Ja, kein Abschluss</button><button class="btn small" data-akeinzurueck="1">Doch nicht</button>` : `<button class="btn small" data-akein="${a.id}" title="Kunde springt ab: Möbel werden wieder frei, Rechnungsentwurf wird storniert, Auftrag kommt ins Archiv">Kein Abschluss</button>`) : ""}${a.status === "bezahlt" ? `<button class="btn primary" data-afrei="${a.id}">Label freigeben</button>` : ""}${a.status === "freigegeben" ? `<span class="wo">freigegeben von ${esc(a.freigabe_von || "")} ${a.freigabe_am ? when(a.freigabe_am) : ""}</span><button class="btn small" data-azurueck="${a.id}">Zurücknehmen</button>` : ""}${a.moebel_id ? `<a class="btn small" href="planer.html?moebel=${a.moebel_id}">Kalkulation</a>` : ""}${!a.archiviert_am && a.status !== "storniert" && a.bezahlt_am ? `<button class="btn small" data-aarch="${a.id}" title="Bezahlt und erledigt: ins Archiv verschieben">Abschließen</button>` : ""}${a.archiviert_am ? `<button class="btn small" data-areakt="${a.id}">Wieder öffnen</button>` : ""}${ins ? `<a class="btn small" href="${esc(ins.url)}" target="_blank" rel="noopener">Anzeige</a>` : ""}</div>
   </article>`;
+}
+UI.amL = UI.amL || {};
+const insPreis = m => { const e = m && m.inserat && (D.ins || []).find(x => x.id === m.inserat); return e && e.preis != null ? Number(e.preis) : null; };
+const amStart = a => (a.moebel_liste && a.moebel_liste.length) ? a.moebel_liste.map(x => ({ moebel_id: x.moebel_id, name: x.name, preis: x.preis })) : (a.moebel_id ? [{ moebel_id: a.moebel_id, name: a.moebel_name || "Möbel", preis: a.preis }] : []);
+function vAuftragMoebel(a) {
+  const liste = (a.moebel_liste || []), offen = !a.verkauf_id && a.status !== "storniert", ed = UI.amL[a.id];
+  if (ed) {
+    const frei = (D.moebel || []).filter(m => m.status === "aufgebaut" && !ed.some(x => x.moebel_id === m.id));
+    const summe = ed.reduce((s, x) => s + (Number(x.preis) || 0), 0);
+    return `<div class="am-edit"><span class="lbl">Möbel in diesem Auftrag</span>
+      ${ed.map((x, i) => `<div class="am-row"><span class="grow">${esc(x.name)}</span><input type="number" step="0.01" inputmode="decimal" placeholder="Preis €" data-ampreis="${a.id}:${i}" value="${x.preis ?? ""}"><button class="btn small" data-amweg="${a.id}:${i}" title="Aus dem Auftrag nehmen">✕</button></div>`).join("") || `<p class="wo">Noch kein Möbel zugeordnet.</p>`}
+      <div class="am-row"><select class="grow" id="am-neu-${a.id}"><option value="">Möbel hinzufügen …</option>${frei.map(m => `<option value="${m.id}">${esc(m.name)}${insPreis(m) ? " · " + eur(insPreis(m)) : ""}</option>`).join("")}</select><button class="btn small" data-amplus="${a.id}">Hinzufügen</button></div>
+      <p class="wo">Summe ${eur(summe)}. Sind alle Preise eingetragen, wird der Auftragspreis zur Summe und der Rechnungsentwurf bekommt eine Zeile pro Möbel.</p>
+      <div class="actions"><button class="btn primary small" data-amsave="${a.id}">Möbel speichern</button><button class="btn small" data-amabbruch="${a.id}">Abbrechen</button></div></div>`;
+  }
+  const zeilen = liste.length > 1 ? `<ul class="am-liste">${liste.map(x => `<li><b>${esc(x.name)}</b> ${x.preis != null ? eur(x.preis) : `<span class="wo">Preis offen</span>`}${x.wert != null ? ` <span class="wo">Material ${eur(x.wert)}</span>` : ""}</li>`).join("")}</ul>` : "";
+  return (zeilen || offen) ? `<div class="am">${zeilen ? `<span class="lbl">${liste.length} Möbel in diesem Auftrag</span>${zeilen}` : ""}${offen ? `<button class="btn small" data-amedit="${a.id}">${liste.length > 1 ? "Möbel ändern" : "+ weiteres Möbel"}</button>` : ""}</div>` : "";
 }
 const HF = (id, d = "") => esc(UI.hand[id] ?? d);
 const HSEL = (id, opts, d) => opts.map(([v, n]) => `<option value="${v}"${(UI.hand[id] ?? d) === v ? " selected" : ""}>${n}</option>`).join("");
@@ -1230,6 +1248,26 @@ document.addEventListener("click", async e => {
     UI.flash = error ? "Ging nicht: " + error.message : "Ist angekommen. Ich buche den Einkauf und ordne die Zahlung zu.";
     liveReload();
   }
+  else if (b.dataset.akein) { UI.akein = b.dataset.akein; render(); }
+  else if (b.dataset.akeinzurueck) { UI.akein = null; render(); }
+  else if (b.dataset.akeinok) {
+    b.disabled = true;
+    const { data, error } = await sb.rpc("auftrag_kein_abschluss", { p_id: b.dataset.akeinok, p_wer: me() || ROLLE.name || null, p_grund: null });
+    UI.akein = null; UI.flash = error ? "Ging nicht: " + error.message : "Kein Abschluss: Möbel sind wieder frei" + (data && data.rechnung_storniert ? ", Rechnungsentwurf storniert" : "") + ", Auftrag liegt im Archiv."; liveReload();
+  }
+  else if (b.dataset.amedit) { const a = D.auf.find(x => x.id === b.dataset.amedit); if (a) { UI.amL[a.id] = amStart(a); render(); } }
+  else if (b.dataset.amabbruch) { delete UI.amL[b.dataset.amabbruch]; render(); }
+  else if (b.dataset.amweg) { const [id, i] = b.dataset.amweg.split(":"); UI.amL[id].splice(Number(i), 1); render(); }
+  else if (b.dataset.amplus) {
+    const id = b.dataset.amplus, sel = document.getElementById("am-neu-" + id), m = (D.moebel || []).find(x => x.id === (sel && sel.value)); if (!m) return;
+    UI.amL[id].push({ moebel_id: m.id, name: m.name, preis: insPreis(m) ?? null }); render();
+  }
+  else if (b.dataset.amsave) {
+    const id = b.dataset.amsave; b.disabled = true;
+    const { data, error } = await sb.rpc("auftrag_moebel_setzen", { p_auftrag: id, p_liste: UI.amL[id].map(x => ({ moebel_id: x.moebel_id, preis: x.preis === "" || x.preis == null ? null : Number(x.preis) })), p_wer: me() || ROLLE.name || null });
+    if (error) { UI.flash = "Ging nicht: " + error.message; b.disabled = false; render(); return; }
+    delete UI.amL[id]; UI.flash = `Gespeichert: ${data.moebel} Möbel${data.preis != null ? ", zusammen " + eur(data.preis) : ""}${data.rechnung ? ". " + data.rechnung : ""}.`; liveReload();
+  }
   else if (b.dataset.aarch || b.dataset.areakt) {
     b.disabled = true;
     const { error } = b.dataset.aarch ? await sb.rpc("auftrag_archivieren", { p_id: b.dataset.aarch, p_wer: me() || null }) : await sb.rpc("auftrag_reaktivieren", { p_id: b.dataset.areakt });
@@ -1373,6 +1411,7 @@ document.addEventListener("click", async e => {
     delete (UI.skdraft || {})[t.dataset.skomm]; await loadSocial(); render(); }
   else if (t.dataset.sstatus) { if (t.dataset.sstatus === "archiv") { UI.soffen = null; document.body.classList.remove("soc-modal"); } await sb.from("social_idee").update({ status: t.dataset.sstatus, geaendert_am: new Date().toISOString() }).eq("id", t.dataset.sid); await loadSocial(); render(); }
 });
+document.addEventListener("input", e => { if (e.target.dataset && e.target.dataset.ampreis) { const [id, i] = e.target.dataset.ampreis.split(":"); if (UI.amL[id] && UI.amL[id][i]) UI.amL[id][i].preis = e.target.value; } });
 document.addEventListener("input", e => { if (e.target.id && e.target.id.startsWith("sk-")) (UI.skdraft = UI.skdraft || {})[e.target.id.slice(3)] = e.target.value; });
 /* Palette: öffnen, ziehen, antippen */
 document.addEventListener("click", e => {
