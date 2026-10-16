@@ -1,8 +1,42 @@
 {
- "stand": "2026-10-16T08:28:09+00:00",
+ "stand": "2026-10-16T12:27:54+00:00",
  "quelle": "https://www.kleinanzeigen.de/pro/saleo-group",
  "sellerId": "151007875",
  "inserate": [
+  {
+   "id": "3346611564",
+   "titel": "USM Haller Rohr 75cm 750mm Original",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-rohr-75cm-750mm-original/3346611564-93-4904",
+   "bilder": [
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/8d/8ded9ea0-7606-46c1-8ff8-a440244694b3?rule=$_59.AUTO"
+   ],
+   "preis": 14,
+   "preisTyp": "FIXED",
+   "vb": false,
+   "erstellt": "2026-10-16T12:27:54+00:00",
+   "status": "ACTIVE",
+   "art": "teil",
+   "farbe": null,
+   "zustand": "G",
+   "zustandText": "Sehr Gut",
+   "masse": null,
+   "klappen": 0,
+   "auszuege": 0,
+   "innenauszuege": 0,
+   "prospekt": 0,
+   "neupreis": null,
+   "beschreibung": "750er Rohre von USM Haller Original\n\n\n100x Rohre für 750er Systemmaß\n\nAuch weitere Maße sind verfügbar, gerne anfragen!\n\n\nAb 1x Rohr = 14€\n\nAb 20x Rohre = 13€\n\n\nBrutto Preis / Sie erhalten eine Rechnung\n\n\nVersand ist möglich! Ab 5€\n\n\nAuch weitere Maße verfügbar! Gerne anfragen!\n\n\nBei Fragen oder Interesse gerne melden!",
+   "gekuerzt": false,
+   "planer": null,
+   "hinweis": null,
+   "zuerstGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null,
+   "gemerkt": null,
+   "anfragen": null
+  },
   {
    "id": "3542185000",
    "titel": "USM Haller Beistelltisch Couchtisch Nachttisch Dekotisch Gelb",
@@ -66,7 +100,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-16T08:28:09+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [],
    "aufrufe": null,
@@ -153,7 +187,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -281,7 +315,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -310,7 +344,7 @@
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ae/ae8cdd6b-faae-4e42-b4b9-6eac7b6087ad?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/42/4274b2e3-e1fc-4e66-a321-4be38fc91a17?rule=$_57.AUTO"
    ],
-   "preis": 925,
+   "preis": 915,
    "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
    "erstellt": "2026-10-14T18:06:39.000Z",
@@ -405,14 +439,14 @@
     "sides": "BL",
     "top": "BL",
     "buyNew": {},
-    "price": 925,
+    "price": 915,
     "rabatt": 0,
     "ertragsteuer": 30,
     "neupreis": ""
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -509,7 +543,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-14T18:17:46+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [],
    "aufrufe": null,
@@ -524,7 +558,7 @@
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/b8/b8ed79de-8ebd-474b-815f-8832bcd99e0f?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/cd/cd095e72-6339-483b-aa09-299b23056ca9?rule=$_57.AUTO"
    ],
-   "preis": 45,
+   "preis": 39,
    "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
    "erstellt": "2026-10-14T13:08:37.000Z",
@@ -544,7 +578,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -703,7 +737,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-14T18:17:46+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [],
    "aufrufe": null,
@@ -790,7 +824,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -901,7 +935,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -979,7 +1013,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1020,7 +1054,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1113,7 +1147,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1239,7 +1273,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1280,7 +1314,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1322,7 +1356,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1369,7 +1403,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1420,7 +1454,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1503,7 +1537,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1601,7 +1635,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1700,7 +1734,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1797,7 +1831,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1896,7 +1930,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1992,7 +2026,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2037,7 +2071,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2134,7 +2168,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2232,7 +2266,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2260,7 +2294,7 @@
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/f0/f0c7a584-5564-48e3-adb7-455789684b03?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/cd/cdbca327-9b06-4d94-bb6a-37bdbef9fd99?rule=$_57.AUTO"
    ],
-   "preis": 265,
+   "preis": 259,
    "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
    "erstellt": "2026-10-04T13:05:55.000Z",
@@ -2307,14 +2341,14 @@
     "sides": "",
     "top": "BL",
     "buyNew": {},
-    "price": 265,
+    "price": 259,
     "rabatt": 0,
     "ertragsteuer": 30,
     "neupreis": ""
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2413,7 +2447,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2458,7 +2492,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2540,7 +2574,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2639,7 +2673,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2685,7 +2719,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2730,7 +2764,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2847,7 +2881,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2980,7 +3014,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3079,7 +3113,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3126,7 +3160,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3151,7 +3185,7 @@
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/15/152374a3-c059-44fd-a992-e373518ad35d?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/5a/5a4dad2a-ae0b-461a-9ac9-039c2a83927f?rule=$_57.AUTO"
    ],
-   "preis": 575,
+   "preis": 569,
    "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
    "erstellt": "2026-09-26T18:06:51.000Z",
@@ -3214,14 +3248,14 @@
     "sides": "BL",
     "top": "BL",
     "buyNew": {},
-    "price": 575,
+    "price": 569,
     "rabatt": 0,
     "ertragsteuer": 30,
     "neupreis": ""
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3278,7 +3312,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3439,7 +3473,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3555,7 +3589,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3713,7 +3747,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3806,7 +3840,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3883,7 +3917,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3924,7 +3958,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3968,7 +4002,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -4009,7 +4043,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -4031,7 +4065,7 @@
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/a1/a1dcd30d-a363-40d8-8543-45bcc7c72678?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/5d/5d753ec2-49a5-4df6-b345-092500e2784c?rule=$_57.AUTO"
    ],
-   "preis": 45,
+   "preis": 39,
    "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
    "erstellt": "2026-09-16T10:06:45.000Z",
@@ -4051,7 +4085,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -4097,7 +4131,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T08:28:09+00:00",
+   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
