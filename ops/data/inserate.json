@@ -1,55 +1,113 @@
 {
- "stand": "2026-10-16T12:27:54+00:00",
+ "stand": "2026-10-16T16:57:28+00:00",
  "quelle": "https://www.kleinanzeigen.de/pro/saleo-group",
  "sellerId": "151007875",
  "inserate": [
   {
-   "id": "3346611564",
-   "titel": "USM Haller Rohr 75cm 750mm Original",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-rohr-75cm-750mm-original/3346611564-93-4904",
+   "id": "3413029156",
+   "titel": "USM Haller Klappe Front Tür Weiß 50x35",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-klappe-front-tuer-weiss-50x35/3413029156-93-4904",
    "bilder": [
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/8d/8ded9ea0-7606-46c1-8ff8-a440244694b3?rule=$_59.AUTO"
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/a1/a1dcd30d-a363-40d8-8543-45bcc7c72678?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/5d/5d753ec2-49a5-4df6-b345-092500e2784c?rule=$_57.AUTO"
    ],
-   "preis": 14,
-   "preisTyp": "FIXED",
+   "preis": 39,
+   "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
-   "erstellt": "2026-10-16T12:27:54+00:00",
+   "erstellt": "2026-10-16T10:06:14.000Z",
+   "status": "ACTIVE",
+   "art": "teil",
+   "farbe": "24",
+   "zustand": "G",
+   "zustandText": "Gut",
+   "masse": null,
+   "klappen": 1,
+   "auszuege": 0,
+   "innenauszuege": 0,
+   "prospekt": 0,
+   "neupreis": null,
+   "beschreibung": "Klappen von USM Haller in der Farbe Weiß 1x Klappe 50x35 Weiß Alle Anbauteile bzw. Befestigungen können natürlich auch separat erworben werden. Preis pro Stück! Brutto Preis / Sie erhalten...",
+   "gekuerzt": true,
+   "planer": null,
+   "hinweis": null,
+   "zuerstGesehen": "2026-10-10T18:18:37+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [
+    [
+     "2026-10-11",
+     293,
+     6,
+     6
+    ]
+   ],
+   "aufrufe": 293,
+   "gemerkt": 6,
+   "anfragen": 6
+  },
+  {
+   "id": "3413277611",
+   "titel": "USM Haller Teile Ersatzteile Kleinteile Rohre Tablare ORIGINAL",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-teile-ersatzteile-kleinteile-rohre-tablare-original/3413277611-93-4904",
+   "bilder": [
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ff/fffef3db-9e3b-42b2-980d-ad0bc09d8de4?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ae/ae6ec223-5494-40e2-bc29-0900dd125a35?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/b1/b11c831f-6c1a-4c2e-9551-6f5670e86de0?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/76/762ad00a-efc8-4ce0-a886-c39ab1fea166?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/07/07fa6ee1-943b-4261-98ba-38291aaf03e6?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/50/50055b86-9566-48c1-9f9c-9188a95786bb?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/04/04180052-470c-4959-8c6f-a6b2de136bb6?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/49/49f3cc98-67c2-4d52-bdce-c4b2bcc4da93?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/c2/c28f47ce-c60e-4799-b0b3-0310c74ab454?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/42/428d4f55-b19b-4342-8d8e-74c7dbf3027b?rule=$_57.AUTO"
+   ],
+   "preis": null,
+   "preisTyp": "PLEASE_CONTACT",
+   "vb": false,
+   "erstellt": "2026-10-16T09:06:17.000Z",
    "status": "ACTIVE",
    "art": "teil",
    "farbe": null,
    "zustand": "G",
-   "zustandText": "Sehr Gut",
+   "zustandText": "Gut",
    "masse": null,
    "klappen": 0,
    "auszuege": 0,
    "innenauszuege": 0,
    "prospekt": 0,
    "neupreis": null,
-   "beschreibung": "750er Rohre von USM Haller Original\n\n\n100x Rohre für 750er Systemmaß\n\nAuch weitere Maße sind verfügbar, gerne anfragen!\n\n\nAb 1x Rohr = 14€\n\nAb 20x Rohre = 13€\n\n\nBrutto Preis / Sie erhalten eine Rechnung\n\n\nVersand ist möglich! Ab 5€\n\n\nAuch weitere Maße verfügbar! Gerne anfragen!\n\n\nBei Fragen oder Interesse gerne melden!",
-   "gekuerzt": false,
+   "beschreibung": "Tablare / Rohre / Konnektoren / Kleinteile / Zubehör von USM Haller ORIGINAL Preis und Verfügbarkeit auf Anfrage Brutto Preis / Sie erhalten eine Rechnung Versand ist...",
+   "gekuerzt": true,
    "planer": null,
    "hinweis": null,
-   "zuerstGesehen": "2026-10-16T12:27:54+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuerstGesehen": "2026-10-10T18:18:37+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
-   "aufrufeVerlauf": [],
-   "aufrufe": null,
-   "gemerkt": null,
-   "anfragen": null
+   "aufrufeVerlauf": [
+    [
+     "2026-10-11",
+     1593,
+     91,
+     68
+    ]
+   ],
+   "aufrufe": 1593,
+   "gemerkt": 91,
+   "anfragen": 68
   },
   {
    "id": "3542185000",
    "titel": "USM Haller Beistelltisch Couchtisch Nachttisch Dekotisch Gelb",
    "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-beistelltisch-couchtisch-nachttisch-dekotisch-gelb/3542185000-88-4904",
    "bilder": [
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ae/ae8353b1-96b7-4df2-a017-cc193e95bafb?rule=$_59.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/c1/c1e10e52-b4c7-43fd-bb58-31ab7db502e1?rule=$_59.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/da/da84163c-b61d-449a-9732-48e0e8f89b4f?rule=$_59.AUTO"
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ae/ae8353b1-96b7-4df2-a017-cc193e95bafb?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/c1/c1e10e52-b4c7-43fd-bb58-31ab7db502e1?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/da/da84163c-b61d-449a-9732-48e0e8f89b4f?rule=$_57.AUTO"
    ],
    "preis": 249,
-   "preisTyp": "FIXED",
+   "preisTyp": "SPECIFIED_AMOUNT",
    "vb": false,
-   "erstellt": "2026-10-16T08:27:22+00:00",
+   "erstellt": "2026-10-16T07:40:20.000Z",
    "status": "ACTIVE",
    "art": "moebel",
    "farbe": "25",
@@ -100,7 +158,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-16T08:28:09+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [],
    "aufrufe": null,
@@ -110,7 +168,7 @@
   {
    "id": "3357199091",
    "titel": "USM Haller TV Board Lowboard Sideboard Schwarz",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-tv-board-lowboard-sideboard-schwarz/3357199091-88-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-tv-board-lowboard-sideboard-schwarz/3357199091-88-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ba/ba490cf7-df04-440d-8df4-7f290ab0981f?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ee/eeadbf20-8601-4e28-b8d8-9fead6b8cc0d?rule=$_57.AUTO",
@@ -187,7 +245,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -204,7 +262,7 @@
   {
    "id": "3486517950",
    "titel": "USM Haller Highboard Aktenschrank Sideboard Regal Schwarz",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-highboard-aktenschrank-sideboard-regal-schwarz/3486517950-93-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-highboard-aktenschrank-sideboard-regal-schwarz/3486517950-93-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/e2/e2ce4507-c818-4b7e-8595-0bc57509d7cc?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/7c/7cec7779-5b89-479c-91be-5d0e1fd1c846?rule=$_57.AUTO",
@@ -315,7 +373,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -331,8 +389,8 @@
   },
   {
    "id": "3437083363",
-   "titel": "USM Haller Konsole Regal Sideboard Flur Grün",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-konsole-regal-sideboard-flur-gruen/3437083363-88-4900",
+   "titel": "USM Haller Konsole Regal Sideboard Flur Grün SALE",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-konsole-regal-sideboard-flur-gruen-sale/3437083363-88-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/2c/2c273099-bb53-4167-8cf3-d78c6aea9262?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/c0/c0e69cdb-202f-4a37-9cda-ceef434b0580?rule=$_57.AUTO",
@@ -446,7 +504,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -465,6 +523,7 @@
    "titel": "USM Haller Nachttisch Beistelltisch Dekotisch Gelb",
    "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-nachttisch-beistelltisch-dekotisch-gelb/3540872897-81-4904",
    "bilder": [
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ad/ad307509-f52f-4a93-937b-ccb2f9b24f32?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/00/00ff42ec-3fec-4dbd-8417-13a467ccf0db?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/90/907b7d7f-c809-4060-a1b2-365e1c4d692a?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/64/641cbab6-b385-4db4-b784-b63004f01c6f?rule=$_57.AUTO",
@@ -543,7 +602,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-14T18:17:46+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [],
    "aufrufe": null,
@@ -553,7 +612,7 @@
   {
    "id": "3512907743",
    "titel": "USM Haller Prospekt Klappen Tablar Zeitschriften 3x Schwarz",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-prospekt-klappen-tablar-zeitschriften-3x-schwarz/3512907743-93-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-prospekt-klappen-tablar-zeitschriften-3x-schwarz/3512907743-93-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/b8/b8ed79de-8ebd-474b-815f-8832bcd99e0f?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/cd/cd095e72-6339-483b-aa09-299b23056ca9?rule=$_57.AUTO"
@@ -578,7 +637,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -737,7 +796,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-14T18:17:46+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [],
    "aufrufe": null,
@@ -747,7 +806,7 @@
   {
    "id": "3435949838",
    "titel": "USM Haller TV Board Sideboard Lowboard Schwarz",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-tv-board-sideboard-lowboard-schwarz/3435949838-88-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-tv-board-sideboard-lowboard-schwarz/3435949838-88-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/68/68a64675-6bb7-434a-ab75-d829ed643935?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/14/145a6f6d-f07e-4d83-af85-342bd70dbc77?rule=$_57.AUTO",
@@ -824,7 +883,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -841,7 +900,7 @@
   {
    "id": "3435913489",
    "titel": "USM Haller Highboard Konsole Regal Sideboard Schwarz",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-highboard-konsole-regal-sideboard-schwarz/3435913489-93-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-highboard-konsole-regal-sideboard-schwarz/3435913489-93-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ef/efcdedc2-4b4d-4203-9a4b-1da15bb6965f?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/77/77c3c083-cf12-47bd-897c-1e7430a186dc?rule=$_57.AUTO",
@@ -935,7 +994,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -952,7 +1011,7 @@
   {
    "id": "3248684486",
    "titel": "USM Haller Couchtisch Beistelltisch Nachttisch Mittelgrau",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-couchtisch-beistelltisch-nachttisch-mittelgrau/3248684486-88-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-couchtisch-beistelltisch-nachttisch-mittelgrau/3248684486-88-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/56/568263f1-a03b-4cc7-b1f5-fbec6bef4d6d?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/6a/6a5f0205-2287-4155-870b-1c915046d320?rule=$_57.AUTO",
@@ -1013,7 +1072,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1030,7 +1089,7 @@
   {
    "id": "3436415182",
    "titel": "USM Haller Tablare Bleche 75x35 750x350 Schwarz 60+ Verfügbar",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-tablare-bleche-75x35-750x350-schwarz-60-verfuegbar/3436415182-93-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-tablare-bleche-75x35-750x350-schwarz-60-verfuegbar/3436415182-93-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/a1/a17a7d53-c2e3-4af7-b666-f212f9d5ea57?rule=$_57.AUTO"
    ],
@@ -1054,7 +1113,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1071,7 +1130,7 @@
   {
    "id": "3435946492",
    "titel": "USM Haller Regal Konsole Sideboard Schrank Schwarz",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-regal-konsole-sideboard-schrank-schwarz/3435946492-93-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-regal-konsole-sideboard-schrank-schwarz/3435946492-93-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/dc/dc0f2fd7-c5ef-41d7-b3f6-ffa668bf550f?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/cc/cce02d1d-a19f-4822-8588-a234ccd92713?rule=$_57.AUTO",
@@ -1147,7 +1206,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1164,7 +1223,7 @@
   {
    "id": "3435919216",
    "titel": "USM Haller Sideboard Konsole Regal Schrank Schwarz",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-sideboard-konsole-regal-schrank-schwarz/3435919216-93-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-sideboard-konsole-regal-schrank-schwarz/3435919216-93-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/d0/d072dbbe-d649-4b08-b60c-4e328cf3f172?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/e7/e7f570c7-f647-4701-9b4c-ae8c9670c5ca?rule=$_57.AUTO",
@@ -1273,7 +1332,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1290,7 +1349,7 @@
   {
    "id": "3407534310",
    "titel": "USM Haller Befestigung Set Zwischen Tablar Boden Halterung",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-befestigung-set-zwischen-tablar-boden-halterung/3407534310-93-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-befestigung-set-zwischen-tablar-boden-halterung/3407534310-93-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/38/38409d59-3b85-4385-ba26-a135700da33e?rule=$_57.AUTO"
    ],
@@ -1314,7 +1373,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1331,7 +1390,7 @@
   {
    "id": "3407322020",
    "titel": "USM Haller Wanne Auszug 2. Generation 2x Verfügbar Weiß",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-wanne-auszug-2-generation-2x-verfuegbar-weiss/3407322020-93-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-wanne-auszug-2-generation-2x-verfuegbar-weiss/3407322020-93-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/54/54f280a8-b791-4515-bc6f-bc2b0b105b04?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/7f/7f32c0ab-b6ee-47a7-838e-67b382e40718?rule=$_57.AUTO"
@@ -1356,7 +1415,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1377,7 +1436,7 @@
   {
    "id": "3351057564",
    "titel": "USM Haller Glasecken Scharniere Halterung Schwarz",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-glasecken-scharniere-halterung-schwarz/3351057564-93-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-glasecken-scharniere-halterung-schwarz/3351057564-93-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/47/4739db49-a4f4-4a12-9aa6-6e9cbd934059?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ee/eeca44cd-aead-4656-8f3e-0a0052a6f9f6?rule=$_57.AUTO",
@@ -1403,7 +1462,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1424,7 +1483,7 @@
   {
    "id": "3351047112",
    "titel": "USM Haller Schreibtisch Tisch Highboard Schwarz oder Weiß",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-schreibtisch-tisch-highboard-schwarz-oder-weiss/3351047112-93-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-schreibtisch-tisch-highboard-schwarz-oder-weiss/3351047112-93-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ce/ce9d5ca3-67f8-4bda-8b57-f80c91e501f3?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/5d/5d58d157-aa23-478f-9102-234093072c09?rule=$_57.AUTO",
@@ -1454,7 +1513,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1475,7 +1534,7 @@
   {
    "id": "3454891149",
    "titel": "USM Haller Couchtisch Lowboard Tisch Mittelgrau Gebraucht",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-couchtisch-lowboard-tisch-mittelgrau-gebraucht/3454891149-88-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-couchtisch-lowboard-tisch-mittelgrau-gebraucht/3454891149-88-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/16/162f5b3e-3208-42bb-abe8-a949910b9376?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/a3/a37592ad-8461-4768-a25e-7eb6e2886ae9?rule=$_57.AUTO",
@@ -1537,7 +1596,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1558,7 +1617,7 @@
   {
    "id": "3478246237",
    "titel": "USM Haller Nachttisch Beistelltisch Dekotisch Konsole Schwarz",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-nachttisch-beistelltisch-dekotisch-konsole-schwarz/3478246237-81-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-nachttisch-beistelltisch-dekotisch-konsole-schwarz/3478246237-81-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/30/30ccb2a1-dfbb-4c3c-9773-f771b60a9356?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/e5/e5a40be9-8f80-40ce-ac35-48aca63a9ead?rule=$_57.AUTO",
@@ -1635,7 +1694,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1656,7 +1715,7 @@
   {
    "id": "3478242025",
    "titel": "USM Haller TV Board Konsole Lowboard Tisch Klappe Schwarz",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-tv-board-konsole-lowboard-tisch-klappe-schwarz/3478242025-88-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-tv-board-konsole-lowboard-tisch-klappe-schwarz/3478242025-88-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/a1/a11715e3-771c-4df6-8c66-0e86e50397ee?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/2a/2a9c1407-ecc6-4505-90d8-61251e9c0434?rule=$_57.AUTO",
@@ -1734,7 +1793,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1755,7 +1814,7 @@
   {
    "id": "3478242264",
    "titel": "USM Haller Nachttisch Beistelltisch Lowboard Konsole Schwarz",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-nachttisch-beistelltisch-lowboard-konsole-schwarz/3478242264-81-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-nachttisch-beistelltisch-lowboard-konsole-schwarz/3478242264-81-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/3f/3f51923d-f4c8-4fc9-9ccb-2ec5b56933c6?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/d3/d3123638-0fd4-44cb-83ae-5e7edb3204c4?rule=$_57.AUTO",
@@ -1831,7 +1890,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1852,7 +1911,7 @@
   {
    "id": "3478241354",
    "titel": "USM Haller Konsole Sideboard Highboard Kommode Schwarz",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-konsole-sideboard-highboard-kommode-schwarz/3478241354-93-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-konsole-sideboard-highboard-kommode-schwarz/3478241354-93-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/5e/5e664d22-bad9-412d-b4fe-89918e787bc0?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/a0/a0cd1668-61f2-4975-8265-602bb4ef1a19?rule=$_57.AUTO",
@@ -1930,7 +1989,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -1951,7 +2010,7 @@
   {
    "id": "3454095660",
    "titel": "USM Haller Konsole Sideboard Regal Theke Weiß",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-konsole-sideboard-regal-theke-weiss/3454095660-88-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-konsole-sideboard-regal-theke-weiss/3454095660-88-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/70/70a6e7ec-c6cd-4d12-aa28-c0b9474d7b52?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/0b/0b16193a-e91e-4d4d-8ec3-b2e99b4cdb2f?rule=$_57.AUTO"
@@ -2026,7 +2085,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2047,7 +2106,7 @@
   {
    "id": "3402816234",
    "titel": "USM Haller Rohr Stange 350mm 35cm 35er ORIGINAL",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-rohr-stange-350mm-35cm-35er-original/3402816234-93-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-rohr-stange-350mm-35cm-35er-original/3402816234-93-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/c4/c41792f2-1ea4-47f3-ae70-dfc786075bbc?rule=$_57.AUTO"
    ],
@@ -2071,7 +2130,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2092,7 +2151,7 @@
   {
    "id": "3532224508",
    "titel": "USM Haller Nachttisch Beistelltisch Dekotisch Grün",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-nachttisch-beistelltisch-dekotisch-gruen/3532224508-81-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-nachttisch-beistelltisch-dekotisch-gruen/3532224508-81-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/a6/a60ac0e7-40e5-440b-ba9f-733fe8e8bacf?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/50/5049adec-95d8-44b1-b69f-8f11a2300fe7?rule=$_57.AUTO",
@@ -2168,7 +2227,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2266,7 +2325,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2285,9 +2344,43 @@
    "anfragen": 0
   },
   {
+   "id": "3346611564",
+   "titel": "USM Haller Rohr 75cm 750mm Original",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-rohr-75cm-750mm-original/3346611564-93-4904",
+   "bilder": [
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/8d/8ded9ea0-7606-46c1-8ff8-a440244694b3?rule=$_57.AUTO"
+   ],
+   "preis": 14,
+   "preisTyp": "SPECIFIED_AMOUNT",
+   "vb": false,
+   "erstellt": "2026-10-04T16:05:38.000Z",
+   "status": "ACTIVE",
+   "art": "teil",
+   "farbe": null,
+   "zustand": "G",
+   "zustandText": "Sehr Gut",
+   "masse": null,
+   "klappen": 0,
+   "auszuege": 0,
+   "innenauszuege": 0,
+   "prospekt": 0,
+   "neupreis": null,
+   "beschreibung": "750er Rohre von USM Haller Original\n\n\n100x Rohre für 750er Systemmaß\n\nAuch weitere Maße sind verfügbar, gerne anfragen!\n\n\nAb 1x Rohr = 14€\n\nAb 20x Rohre = 13€\n\n\nBrutto Preis / Sie erhalten eine Rechnung\n\n\nVersand ist möglich! Ab 5€\n\n\nAuch weitere Maße verfügbar! Gerne anfragen!\n\n\nBei Fragen oder Interesse gerne melden!",
+   "gekuerzt": false,
+   "planer": null,
+   "hinweis": null,
+   "zuerstGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
+   "aktiv": true,
+   "aufrufeVerlauf": [],
+   "aufrufe": null,
+   "gemerkt": null,
+   "anfragen": null
+  },
+  {
    "id": "3375183052",
    "titel": "USM Haller Couchtisch TV Tisch Lowboard Schwarz",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-couchtisch-tv-tisch-lowboard-schwarz/3375183052-88-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-couchtisch-tv-tisch-lowboard-schwarz/3375183052-88-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ce/ce435883-8606-4407-8e6b-487cce7c329f?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/3c/3c70d306-2388-49ae-9bff-7d34eac5c450?rule=$_57.AUTO",
@@ -2348,7 +2441,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2369,7 +2462,7 @@
   {
    "id": "3452763006",
    "titel": "USM Haller Nachttisch Beistelltisch Dekotisch Stahlblau",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-nachttisch-beistelltisch-dekotisch-stahlblau/3452763006-81-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-nachttisch-beistelltisch-dekotisch-stahlblau/3452763006-81-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/60/60246e76-2204-433c-8b1d-4cb2b60e4e67?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/6f/6fa517a5-ebd6-4c4a-baa5-8d14911e91cd?rule=$_57.AUTO",
@@ -2447,7 +2540,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2468,7 +2561,7 @@
   {
    "id": "3346608789",
    "titel": "USM Haller Schlitz Rohr 50cm 500mm inkl. Konnektoren Original",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-schlitz-rohr-50cm-500mm-inkl-konnektoren-original/3346608789-93-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-schlitz-rohr-50cm-500mm-inkl-konnektoren-original/3346608789-93-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/cf/cf905233-104f-4dde-a621-7948ee102a75?rule=$_57.AUTO"
    ],
@@ -2492,7 +2585,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2513,7 +2606,7 @@
   {
    "id": "3373999795",
    "titel": "USM Haller Couchtisch Beistelltisch Tisch Mittelgrau",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-couchtisch-beistelltisch-tisch-mittelgrau/3373999795-88-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-couchtisch-beistelltisch-tisch-mittelgrau/3373999795-88-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/47/47702377-cdf1-440f-bf73-aa1b05440324?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/fe/fee39ffe-d557-43fa-b0e9-821a2b1f05c7?rule=$_57.AUTO",
@@ -2574,7 +2667,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2595,7 +2688,7 @@
   {
    "id": "3345072346",
    "titel": "USM Haller Konsole Regal Coffee Table Weiß oder Schwarz",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-konsole-regal-coffee-table-weiss-oder-schwarz/3345072346-88-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-konsole-regal-coffee-table-weiss-oder-schwarz/3345072346-88-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/21/211c84c0-12eb-45c4-8ca3-9f09dfd04cbf?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/8e/8ef12902-476a-4559-94d2-bb447d2bda39?rule=$_57.AUTO",
@@ -2673,7 +2766,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2694,7 +2787,7 @@
   {
    "id": "3265585789",
    "titel": "USM Haller Schloss Griff Universal",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-schloss-griff-universal/3265585789-93-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-schloss-griff-universal/3265585789-93-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/24/2429de5b-2987-4a1f-912d-ab83b2698c29?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/2c/2ca3bfb4-f16d-43f6-8558-797bb80eb206?rule=$_57.AUTO"
@@ -2719,7 +2812,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2764,7 +2857,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -2881,7 +2974,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3014,7 +3107,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3035,7 +3128,7 @@
   {
    "id": "3370439730",
    "titel": "USM Haller Konsole Sideboard Coffee Table Regal Schwarz",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-konsole-sideboard-coffee-table-regal-schwarz/3370439730-88-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-konsole-sideboard-coffee-table-regal-schwarz/3370439730-88-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/a6/a68f9449-7d8f-420a-b581-0221b2ea1ad7?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/72/728187df-eefc-4efc-8fa4-85789514a844?rule=$_57.AUTO",
@@ -3113,7 +3206,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3160,7 +3253,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3177,7 +3270,7 @@
   {
    "id": "3446228707",
    "titel": "USM Haller Konsole Highboard Sideboard Schwarz SALE",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-konsole-highboard-sideboard-schwarz-sale/3446228707-88-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-konsole-highboard-sideboard-schwarz-sale/3446228707-88-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/86/86716bbd-8925-433c-82bd-f2e25cc3f529?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/7f/7f297e0d-092c-491e-a48c-17d671af2b1f?rule=$_57.AUTO",
@@ -3255,7 +3348,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3272,25 +3365,23 @@
   {
    "id": "3202317278",
    "titel": "USM Haller Tablar Bleche Konvolut",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-tablar-bleche-konvolut/3202317278-93-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-tablar-bleche-konvolut/3202317278-93-4904",
    "bilder": [
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/2f/2f91cc95-0a2b-44d4-9019-aa2f26df0d3d?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/dd/ddbed461-186c-4f50-97c7-deb54a1c203a?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/27/272854f1-5a9c-4d8e-b194-79682f1f5ccf?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/b2/b27dfe60-4456-41cc-aada-14189eabe1c6?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/bf/bfed66e6-83ca-49d2-ad70-27f4e5ea3dff?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/5a/5a3e6fce-f47a-4699-96ba-6bbf7349b428?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/8b/8bdf15b2-0d50-45cf-824b-37384f3ab92b?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/6c/6c34a1a3-f46d-48c4-a1cc-8a0a82c5bf04?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/4a/4ac2fd75-e5e0-4e39-80d9-077da506d765?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/4f/4f1a2a9a-7403-421b-9b5d-b39d32973ef9?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/8d/8ddf2779-165b-4eee-bfb0-6e8c167c5142?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/61/61298c10-5e07-449b-8458-40914acfd467?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/8c/8c086e2e-1211-49f7-be92-878f84597499?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/69/696395d6-e34c-4b9b-9a61-c3bf92993e4f?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ca/ca00537b-2a96-4a96-9f13-93a2e8053504?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/31/310b41d7-81dd-4eda-b114-bc9def8c06a2?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/01/01e86d9c-e15e-48e3-b210-40d68462e78c?rule=$_57.AUTO"
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/e5/e520885f-21e7-483a-8b63-f7c297f93e6c?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/a1/a1a3387d-271f-4cda-b060-15be8b6c1cbb?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/4d/4dd7b1f4-7c76-4e3a-87ee-7c1737ab2812?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ce/ce16fe4c-5abd-427a-b66a-2b540514567a?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/0b/0bf3279f-5067-46d1-a0fa-9bd78cb2b30b?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/a4/a44dd44a-6052-4b3e-ba49-a13cfb7b3aba?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/f3/f3da36e1-ac45-4302-b945-7a9957be5850?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/f7/f77b00ad-11b4-48ee-b762-14b152ddd895?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/23/23688873-d3c7-4a95-a75b-8edad0a6a94e?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/88/88c8819b-777e-4477-9b10-d61659009a5b?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/75/75b683c9-20cc-4935-b6ae-a769fa26417a?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/8e/8e1999e3-0ebb-40f0-8fb2-63583d9e61e0?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/40/40ef26b0-f92c-40aa-b5b1-eada244f9197?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/87/87a25a50-f5d5-43f4-85c8-b276f5bcd202?rule=$_57.AUTO",
+    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/9b/9b93219e-b4bf-4d6a-a92b-fc365aaf574e?rule=$_57.AUTO"
    ],
    "preis": null,
    "preisTyp": "PLEASE_CONTACT",
@@ -3312,7 +3403,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3329,7 +3420,7 @@
   {
    "id": "3443793606",
    "titel": "USM Haller Sideboard TV Board Regal Konsole Schwarz",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-sideboard-tv-board-regal-konsole-schwarz/3443793606-88-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-sideboard-tv-board-regal-konsole-schwarz/3443793606-88-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ca/cac5460d-dec4-414f-a17e-4139ef1d9884?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/8e/8eea1983-24ad-40f4-a750-35892e233e0c?rule=$_57.AUTO",
@@ -3473,7 +3564,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3494,7 +3585,7 @@
   {
    "id": "3443798775",
    "titel": "USM Haller Highboard Konsole Sideboard Regal Schwarz",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-highboard-konsole-sideboard-regal-schwarz/3443798775-88-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-highboard-konsole-sideboard-regal-schwarz/3443798775-88-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/00/008ebcab-5279-44b1-9795-17a84a2ebf64?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/de/deccbe69-9767-453f-95dd-3bbbbf6d5356?rule=$_57.AUTO",
@@ -3589,7 +3680,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3606,7 +3697,7 @@
   {
    "id": "3443243282",
    "titel": "USM Haller Sideboard Highboard Regal Schrank Schwarz SALE",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-sideboard-highboard-regal-schrank-schwarz-sale/3443243282-93-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-sideboard-highboard-regal-schrank-schwarz-sale/3443243282-93-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/dc/dc936ad2-6a3e-4952-9a49-666383e8aa8b?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/a2/a2d4c251-08a3-4616-ad34-9464a4fbb1de?rule=$_57.AUTO",
@@ -3747,7 +3838,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3840,7 +3931,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3857,7 +3948,7 @@
   {
    "id": "3332261466",
    "titel": "USM Haller Beistelltisch Couchtisch Nachttisch Lichtgrau",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-beistelltisch-couchtisch-nachttisch-lichtgrau/3332261466-88-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-beistelltisch-couchtisch-nachttisch-lichtgrau/3332261466-88-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ea/eaf94ebe-be7c-490f-9bc6-f60ae7f9cfcd?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ef/efe8b440-f1af-4221-b0a0-92e3609cb296?rule=$_57.AUTO",
@@ -3917,7 +4008,7 @@
    },
    "hinweis": "Aufbau aus den Maßen im Inserat abgeleitet, bitte prüfen.",
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3934,7 +4025,7 @@
   {
    "id": "3360116015",
    "titel": "USM Haller Kleinteile Schrauben Klemmen Halbmonde Zubehör",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-kleinteile-schrauben-klemmen-halbmonde-zubehoer/3360116015-93-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-kleinteile-schrauben-klemmen-halbmonde-zubehoer/3360116015-93-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/d5/d5f0da9a-5594-4665-a681-85fdf4eaaeb8?rule=$_57.AUTO"
    ],
@@ -3958,7 +4049,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -3975,7 +4066,7 @@
   {
    "id": "3360147901",
    "titel": "USM Haller Klappen 50x35 500x350 Konvolut",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-klappen-50x35-500x350-konvolut/3360147901-93-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-klappen-50x35-500x350-konvolut/3360147901-93-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/a9/a9bad7be-b69f-462c-bf03-b98b1d3a65ec?rule=$_57.AUTO",
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/78/78afecef-a36a-46d9-a5f5-7281e3b1453f?rule=$_57.AUTO",
@@ -4002,7 +4093,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -4019,7 +4110,7 @@
   {
    "id": "3360120935",
    "titel": "USM Haller Befestigungsset Winkel Klappen Original",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-befestigungsset-winkel-klappen-original/3360120935-93-4900",
+   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-befestigungsset-winkel-klappen-original/3360120935-93-4904",
    "bilder": [
     "https://img.kleinanzeigen.de/api/v1/prod-ads/images/b2/b21d2a97-7468-4cce-b469-aebb2a9b5531?rule=$_57.AUTO"
    ],
@@ -4043,7 +4134,7 @@
    "planer": null,
    "hinweis": null,
    "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
+   "zuletztGesehen": "2026-10-16T16:57:28+00:00",
    "aktiv": true,
    "aufrufeVerlauf": [
     [
@@ -4056,94 +4147,6 @@
    "aufrufe": 472,
    "gemerkt": 13,
    "anfragen": 4
-  },
-  {
-   "id": "3413029156",
-   "titel": "USM Haller Klappe Front Tür Weiß 50x35",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-klappe-front-tuer-weiss-50x35/3413029156-93-4900",
-   "bilder": [
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/a1/a1dcd30d-a363-40d8-8543-45bcc7c72678?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/5d/5d753ec2-49a5-4df6-b345-092500e2784c?rule=$_57.AUTO"
-   ],
-   "preis": 39,
-   "preisTyp": "SPECIFIED_AMOUNT",
-   "vb": false,
-   "erstellt": "2026-09-16T10:06:45.000Z",
-   "status": "ACTIVE",
-   "art": "teil",
-   "farbe": "24",
-   "zustand": "G",
-   "zustandText": "Gut",
-   "masse": null,
-   "klappen": 1,
-   "auszuege": 0,
-   "innenauszuege": 0,
-   "prospekt": 0,
-   "neupreis": null,
-   "beschreibung": "Klappen von USM Haller in der Farbe Weiß 1x Klappe 50x35 Weiß Alle Anbauteile bzw. Befestigungen können natürlich auch separat erworben werden. Preis pro Stück! Brutto Preis / Sie erhalten...",
-   "gekuerzt": true,
-   "planer": null,
-   "hinweis": null,
-   "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
-   "aktiv": true,
-   "aufrufeVerlauf": [
-    [
-     "2026-10-11",
-     293,
-     6,
-     6
-    ]
-   ],
-   "aufrufe": 293,
-   "gemerkt": 6,
-   "anfragen": 6
-  },
-  {
-   "id": "3413277611",
-   "titel": "USM Haller Teile Ersatzteile Kleinteile Rohre Tablare ORIGINAL",
-   "url": "https://www.kleinanzeigen.de/s-anzeige/usm-haller-teile-ersatzteile-kleinteile-rohre-tablare-original/3413277611-93-4900",
-   "bilder": [
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/a7/a745590b-2d80-4390-9cdf-71568e19bc3f?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/72/72490d57-409a-45da-b7e7-87d20eba0e43?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/52/524fb012-39a0-4aec-a5c2-153fc95a4660?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/09/09988c5b-c023-4031-8333-80c836e7932f?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/79/7921a126-cb23-4a88-9db3-5a91c8645bf8?rule=$_57.AUTO",
-    "https://img.kleinanzeigen.de/api/v1/prod-ads/images/ab/abb50fbb-72ac-4274-9189-fba1ac3f392c?rule=$_57.AUTO"
-   ],
-   "preis": null,
-   "preisTyp": "PLEASE_CONTACT",
-   "vb": false,
-   "erstellt": "2026-09-16T09:06:49.000Z",
-   "status": "ACTIVE",
-   "art": "teil",
-   "farbe": null,
-   "zustand": "G",
-   "zustandText": "Gut",
-   "masse": null,
-   "klappen": 0,
-   "auszuege": 0,
-   "innenauszuege": 0,
-   "prospekt": 0,
-   "neupreis": null,
-   "beschreibung": "Tablare / Rohre / Konnektoren / Kleinteile / Zubehör von USM Haller ORIGINAL Preis und Verfügbarkeit auf Anfrage Brutto Preis / Sie erhalten eine Rechnung Versand ist...",
-   "gekuerzt": true,
-   "planer": null,
-   "hinweis": null,
-   "zuerstGesehen": "2026-10-10T18:18:37+00:00",
-   "zuletztGesehen": "2026-10-16T12:27:54+00:00",
-   "aktiv": true,
-   "aufrufeVerlauf": [
-    [
-     "2026-10-11",
-     1593,
-     91,
-     68
-    ]
-   ],
-   "aufrufe": 1593,
-   "gemerkt": 91,
-   "anfragen": 68
   }
  ]
 }
