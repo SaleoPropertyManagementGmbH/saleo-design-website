@@ -89,7 +89,7 @@ Deno.serve(async (req) => {
   const ordner: string[] = [];
   const nurListe = new URL(req.url).searchParams.get("ordner") === "1";
   const liste = await client.list();
-  // Sortieren: laufende Chats in einen eigenen Ordner, erledigte (Verkauf abgeschlossen oder kein Deal) in den Papierkorb
+  // Aufräumen: jede Kleinanzeigen-Mail, die in der App angekommen ist (Tabelle ka_mail), wandert in den Papierkorb (Wunsch Samuel 16.10.2026)
   const zielOffen = "02_VERKAUF/Kleinanzeigen/Offene Chats";
   if (!liste.some((b) => b.path === zielOffen)) { try { await client.mailboxCreate(zielOffen); } catch (_) { /* existiert schon */ } }
   const papierkorb = liste.find((b) => b.specialUse === "\\Trash")?.path || "Papierkorb";
@@ -111,10 +111,9 @@ Deno.serve(async (req) => {
         const msg = await client.fetchOne(String(uid), { source: true, envelope: true }, { uid: true });
         if (!msg?.source) continue;
         if (!/@([a-z0-9-]+\.)*kleinanzeigen\.de$/i.test(msg.envelope?.from?.[0]?.address || "")) continue;
-        const istChat = /Nutzer-Anfrage|Nachricht|Anfrage zu/i.test(msg.envelope?.subject || "");
         const mid = msg.envelope?.messageId || `uid-${box.path}-${uid}`;
         const da = await sb.from("ka_mail").select("message_id, erledigt").eq("message_id", mid).maybeSingle();
-        if (da.data) { if (istChat) merken(da.data.erledigt ? papierkorb : zielOffen, uid); continue; }
+        if (da.data) { merken(papierkorb, uid); continue; }
         const p = await simpleParser(msg.source);
         const betreff = p.subject || "";
         const von = p.from?.text || "";
@@ -123,7 +122,7 @@ Deno.serve(async (req) => {
         const a = auswerten(betreff, text, von);
         const { error } = await sb.from("ka_mail").insert({ message_id: mid, datum: (p.date || new Date()).toISOString(), absender: von,
           antwort_an: p.replyTo?.text || null, betreff, text, ...a });
-        if (!error) { neu.push(betreff); if (istChat) merken(zielOffen, uid); }
+        if (!error) { neu.push(betreff); merken(papierkorb, uid); }
       }
       for (const [ziel, liste2] of Object.entries(umzug)) {
         try { await client.messageMove(liste2.join(","), ziel, { uid: true }); verschoben.push(`${liste2.length} nach ${ziel}`); } catch (e) { verschoben.push(`Fehler ${ziel}: ${String(e)}`); }
